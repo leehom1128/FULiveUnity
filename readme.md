@@ -94,6 +94,10 @@ FULiveDemoUnity是集成了Faceunity面部跟踪，智能美颜，贴纸道具�
   > license是证书文件，缺少该文件会导致初始化失败
   >
   > v3.bytes是SDK的数据文件，缺少该文件会导致初始化失败
+  >
+  > anim_model.bytes是优化人脸跟踪表情数据的文件
+  >
+  > ardata_ex.bytes是提供高精度AR功能的文件
 
 
 
@@ -160,26 +164,28 @@ fu_SetRuningMode可以设置本插件运行模式，针对需求设置运行模�
 
 ***UNITY_EDITOR或UNITY_STANDALONE的环境下：*** 
 
-在RenderToModel/RenderToTexture/RenderSimple中，会在初始化时对应相机，在自适应后，在Update中使用GetPixels32获取原生图像材质，并将材质指针传入SetImage。
+在RenderToModel/RenderSimple中，会在初始化对应相机并调整UI自适应后，在Update中使用GetPixels32获取原生图像buffer，并将其指针传入SetImage。
 
 ```C#
-public static extern int SetImage(IntPtr imgbuf, bool isbgra, int w, int h);
+public static extern int SetImage(IntPtr imgbuf,int flags, bool isbgra, int w, int h);
 ```
 
-`imgbuf` 材质指针
+`imgbuf` buffer数组指针
 
-`isbgra` 材质数据顺序是否为bgra
+`flags` 传入选项标志位，如XY轴反转等，具体请参考源代码
 
-`w` 材质宽度
+`isbgra` buffer数据顺序是否为bgra
 
-`h` 材质高度
+`w` 图像宽度
+
+`h` 图像高度
 
 除了SetImage，输入函数还有：
 
 ```c#
-public static extern int SetDaulInput(System.IntPtr nv21buf, int texid, int flags, int w, int h);
-public static extern int SetNV21Input(System.IntPtr nv21buf, int flags, int w, int h);
-public static extern int SetImageTexId(int texid, int w, int h);
+public static extern int SetDaulInput(IntPtr nv21buf, int texid, int flags, int w, int h);
+public static extern int SetNV21Input(IntPtr nv21buf, int flags, int w, int h);
+public static extern int SetImageTexId(int texid, int flags, int w, int h);
 ```
 
 **SetNV21Input仅支持ANDROID。** 

@@ -25,7 +25,7 @@ public class EyeController : MonoBehaviour {
     }
 
 	void Update() {
-        if(FaceunityWorker.instance==null||FaceunityWorker.instance.m_plugin_inited==0){return;}
+        if(FaceunityWorker.instance==null||FaceunityWorker.instance.m_plugin_inited==false){return;}
         if (faceid >= FaceunityWorker.instance.m_need_blendshape_update)
         {
             return;
