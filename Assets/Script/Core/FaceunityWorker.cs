@@ -2,7 +2,7 @@
 using System;
 using System.Collections;
 using System.Runtime.InteropServices;
-
+using System.Text;
 
 public class FaceunityWorker : MonoBehaviour
 {
@@ -139,6 +139,29 @@ public class FaceunityWorker : MonoBehaviour
 #endif
     public static extern int fu_setItemIds(IntPtr idxbuf, int idxbuf_sz, IntPtr mask);//mask can be null
 
+    /**
+\brief Set the default rotationMode.
+\param rotationMode is the default rotationMode to be set to, one of 0..3 should work.
+*/
+#if UNITY_IOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+#else
+    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
+#endif
+    public static extern void fu_SetDefaultRotationMode(int i);
+
+    /**
+\brief Get certificate permission code for modules
+\param i - get i-th code, currently available for 0 and 1
+\return The permission code
+*/
+#if UNITY_IOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+#else
+    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
+#endif
+    public static extern int fu_GetModuleCode(int i);
+
 #if UNITY_IOS && !UNITY_EDITOR
     [DllImport("__Internal")]
 #else
@@ -216,7 +239,7 @@ public class FaceunityWorker : MonoBehaviour
 #else
     [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
 #endif
-    public static extern int fu_ItemGetParams(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, IntPtr buf, int buf_sz);
+    public static extern int fu_ItemGetParams(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, [MarshalAs(UnmanagedType.LPStr)]byte[] buf, int buf_sz);
 
     /**
 \brief Set the default orientation for face detection. The correct orientation would make the initial detection much faster.
@@ -255,6 +278,16 @@ public class FaceunityWorker : MonoBehaviour
     [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
 #endif
     public static extern void SetUseNativeCameraData(int enable);
+
+    /**
+* if true,Pause the render pipeline
+*/
+#if UNITY_IOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+#else
+    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
+#endif
+    public static extern void SetPauseRender(bool ifpause);
 
     /**
 \brief Get the face tracking status
@@ -302,7 +335,54 @@ public class FaceunityWorker : MonoBehaviour
 #else
     [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
 #endif
-    public static extern IntPtr fu_GetVersion(); // Marshal.PtrToStringAnsi(ipVersion);
+    public static extern IntPtr fu_GetVersion(); // Marshal.PtrToStringAnsi(fu_GetVersion());
+
+    /**
+\brief Get system error, which causes system shutting down
+\return System error code represents one or more errors	
+	Error code can be checked against following bitmasks, non-zero result means certain error
+	This interface is not a callback, needs to be called on every frame and check result, no cost
+	Inside authentication error (NAMA_ERROR_BITMASK_AUTHENTICATION), meanings for each error code are listed below:
+	1 failed to seed the RNG
+	2 failed to parse the CA cert
+	3 failed to connect to the server
+	4 failed to configure TLS
+	5 failed to parse the client cert
+	6 failed to parse the client key
+	7 failed to setup TLS
+	8 failed to setup the server hostname
+	9 TLS handshake failed
+	10 TLS verification failed
+	11 failed to send the request
+	12 failed to read the response
+	13 bad authentication response
+	14 incomplete authentication palette info
+	15 not inited yet
+	16 failed to create a thread
+	17 authentication package rejected
+	18 void authentication data
+	19 bad authentication package
+	20 certificate expired
+	21 invalid certificate
+*/
+#if UNITY_IOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+#else
+    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
+#endif
+    public static extern int fu_GetSystemError();
+
+    /**
+\brief Interpret system error code
+\param code - System error code returned by fuGetSystemError()
+\return One error message from the code
+*/
+#if UNITY_IOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+#else
+    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
+#endif
+    public static extern IntPtr fu_GetSystemErrorString(int code); // Marshal.PtrToStringAnsi();
 
     /**
 \brief Call this function when the GLES context has been lost and recreated.
@@ -502,6 +582,7 @@ public class FaceunityWorker : MonoBehaviour
     public bool m_plugin_inited = false;
 
     public int MAXFACE = 1;
+    public bool EnableExpressionLoop = true;
 
     [HideInInspector]
     public int m_need_blendshape_update = 0;
@@ -631,7 +712,12 @@ public class FaceunityWorker : MonoBehaviour
 
                 if (OnInitOK != null)
                     OnInitOK(this, null);//触发初始化完成事件
-                InitCFaceUnityCoefficientSet();
+
+                if(EnableExpressionLoop)
+                    InitCFaceUnityCoefficientSet();
+
+                //Debug.Log("错误：" + fu_GetSystemError() +","+ Marshal.PtrToStringAnsi(fu_GetSystemErrorString(fu_GetSystemError())));
+
                 yield return StartCoroutine("CallPluginAtEndOfFrames");
             }
         }
@@ -644,28 +730,30 @@ public class FaceunityWorker : MonoBehaviour
             ////////////////////////////////
             fu_SetMaxFaces(MAXFACE);
             GL.IssuePluginEvent(fu_GetRenderEventFunc(), 1);// cal for sdk render
-            
-            //only update other stuff when there is new data
-            int num = fu_IsTracking();
-            m_need_blendshape_update = num< MAXFACE? num: MAXFACE;
-            for (int i=0;i< m_need_blendshape_update; i++)
+            if (EnableExpressionLoop)
             {
-                m_translation[i].Update();
-                m_rotation[i].Update();
-                m_rotation_mode[i].Update();
-                m_expression[i].Update();
-                //m_landmarks[i].Update();
+                //only update other stuff when there is new data
+                int num = fu_IsTracking();
+                m_need_blendshape_update = num < MAXFACE ? num : MAXFACE;
+                for (int i = 0; i < m_need_blendshape_update; i++)
+                {
+                    m_translation[i].Update();
+                    m_rotation[i].Update();
+                    m_rotation_mode[i].Update();
+                    m_expression[i].Update();
+                    //m_landmarks[i].Update();
 
-                m_pupil_pos[i].Update();
-                m_focallength[i].Update();
-                //Debug.Log("m_focallength["+ i + "]=" + m_focallength[i].m_data[0]);
-                ////////////////////////
-                //post-process the coefficients
-                m_expression[i].m_data[6] = m_expression[i].m_data[7] = m_pupil_pos[i].m_data[0];
-                m_expression[i].m_data[10] = m_expression[i].m_data[11] = -m_pupil_pos[i].m_data[0];
+                    m_pupil_pos[i].Update();
+                    m_focallength[i].Update();
+                    //Debug.Log("m_focallength["+ i + "]=" + m_focallength[i].m_data[0]);
+                    ////////////////////////
+                    //post-process the coefficients
+                    m_expression[i].m_data[6] = m_expression[i].m_data[7] = m_pupil_pos[i].m_data[0];
+                    m_expression[i].m_data[10] = m_expression[i].m_data[11] = -m_pupil_pos[i].m_data[0];
 
-                m_expression[i].m_data[12] = m_expression[i].m_data[13] = m_pupil_pos[i].m_data[1];
-                m_expression[i].m_data[4] = m_expression[i].m_data[5] = -m_pupil_pos[i].m_data[1];
+                    m_expression[i].m_data[12] = m_expression[i].m_data[13] = m_pupil_pos[i].m_data[1];
+                    m_expression[i].m_data[4] = m_expression[i].m_data[5] = -m_pupil_pos[i].m_data[1];
+                }
             }
         }
     }

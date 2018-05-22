@@ -14,7 +14,7 @@ public class StdController : MonoBehaviour
     //unity blendshape
     int blendShapeCount;
     SkinnedMeshRenderer skinnedMeshRenderer;
-    int disableCountdown = 0;
+    bool pauseUpdate = false;
 
     public int faceid = 0;
 
@@ -39,16 +39,18 @@ public class StdController : MonoBehaviour
     void Start()
     {
         //skinnedMeshRenderer.enabled = false;
+        rtm.onSwitchCamera += OnSwitchCamera;
+    }
+
+    void OnSwitchCamera(bool isSwitching)
+    {
+        pauseUpdate = isSwitching;
     }
 
     void Update()
     {
-        if (disableCountdown > 0)
-        {
-            disableCountdown--;
+        if (pauseUpdate)
             return;
-        }
-
         if (FaceunityWorker.instance == null || FaceunityWorker.instance.m_plugin_inited == false) { return; }
         if (faceid >= FaceunityWorker.instance.m_need_blendshape_update)
         {
@@ -197,7 +199,6 @@ public class StdController : MonoBehaviour
 
     public void ResetTransform()
     {
-        disableCountdown = 6;
         transform.localPosition = m_position0;
         transform.localRotation = m_rotation0;
         Debug.Log("ResetTransform:localRotation=" + transform.localEulerAngles.x + "," + transform.localEulerAngles.y + "," + transform.localEulerAngles.z);

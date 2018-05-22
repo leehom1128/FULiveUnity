@@ -39,7 +39,6 @@ public class UIManagerForDataOut_Multiple : MonoBehaviour {
 
     void Update()
     {
-        //TODO:添加UI响应返回键的功能
         if (Input.GetKeyDown(KeyCode.Escape))
             Application.Quit();
 

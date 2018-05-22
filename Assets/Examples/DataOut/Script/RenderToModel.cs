@@ -35,6 +35,7 @@ public class RenderToModel : MonoBehaviour
 #endif
 
     //渲染显示UI
+    public Texture EmptyTex;
     public RawImage RawImg_BackGroud;
     private Quaternion baseRotation;
     public Camera camera3d;
@@ -43,25 +44,33 @@ public class RenderToModel : MonoBehaviour
     public bool ifTrackPos = false;
 
     public Text txt;
+    public delegate void OnSwitchCamera(bool isSwitching);
+    public event OnSwitchCamera onSwitchCamera;
 
     public void OnStart()
     {
+#if !(UNITY_EDITOR || UNITY_STANDALONE)
         if (FaceunityWorker.currentMode == FaceunityWorker.FURuningMode.FU_Mode_RenderItems)
         {
-#if !(UNITY_EDITOR || UNITY_STANDALONE)
-        // Set the preview RawImage texture once the preview starts
-        if (RawImg_BackGroud != null)
-        {
-            RawImg_BackGroud.texture = NatCam.Preview;
-            RawImg_BackGroud.gameObject.SetActive(true);
+            // Set the preview RawImage texture once the preview starts
+            if (RawImg_BackGroud != null)
+            {
+                RawImg_BackGroud.texture = NatCam.Preview;
+                RawImg_BackGroud.gameObject.SetActive(true);
+            }
+            else Debug.Log("Preview RawImage has not been set");
         }
-        else Debug.Log("Preview RawImage has not been set");
+#else
+        m_tex_created = false;
 #endif
-        }
         Debug.Log("Preview started with dimensions: " + NatCam.Camera.PreviewResolution.x+","+ NatCam.Camera.PreviewResolution.y);
         if(RawImg_BackGroud.texture!=null)
             Debug.Log("RawImg_BackGroud.TexturePtr= " + RawImg_BackGroud.texture.GetNativeTexturePtr());
+
         SelfAdjusSize();
+        FaceunityWorker.SetPauseRender(false);
+        if(onSwitchCamera!=null)
+            onSwitchCamera(false);
     }
 
 
@@ -70,9 +79,6 @@ public class RenderToModel : MonoBehaviour
         yield return Util._endOfFrame;
         yield return Util._endOfFrame;
         yield return Util._endOfFrame;
-#if UNITY_EDITOR || UNITY_STANDALONE
-        m_tex_created = false;
-#endif
         OnStart();
     }
 
@@ -89,9 +95,17 @@ public class RenderToModel : MonoBehaviour
 
     IEnumerator SetFOV()
     {
+        if(FaceunityWorker.fu_IsTracking() <= 0)
+        {
+            ResetFOV();
+        }
         while (true)
         {
-            if (ifTrackPos&&FaceunityWorker.instance.m_focallength != null)
+			if (!ifTrackPos) {
+				ResetFOV();
+				break;
+			}
+            if (FaceunityWorker.instance.m_focallength != null && FaceunityWorker.fu_IsTracking() > 0)
             {
                 var R = FaceunityWorker.instance.m_focallength[0].m_data;
                 if (R != null && R[0]>0)
@@ -121,13 +135,14 @@ public class RenderToModel : MonoBehaviour
                         //txt.text = "m_focallength=" + R[0] + "\n fieldOfView=" + camera3d.fieldOfView+ "\n VerticalBGLength="+ l;
                     }
                     //txt.text = "m_focallength=" + R[0] + "\n fieldOfView=" + camera3d.fieldOfView;
-                    //Debug.Log("dde_focallength=" + dde_focallength+ " R[0]=" + R[0]);
-                    //break;
+                    Debug.Log("dde_focallength=" + dde_focallength+ " R[0]=" + R[0]);
+                    break;
                 }
             }
             //Debug.Log("SetFOV Running!!!");
             yield return Util._endOfFrame;
         }
+        fovcor = null;
     }
 
     public void ResetFOV()
@@ -135,17 +150,32 @@ public class RenderToModel : MonoBehaviour
         dde_focallength = 0;
         camera3d.fieldOfView = 48.725f;
         //txt.text = "ResetFOV";
+        Debug.Log("ReSetFOV");
     }
 
+    IEnumerator delayClearPlugin()
+    {
+        FaceunityWorker.SetImageTexId((int)EmptyTex.GetNativeTexturePtr(), 0, EmptyTex.width, EmptyTex.height);
+        yield return Util._fixedupdate;
+#if !UNITY_IOS
+        yield return Util._fixedupdate;
+        FaceunityWorker.SetPauseRender(true);
+#endif
+    }
 
     public void SwitchCamera(int newCamera = -1)
     {
+		StartCoroutine(delayClearPlugin());
+
+        if (onSwitchCamera != null)
+            onSwitchCamera(true);
+
         if (fovcor != null)
         {
             StopCoroutine(fovcor);
-            dde_focallength = 0;
             fovcor = null;
         }
+        
         // Select the new camera ID // If no argument is given, switch to the next camera
         newCamera = newCamera < 0 ? (NatCam.Camera + 1) % DeviceCamera.Cameras.Count : newCamera;
         // Set the new active camera
@@ -195,41 +225,46 @@ public class RenderToModel : MonoBehaviour
     }
 
     // 初始化摄像头 
-    public void InitCamera()
+    public IEnumerator InitCamera()
     {
-        // Set verbose mode
-        NatCam.Verbose = verbose;
-        // Set the active camera
-        NatCam.Camera = facing == Facing.Front ? DeviceCamera.FrontCamera : DeviceCamera.RearCamera;
-        if (!NatCam.Camera)
+        yield return Application.RequestUserAuthorization(UserAuthorization.WebCam);
+        if (Application.HasUserAuthorization(UserAuthorization.WebCam))
         {
-            NatCam.Camera = DeviceCamera.RearCamera;
-        }
-        // Null checking
-        if (!NatCam.Camera)
-        {
-            // Log
-            Debug.Log("No camera detected!");
-            return;
-        }
-        // Set the camera's preview resolution
-        NatCam.Camera.SetPreviewResolution(previewResolution);
-        // Set the camera's photo resolution
-        NatCam.Camera.SetPhotoResolution(photoResolution);
-        // Set the camera's framerate
-        NatCam.Camera.SetFramerate(framerate);
-        // Play
-        NatCam.Play();
-        // Register callback for when the preview starts //Note that this is a MUST when assigning the preview texture to anything
-        NatCam.OnStart += OnStart;
+            // Set verbose mode
+            NatCam.Verbose = verbose;
+            // Set the active camera
+            NatCam.Camera = facing == Facing.Front ? DeviceCamera.FrontCamera : DeviceCamera.RearCamera;
+            if (!NatCam.Camera)
+            {
+                NatCam.Camera = DeviceCamera.RearCamera;
+            }
+            // Null checking
+            if (!NatCam.Camera)
+            {
+                // Log
+                Debug.LogError("No camera detected!");
+                StopCoroutine("InitCamera");
+                yield return null;
+            }
+            // Set the camera's preview resolution
+            NatCam.Camera.SetPreviewResolution(previewResolution);
+            // Set the camera's photo resolution
+            NatCam.Camera.SetPhotoResolution(photoResolution);
+            // Set the camera's framerate
+            NatCam.Camera.SetFramerate(framerate);
+            // Play
+            NatCam.Play();
+            // Register callback for when the preview starts //Note that this is a MUST when assigning the preview texture to anything
+            NatCam.OnStart += OnStart;
 
 #if UNITY_EDITOR || UNITY_STANDALONE
-        if (img_handle.IsAllocated)
-            img_handle.Free();
-        webtexdata = new Color32[(int)NatCam.Camera.PreviewResolution.x * (int)NatCam.Camera.PreviewResolution.y];
-        img_handle = GCHandle.Alloc(webtexdata, GCHandleType.Pinned);
-        p_img_ptr = img_handle.AddrOfPinnedObject();
+            if (img_handle.IsAllocated)
+                img_handle.Free();
+            webtexdata = new Color32[(int)NatCam.Camera.PreviewResolution.x * (int)NatCam.Camera.PreviewResolution.y];
+            img_handle = GCHandle.Alloc(webtexdata, GCHandleType.Pinned);
+            p_img_ptr = img_handle.AddrOfPinnedObject();
 #endif
+        }
     }
 
     void Awake()
@@ -240,7 +275,7 @@ public class RenderToModel : MonoBehaviour
     void InitApplication(object source, EventArgs e)
     {
         baseRotation = RawImg_BackGroud.rectTransform.rotation;
-        InitCamera();
+        StartCoroutine("InitCamera");
     }
 
     void Update()

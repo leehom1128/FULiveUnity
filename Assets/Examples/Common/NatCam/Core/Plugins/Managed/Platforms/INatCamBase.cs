@@ -22,6 +22,8 @@ namespace NatCamU.Core.Platforms {
         protected Texture2D preview;
         protected IDispatch dispatch;
         protected PhotoCallback photoCallback;
+		protected static int twidth;
+		protected static int theight;
         private static INatCamBase instance {get {return NatCam.Implementation as INatCamBase;}}
         #endregion
 
@@ -31,11 +33,19 @@ namespace NatCamU.Core.Platforms {
         [MonoPInvokeCallback(typeof(Native.StartCallback))]
         protected static void OnStart (IntPtr texPtr, int width, int height) {
             instance.dispatch.Dispatch(() => {
-                #if NATCAM_PROFESSIONAL
+#if NATCAM_PROFESSIONAL
                 if (instance.preview == null) instance.InitializePreviewBuffer();
-                #endif
-                instance.preview = instance.preview ?? Texture2D.CreateExternalTexture(width, height, TextureFormat.RGBA32, false, false, texPtr);
-                if (instance.preview.width != width || instance.preview.height != height) instance.preview.Resize(width, height, instance.preview.format, false);
+#endif
+                if ((int)texPtr > 0)
+                {
+                    instance.preview = instance.preview ?? Texture2D.CreateExternalTexture(width, height, TextureFormat.RGBA32, false, false, texPtr);
+                    if (instance.preview.width != width || instance.preview.height != height) instance.preview.Resize(width, height, instance.preview.format, false);
+                }
+                else
+                {
+					twidth=width;
+					theight=height;
+                }
                 if (instance.onStart != null) instance.onStart();
             });
         }
@@ -43,7 +53,16 @@ namespace NatCamU.Core.Platforms {
         [MonoPInvokeCallback(typeof(Native.PreviewCallback))]
         protected static void OnFrame (IntPtr texPtr) {
             instance.dispatch.Dispatch(() => {
-                if (!instance.preview) return;
+                if (!instance.preview) 
+				{
+					if ((int)texPtr > 0 && twidth>0 && theight>0)
+					{
+						instance.preview = instance.preview ?? Texture2D.CreateExternalTexture(twidth, theight, TextureFormat.RGBA32, false, false, texPtr);
+						if (instance.preview.width != twidth || instance.preview.height != theight) instance.preview.Resize(twidth, theight, instance.preview.format, false);
+					}
+					if (instance.onStart != null) instance.onStart();
+					return;
+				}
                 instance.preview.UpdateExternalTexture(texPtr);
                 if (instance.onFrame != null) instance.onFrame();
             });

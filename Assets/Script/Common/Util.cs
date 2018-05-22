@@ -44,4 +44,5 @@ public class Util
     }
 
     public static WaitForEndOfFrame _endOfFrame = new WaitForEndOfFrame();
+    public static WaitForFixedUpdate _fixedupdate = new WaitForFixedUpdate();
 }

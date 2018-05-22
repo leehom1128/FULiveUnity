@@ -112,14 +112,15 @@ public class RenderSimple : MonoBehaviour {
                 //    argb[i] = 0;
                 //    argb[i] |= (webtexdata[i].a << 24);
                 //    argb[i] |= (webtexdata[i].r << 16);
-                //  UpdateData  argb[i] |= (webtexdata[i].g << 8);
+                //    argb[i] |= (webtexdata[i].g << 8);
                 //    argb[i] |= (webtexdata[i].b);
 
                 //}
                 //encodeYUV420SP(img_nv21, argb, wtex.width, wtex.height);
-                ////UpdateData(p_img_nv21_ptr, 0, wtex.width, wtex.height);
+                //UpdateData(p_img_nv21_ptr, 0, wtex.width, wtex.height);
                 //UpdateData(p_img_nv21_ptr, (int)wtex.GetNativeTexturePtr(), wtex.width, wtex.height);
                 UpdateData(p_img_ptr, 0, wtex.width, wtex.height);
+                //UpdateData(IntPtr.Zero, (int)wtex.GetNativeTexturePtr(), wtex.width, wtex.height);
             }
         }
     }
@@ -153,9 +154,10 @@ public class RenderSimple : MonoBehaviour {
     //输入数据接口案例
     public void UpdateData(IntPtr ptr,int texid,int w,int h)
     {
-        FaceunityWorker.SetImage(ptr,0, false, w, h);   //传输数据方法之一
         //FaceunityWorker.SetNV21Input(ptr, 0, w, h);
         //FaceunityWorker.SetDaulInput(ptr, texid, 0, w, h);
+        FaceunityWorker.SetImage(ptr,0, false, w, h);   //传输数据方法之一
+        //FaceunityWorker.SetImageTexId(texid, 0, w, h);
         if (m_tex_created == false)
         {
             m_fu_texid = FaceunityWorker.fu_GetNamaTextureId();

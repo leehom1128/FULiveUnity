@@ -74,6 +74,19 @@ FULiveDemoUnity是集成了Faceunity面部跟踪，智能美颜，贴纸道具�
   >
   > ​		**|----UIManagerSimple.cs:** 简单场景的UI控制器，注册了切换相机按钮，管理人脸检测标志。
   >
+  > **----TexOut:** FacePlugin的纹理输出模式，使用Faceunity Nama SDK进行内容渲染，使用了NatCam以提高效率。直接输出本插件渲染好的数据，可以使用附带的二进制道具文件。
+  >
+  > ​	**|----Resources:** 所有道具的二进制文件和对应的UI文件。
+  >
+  > ​	**|----Scene:** demoTexOut是本例的场景。
+  >
+  > ​	**|----Script:** Demo的相关脚本。
+  >
+  > ​		**|----RenderToTexture.cs:** 负责对接相机插件，输入输出图像数据，加载卸载道具。
+  >
+  > ​		**|----UIManagerForTexOut.cs:** 材质输出模式的UI控制器，和RenderToTexture.cs配合以展现所有道具的功能。
+  >
+  > ​		**|----ItemConfig.cs:** 道具的二进制文件和UI文件的路径等信息的配置文件。
 
 * ***Plugins*** 
 
@@ -138,12 +151,6 @@ public static extern int fu_Setup(IntPtr databuf, IntPtr licbuf, int licbuf_sz);
 
 ### 三、 输入图像数据
 
-```C#
-public static extern void SetUseNativeCameraData(int enable);
-```
-
-SetUseNativeCameraData可以把插件设置成本地输入图像数据模式。
-
 ```c#
 public static extern int fu_SetRuningMode(int runningMode);
 
@@ -157,35 +164,33 @@ public enum FURuningMode
     };
 ```
 
-fu_SetRuningMode可以设置本插件运行模式，针对需求设置运行模式可以大大提高效率。FU_Mode_RenderItems为默认运行模式，可以在FaceunityWorker.cs中自行更改，也可在运行中更改。
+fu_SetRuningMode可以设置本插件运行模式，针对需求设置运行模式可以大大提高效率。FU_Mode_RenderItems为默认运行模式，可以在FaceunityWorker.cs中自行更改，也可在运行时更改。
 
-初始化完成会开启GL循环 [参考这里](https://docs.unity3d.com/Manual/NativePluginInterface.html) ，并更新人脸跟踪数据。
+初始化完成会开启GL循环 [参考这里](https://docs.unity3d.com/Manual/NativePluginInterface.html) ，并根据标志位（EnableExpressionLoop）决定是否更新人脸跟踪数据。
 
 
 ***UNITY_EDITOR或UNITY_STANDALONE的环境下：*** 
 
-在RenderToModel/RenderSimple中，会在初始化对应相机并调整UI自适应后，在Update中使用GetPixels32获取原生图像buffer，并将其指针传入SetImage。
+在RenderToModel/RenderToTexture/RenderSimple中，会在初始化时对应相机，在自适应后，在Update中使用GetPixels32获取原生图像材质，并将材质指针传入SetImage。
 
 ```C#
-public static extern int SetImage(IntPtr imgbuf,int flags, bool isbgra, int w, int h);
+public static extern int SetImage(IntPtr imgbuf, bool isbgra, int w, int h);
 ```
 
-`imgbuf` buffer数组指针
+`imgbuf` 材质指针
 
-`flags` 传入选项标志位，如XY轴反转等，具体请参考源代码
+`isbgra` 材质数据顺序是否为bgra
 
-`isbgra` buffer数据顺序是否为bgra
+`w` 材质宽度
 
-`w` 图像宽度
-
-`h` 图像高度
+`h` 材质高度
 
 除了SetImage，输入函数还有：
 
 ```c#
-public static extern int SetDaulInput(IntPtr nv21buf, int texid, int flags, int w, int h);
-public static extern int SetNV21Input(IntPtr nv21buf, int flags, int w, int h);
-public static extern int SetImageTexId(int texid, int flags, int w, int h);
+public static extern int SetDaulInput(System.IntPtr nv21buf, int texid, int flags, int w, int h);
+public static extern int SetNV21Input(System.IntPtr nv21buf, int flags, int w, int h);
+public static extern int SetImageTexId(int texid, int w, int h);
 ```
 
 **SetNV21Input仅支持ANDROID。** 
@@ -202,11 +207,9 @@ public static extern int SetImageTexId(int texid, int flags, int w, int h);
 
 或者参考RenderSimple输入你自己的相机数据。
 
-
-
 ### 四、 输出跟踪数据
 
-**本条案例可查看demoDataOut或UIManagerForDataOut场景。** 
+**本条案例可查看demoDataOut或demoDataOut_Multiple场景。** 
 
 demoDataOut场景中点击UI上的TrackPositon可以切换渲染模式，点击头像Icon可以切换模型。
 
@@ -246,7 +249,82 @@ demoDataOut场景AR模式（开启TrackPositon）的多人版本，在场景中F
 
 
 
-### 五、 最简案例
+### 五、 输出渲染完成的图像数据
+
+**本条案例可查看demoTexOut场景。** 
+
+如前文所述，RenderToTexture会将插件传回的渲染完成的图像数据直接显示到UI上。
+
+设置运行模式为FU_Mode_RenderItems。
+
+```C#
+public IEnumerator LoadItem(Item item, LoadItemCallback cb=null)
+```
+
+`name`  通过ItemConfig获取的.bundle文件的路径
+
+`cb` 加载道具完成的后回调委托
+
+LoadItem是封装好的载入bundle的函数，它会根据是否已缓存选择性的调用fu_CreateItemFromPackage、fu_getItemIdxFromPackaget、fu_setItemIdse。
+
+```C#
+public static IEnumerator fu_CreateItemFromPackage(IntPtr databuf, int databuf_sz)
+```
+
+`databuf` bundle二进制数据
+
+`databuf_sz` bundle二进制数据长度
+
+使用www载入bundle后，获取其bytes并调用fu_CreateItemFromPackage即可让插件载入该bundle，生成Item。
+
+```C#
+public static extern int fu_getItemIdxFromPackage();
+```
+
+返回刚刚载入的Item的ID，缓存之。
+
+```C#
+public static extern int fu_setItemIds(IntPtr idxbuf, int idxbuf_sz, IntPtr mask);//mask can be null
+```
+
+`idxbuf` 所有要渲染的Item的id的数组
+
+`idxbuf_sz` 上述数组的长度
+
+fu_setItemIds会正式的让载入的Item渲染出来。
+
+```C#
+public static extern int fu_ItemSetParamd(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, double value);
+
+public static extern int fu_ItemSetParamdv(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, IntPtr value, int value_sz);
+
+public static extern int fu_ItemSetParams(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, [MarshalAs(UnmanagedType.LPStr)]string value);
+
+ public static extern double fu_ItemGetParamd(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name);
+ 
+ public static extern int fu_ItemGetParams(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, IntPtr buf, int buf_sz);
+```
+
+在成功渲染Item后，通过以上函数可以设置/获取对应Item的参数。
+
+`itemid` 要设置的Item的ID
+
+`name` 参数名，如美颜Item的三个参数color_level、red_level和blur_level，分别代表了美白等级、红润等级和磨皮等级
+
+`value/buf` 参数
+
+```C#
+public void UnLoadItem(string name)
+public void UnLoadAllItems()
+```
+
+使用UnLoadItem/UnLoadAllItems卸载Item，释放内存。
+
+一般情况下无需卸载，只需调用LoadItem即可。
+
+
+
+### 六、 最简案例
 
 **本条案例可查看demoSimple场景。** 
 

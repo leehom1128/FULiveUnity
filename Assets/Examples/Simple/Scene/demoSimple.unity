@@ -116,7 +116,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_plugin_inited: 0
-  useImageData: 0
+  MAXFACE: 1
+  EnableExpressionLoop: 0
   m_need_blendshape_update: 0
 --- !u!4 &51551130
 Transform:
