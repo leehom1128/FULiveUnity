@@ -91,6 +91,8 @@ FULiveDemoUnity是集成了Faceunity面部跟踪，智能美颜，贴纸道具�
 * ***Plugins*** 
 
   >各平台的faceunity插件
+  >
+  >安卓的arm64-v8a和x86_64平台的插件在libs.rar里，如有需要请自行替换
 
 
 
