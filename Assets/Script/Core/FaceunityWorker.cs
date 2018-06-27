@@ -270,14 +270,14 @@ public class FaceunityWorker : MonoBehaviour
     public static extern int jc_part_inited();
 
     /**
-* SetUseNativeCameraData(true);
+* SetUseNatCam(1);
 */
 #if UNITY_IOS && !UNITY_EDITOR
     [DllImport("__Internal")]
 #else
     [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
 #endif
-    public static extern void SetUseNativeCameraData(int enable);
+    public static extern void SetUseNatCam(int enable);
 
     /**
 * if true,Pause the render pipeline
@@ -436,7 +436,7 @@ public class FaceunityWorker : MonoBehaviour
 #else
     [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
 #endif
-    public static extern int SetDaulInput(IntPtr nv21buf, int texid, int flags, int w, int h);
+    public static extern int SetDualInput(IntPtr nv21buf, int texid, int flags, int w, int h);
 
     /**
 \brief provide camera frame data android nv21,only support Android.
@@ -583,14 +583,20 @@ public class FaceunityWorker : MonoBehaviour
 
     public int MAXFACE = 1;
     public bool EnableExpressionLoop = true;
+    public string LICENSE = "";
 
     [HideInInspector]
     public int m_need_blendshape_update = 0;
-    public CFaceUnityCoefficientSet[] m_translation;// = new CFaceUnityCoefficientSet("translation", 3);
-    public CFaceUnityCoefficientSet[] m_rotation;// = new CFaceUnityCoefficientSet("rotation", 4);
-    public CFaceUnityCoefficientSet[] m_rotation_mode;// = new CFaceUnityCoefficientSet("rotation_mode", 1);
+    public CFaceUnityCoefficientSet[] m_translation;// = new CFaceUnityCoefficientSet("translation", 3); //3D translation of face in camera space - 3 float
+    public CFaceUnityCoefficientSet[] m_rotation;// = new CFaceUnityCoefficientSet("rotation", 4); //rotation quaternion - 4 float
+    public CFaceUnityCoefficientSet[] m_rotation_mode;// = new CFaceUnityCoefficientSet("rotation_mode", 1); //the relative orientaion of face agains phone, 0-3 - 1 float
     public CFaceUnityCoefficientSet[] m_expression;// = new CFaceUnityCoefficientSet("expression", 46);
-    //public CFaceUnityCoefficientSet[] m_landmarks;// =new CFaceUnityCoefficientSet("landmarks",75*2);
+    //public CFaceUnityCoefficientSet[] m_landmarks;// =new CFaceUnityCoefficientSet("landmarks",75*2); //2D landmarks coordinates in image space - 75*2 float
+    //public CFaceUnityCoefficientSet[] m_landmarks_ar;// =new CFaceUnityCoefficientSet("landmarks_ar",75*3); //3D landmarks coordinates in camera space - 75*3 float
+    //public CFaceUnityCoefficientSet[] m_projection_matrix;// =new CFaceUnityCoefficientSet("projection_matrix",16); //the transform matrix from camera space to image space - 16 float
+    //public CFaceUnityCoefficientSet[] m_eye_rotation;// =new CFaceUnityCoefficientSet("eye_rotation",4); //eye rotation quaternion - 4 float
+    //public CFaceUnityCoefficientSet[] m_face_rect;// =new CFaceUnityCoefficientSet("face_rect",4); //the rectangle of tracked face in image space, (xmin,ymin,xmax,ymax) - 4 float
+    //public CFaceUnityCoefficientSet[] m_failure_rate;// =new CFaceUnityCoefficientSet("failure_rate",1); //the failure rate of face tracking, the less the more confident about tracking result - 1 float
     public CFaceUnityCoefficientSet[] m_pupil_pos;// = new CFaceUnityCoefficientSet("pupil_pos", 4);
     public CFaceUnityCoefficientSet[] m_focallength;// = new CFaceUnityCoefficientSet("focal_length", 1);
 
@@ -627,7 +633,7 @@ public class FaceunityWorker : MonoBehaviour
         if (m_plugin_inited == false)
         {
             Debug.LogFormat("FaceunityWorker Init");
-#if !UNITY_IOS
+#if UNITY_EDITOR&&!UNITY_IOS
             RegisterDebugCallback(new DebugCallback(DebugMethod));
 #endif
             fu_EnableLog(false);
@@ -636,45 +642,47 @@ public class FaceunityWorker : MonoBehaviour
             //fu_Setup init nama sdk
             if (jc_part_inited() == 0)  //防止Editor下二次Play导致崩溃的bug
             {
-                //load license file
-                string licensepath = Util.GetStreamingAssetsPath() + "/faceunity/license";
-                WWW licensedata = new WWW(licensepath);
-                yield return licensedata;
-                string lic_tex = licensedata.text;
-                if (lic_tex == null || lic_tex == "")
+                //load license data
+                if (LICENSE == null || LICENSE == "")
                 {
-                    Debug.LogError("license is null! please put the license in Assets/StreamingAssets/faceunity");
+                    Debug.LogError("LICENSE is null! please paste the license data to the TextField named \"LICENSE\" in FaceunityWorker");
                 }
                 else
                 {
                     sbyte[] m_licdata_bytes;
                     GCHandle m_licdata_handle;
-                    string[] sbytes = lic_tex.Split(',');
-                    m_licdata_bytes = new sbyte[sbytes.Length];
-                    Debug.LogFormat("length:{0}", sbytes.Length);
-                    for (int i = 0; i < sbytes.Length; i++)
+                    string[] sbytes = LICENSE.Split(',');
+                    if (sbytes.Length <= 7)
                     {
-                        //Debug.Log(sbytes[i]);
-                        m_licdata_bytes[i] = sbyte.Parse(sbytes[i]);
-                        //Debug.Log(m_licdata_bytes[i]);
+                        Debug.LogError("License Format Error");
                     }
-                    m_licdata_handle = GCHandle.Alloc(m_licdata_bytes, GCHandleType.Pinned);
-                    IntPtr licptr = m_licdata_handle.AddrOfPinnedObject();
+                    else
+                    {
+                        m_licdata_bytes = new sbyte[sbytes.Length];
+                        Debug.LogFormat("length:{0}", sbytes.Length);
+                        for (int i = 0; i < sbytes.Length; i++)
+                        {
+                            //Debug.Log(sbytes[i]);
+                            m_licdata_bytes[i] = sbyte.Parse(sbytes[i]);
+                            //Debug.Log(m_licdata_bytes[i]);
+                        }
+                        m_licdata_handle = GCHandle.Alloc(m_licdata_bytes, GCHandleType.Pinned);
+                        IntPtr licptr = m_licdata_handle.AddrOfPinnedObject();
 
-                    //load nama sdk data
-                    string fnv3 = Util.GetStreamingAssetsPath() + "/faceunity/v3.bytes";
-                    WWW v3data = new WWW(fnv3);
-                    yield return v3data;
-                    byte[] m_v3data_bytes = v3data.bytes;
-                    GCHandle m_v3data_handle = GCHandle.Alloc(m_v3data_bytes, GCHandleType.Pinned); //pinned avoid GC
-                    IntPtr dataptr = m_v3data_handle.AddrOfPinnedObject(); //pinned addr
+                        //load nama sdk data
+                        string fnv3 = Util.GetStreamingAssetsPath() + "/faceunity/v3.bytes";
+                        WWW v3data = new WWW(fnv3);
+                        yield return v3data;
+                        byte[] m_v3data_bytes = v3data.bytes;
+                        GCHandle m_v3data_handle = GCHandle.Alloc(m_v3data_bytes, GCHandleType.Pinned); //pinned avoid GC
+                        IntPtr dataptr = m_v3data_handle.AddrOfPinnedObject(); //pinned addr
 
-                    int ret = fu_Setup(dataptr, licptr, sbytes.Length); //要查看license是否有效请打开插件log（fu_EnableLog(true);）
-                    Debug.LogFormat("fu_Setup:{0}", ret);
+                        fu_Setup(dataptr, licptr, sbytes.Length); //要查看license是否有效请打开插件log（fu_EnableLog(true);）
 
-                    m_licdata_handle.Free();
-                    m_v3data_handle.Free();
-                    m_plugin_inited = true;
+                        m_licdata_handle.Free();
+                        m_v3data_handle.Free();
+                        m_plugin_inited = true;
+                    }
                 }
             }
             else
@@ -706,7 +714,7 @@ public class FaceunityWorker : MonoBehaviour
 
 
                 SetRunningMode(FURuningMode.FU_Mode_RenderItems);   //默认模式，随时可以改
-                SetUseNativeCameraData(1);  //默认选项
+                SetUseNatCam(1);  //默认选项，仅安卓有效
                 fu_SetFocalLengthScale(FocalLengthScale);   //默认值是1
                 Debug.LogFormat("fu_SetFocalLengthScale({0})", FocalLengthScale);
 

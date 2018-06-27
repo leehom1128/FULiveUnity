@@ -155,7 +155,7 @@ public class RenderSimple : MonoBehaviour {
     public void UpdateData(IntPtr ptr,int texid,int w,int h)
     {
         //FaceunityWorker.SetNV21Input(ptr, 0, w, h);
-        //FaceunityWorker.SetDaulInput(ptr, texid, 0, w, h);
+        //FaceunityWorker.SetDualInput(ptr, texid, 0, w, h);
         FaceunityWorker.SetImage(ptr,0, false, w, h);   //传输数据方法之一
         //FaceunityWorker.SetImageTexId(texid, 0, w, h);
         if (m_tex_created == false)

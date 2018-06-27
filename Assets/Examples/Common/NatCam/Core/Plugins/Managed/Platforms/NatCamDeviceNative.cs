@@ -10,13 +10,13 @@ namespace NatCamU.Core.Platforms {
     public static class NatCamDeviceNative {
 
         private const string Assembly =
-        #if UNITY_IOS
+#if UNITY_IOS
         "__Internal";
-        #else
-        "NatCam";
-        #endif
+#else
+        "faceplugin";
+#endif
 
-        #if INATCAM_C
+#if UNITY_IOS
 
         #region --Properties--
         [DllImport(Assembly)]
@@ -85,7 +85,7 @@ namespace NatCamU.Core.Platforms {
         #endregion
 
 
-        #else
+#else
         public static bool IsRearFacing (int camera) {return true;}
         public static bool IsFlashSupported (int camera) {return false;}
         public static bool IsTorchSupported (int camera) {return false;}
@@ -113,6 +113,6 @@ namespace NatCamU.Core.Platforms {
         public static bool SetFlash (int camera, int state) {return false;}
         public static bool SetTorch (int camera, int state) {return false;}
         public static bool SetZoom (int camera, float ratio) {return false;}
-        #endif
+#endif
     }
 }

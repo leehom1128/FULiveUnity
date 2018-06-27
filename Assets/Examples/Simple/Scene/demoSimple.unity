@@ -118,6 +118,7 @@ MonoBehaviour:
   m_plugin_inited: 0
   MAXFACE: 1
   EnableExpressionLoop: 0
+  LICENSE: 
   m_need_blendshape_update: 0
 --- !u!4 &51551130
 Transform:
@@ -584,8 +585,8 @@ RectTransform:
   m_RootOrder: 1
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -88.42001, y: -87}
-  m_SizeDelta: {x: 174, y: 174}
+  m_AnchoredPosition: {x: -87, y: -87}
+  m_SizeDelta: {x: 144, y: 144}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1724314696
 MonoBehaviour:

@@ -20,12 +20,10 @@ public class RenderToTexture : MonoBehaviour
     //Debugging
     public Switch verbose;
 
-
     //Camera_TO_SDK
     int[] itemid_tosdk;
     GCHandle itemid_handle;
     IntPtr p_itemsid;
-    Dictionary<string, int> item_list = new Dictionary<string, int>();
 
 #if UNITY_EDITOR||UNITY_STANDALONE
     //byte[] img_bytes;
@@ -43,12 +41,13 @@ public class RenderToTexture : MonoBehaviour
     private bool LoadingItem = false;
 
     //渲染显示UI
-    public Texture EmptyTex;
     public RawImage RawImg_BackGroud;
     private Quaternion baseRotation;
 
-    private string currentItem="";
-    private int beautyitemID=-1;
+    private string currentItem = "";
+    private int currentItemID = -1;
+    private string beautyitem = "";
+    private int beautyitemID = -1;
 
 
     public void OnStart()
@@ -66,28 +65,25 @@ public class RenderToTexture : MonoBehaviour
         m_tex_created = false;
 #endif
         SelfAdjusSize();
-        SetItemMirror();
-        FaceunityWorker.SetPauseRender(false);
-    }
-
-    IEnumerator delayClearPlugin()
-    {
-        FaceunityWorker.SetImageTexId((int)EmptyTex.GetNativeTexturePtr(), 0, EmptyTex.width, EmptyTex.height);
-        yield return Util._fixedupdate;
-#if !UNITY_IOS
-        yield return Util._fixedupdate;
-        FaceunityWorker.SetPauseRender(true);
-#endif
+        //SetItemMirror();
     }
 
     public void SwitchCamera(int newCamera = -1)
     {
-        StartCoroutine(delayClearPlugin());
+        FaceunityWorker.fu_OnCameraChange();
+
         // Select the new camera ID // If no argument is given, switch to the next camera
         newCamera = newCamera < 0 ? (NatCam.Camera + 1) % DeviceCamera.Cameras.Count : newCamera;
         // Set the new active camera
         NatCam.Camera = (DeviceCamera)newCamera;
 
+        StartCoroutine(delaySetItemMirror());
+    }
+
+    IEnumerator delaySetItemMirror()
+    {
+        yield return Util._endOfFrame;
+        SetItemMirror();
     }
 
     public void SelfAdjusSize()
@@ -146,10 +142,9 @@ public class RenderToTexture : MonoBehaviour
             {
                 NatCam.Camera = DeviceCamera.RearCamera;
             }
-            // Null checking
+            //Null checking
             if (!NatCam.Camera)
             {
-                // Log
                 Debug.LogError("No camera detected!");
                 StopCoroutine("InitCamera");
                 yield return null;
@@ -175,6 +170,7 @@ public class RenderToTexture : MonoBehaviour
 #endif
     }
 
+    //nama插件使用gles2.0，不支持glGetTexImage，因此只能用ReadPixels来读取数据
     public Texture2D CaptureCamera(Camera[] cameras, Rect rect)
     {
         // 创建一个RenderTexture对象  
@@ -314,17 +310,12 @@ public class RenderToTexture : MonoBehaviour
     public delegate void LoadItemCallback(string message);
     public IEnumerator LoadItem(Item item, LoadItemCallback cb=null)
     {
-        if (LoadingItem == false && item.fullname != null)
+        if (LoadingItem == false && item.fullname != null && item.fullname.Length != 0)
         {
             LoadingItem = true;
-            Debug.Log("载入Item：" + item.name + "    当前Item：" + currentItem);
-            if (item.fullname.Length == 0)
+            if (!string.Equals(currentItem, item.name)&&!string.Equals(beautyitem, item.name))
             {
-                itemid_tosdk[0] = 0;
-                FaceunityWorker.fu_setItemIds(p_itemsid, 1, IntPtr.Zero);
-            }
-            else if (!item_list.ContainsKey(item.name))
-            {
+                Debug.Log("载入Item：" + item.name + "    当前Item：" + currentItem);
                 var bundledata = Resources.LoadAsync<TextAsset>(item.fullname);
                 yield return bundledata;
                 var data = bundledata.asset as TextAsset;
@@ -334,46 +325,41 @@ public class RenderToTexture : MonoBehaviour
                 IntPtr pObject = hObject.AddrOfPinnedObject();
                 yield return FaceunityWorker.fu_CreateItemFromPackage(pObject, bundle_bytes.Length);
                 hObject.Free();
+
                 int itemid = FaceunityWorker.fu_getItemIdxFromPackage();
 
-                Debug.LogFormat("fu_CreateItemFromPackage id:{0}", itemid);
-
-                item_list.Add(item.name, itemid);
-                currentItem = item.name;
-
                 int itemnum = 0;
-                if (beautyitemID > -1)
+                if (beautyitemID >= 0 && itemid >= 0)
                 {
                     itemid_tosdk[0] = beautyitemID;
                     itemid_tosdk[1] = itemid;
                     itemnum = 2;
                 }
-                else
+                else if (beautyitemID >= 0)
+                {
+                    itemid_tosdk[0] = beautyitemID;
+                    itemnum = 1;
+                }
+                else if (itemid >= 0)
                 {
                     itemid_tosdk[0] = itemid;
                     itemnum = 1;
                 }
-                if (string.Equals(item.name, ItemConfig.beautySkin[0].name))
-                    beautyitemID = itemid;
-
                 FaceunityWorker.fu_setItemIds(p_itemsid, itemnum, IntPtr.Zero);
-            }
-            else if(!string.Equals(item.name, ItemConfig.beautySkin[0].name))
-            {
-                currentItem = item.name;
-                int itemnum = 0;
-                if (beautyitemID > -1)
+                UnLoadItem(currentItem);
+
+                if (string.Equals(item.name, ItemConfig.beautySkin[0].name))
                 {
-                    itemid_tosdk[0] = beautyitemID;
-                    itemid_tosdk[1] = item_list[item.name];
-                    itemnum = 2;
+                    beautyitemID = itemid;
+                    beautyitem = item.name;
+                    Debug.LogFormat("fu_CreateItemFromPackage beautyitem id:{0}", beautyitemID);
                 }
                 else
                 {
-                    itemid_tosdk[0] = item_list[item.name];
-                    itemnum = 1;
+                    currentItemID = itemid;
+                    currentItem = item.name;
+                    Debug.LogFormat("fu_CreateItemFromPackage currentItem id:{0}", currentItemID);
                 }
-                FaceunityWorker.fu_setItemIds(p_itemsid, itemnum, IntPtr.Zero);
             }
             if (item.type==1)
                 flipmark = false;
@@ -391,58 +377,100 @@ public class RenderToTexture : MonoBehaviour
         return currentItem;
     }
 
-    public void UnLoadItem(string name)
+    public void UnLoadItem(string itemname)
     {
-        if (item_list.ContainsKey(name))
+        Debug.Log("UnLoadItem name=" + itemname);
+        if (itemname.Length > 0)
         {
-            if (currentItem == name)
+            if (string.Equals(currentItem, itemname))
+            {
+                FaceunityWorker.fu_DestroyItem(currentItemID);
                 currentItem = "";
-            FaceunityWorker.fu_DestroyItem(item_list[name]);
-            item_list.Remove(name);
+                currentItemID = -1;
+            }
+            else if (string.Equals(beautyitem, itemname))
+            {
+                FaceunityWorker.fu_DestroyItem(beautyitemID);
+                beautyitem = "";
+                beautyitemID = -1;
+            }
         }
     }
 
     public void UnLoadAllItems()
     {
+        Debug.Log("UnLoadAllItems");
         FaceunityWorker.fu_DestroyAllItems();
-        item_list.Clear();
         currentItem = "";
+        currentItemID = -1;
+        beautyitem = "";
+        beautyitemID = -1;
     }
 
     public void SetItemParamd(string itemname, string paramdname, double value)
     {
-        if (item_list.ContainsKey(itemname))
+        if (itemname.Length > 0)
         {
-            //Debug.Log(paramdname+":"+ value);
-            FaceunityWorker.fu_ItemSetParamd(item_list[itemname], paramdname, value);
+            if (string.Equals(currentItem, itemname))
+            {
+                FaceunityWorker.fu_ItemSetParamd(currentItemID, paramdname, value);
+            }
+            else if(string.Equals(beautyitem, itemname))
+            {
+                FaceunityWorker.fu_ItemSetParamd(beautyitemID, paramdname, value);
+            }
         }
     }
 
     public double GetItemParamd(string itemname, string paramdname)
     {
-        if (item_list.ContainsKey(itemname))
+        if (itemname.Length > 0)
         {
-            return FaceunityWorker.fu_ItemGetParamd(item_list[itemname], paramdname);
+            if (string.Equals(currentItem, itemname))
+            {
+                return FaceunityWorker.fu_ItemGetParamd(currentItemID, paramdname);
+            }
+            else if (string.Equals(beautyitem, itemname))
+            {
+                return FaceunityWorker.fu_ItemGetParamd(beautyitemID, paramdname);
+            }
+            return 0;
         }
         return 0;
     }
 
     public void SetItemParams(string itemname, string paramdname, string value)
     {
-        if (item_list.ContainsKey(itemname))
+        if (itemname.Length > 0)
         {
-            FaceunityWorker.fu_ItemSetParams(item_list[itemname], paramdname, value);
+            if (string.Equals(currentItem, itemname))
+            {
+                FaceunityWorker.fu_ItemSetParams(currentItemID, paramdname, value);
+            }
+            else if (string.Equals(beautyitem, itemname))
+            {
+                FaceunityWorker.fu_ItemSetParams(beautyitemID, paramdname, value);
+            }
         }
     }
 
     public string GetItemParams(string itemname, string paramdname)
     {
-        if (item_list.ContainsKey(itemname))
+        if (itemname.Length > 0)
         {
-            byte[] bytes = new byte[32];
-
-            int i = FaceunityWorker.fu_ItemGetParams(item_list[itemname], paramdname, bytes, 32);
-            return System.Text.Encoding.Default.GetString(bytes).Replace("\0", "");
+            if (string.Equals(currentItem, itemname))
+            {
+                byte[] bytes = new byte[32];
+                int i = FaceunityWorker.fu_ItemGetParams(currentItemID, paramdname, bytes, 32);
+                return System.Text.Encoding.Default.GetString(bytes).Replace("\0", "");
+            }
+            else if (string.Equals(beautyitem, itemname))
+            {
+                byte[] bytes = new byte[32];
+                int i = FaceunityWorker.fu_ItemGetParams(beautyitemID, paramdname, bytes, 32);
+                return System.Text.Encoding.Default.GetString(bytes).Replace("\0", "");
+            }
+            return "";
         }
         return "";
     }
@@ -472,6 +500,7 @@ public class RenderToTexture : MonoBehaviour
         SetItemParamd(currentItem, "isAndroid", 1.0);
 #endif
 #if (UNITY_IOS) && (!UNITY_EDITOR)
+        FaceunityWorker.fu_SetDefaultRotationMode(2);
         ifMirrored=false;
 #endif
         int param = ifMirrored && flipmark ? 1 : 0;

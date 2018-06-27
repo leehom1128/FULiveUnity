@@ -69,14 +69,16 @@ namespace NatCamU.Core.Platforms {
         }
         
         [MonoPInvokeCallback(typeof(Native.PhotoCallback))]
-        protected static void OnPhoto (UIntPtr imgPtr, int width, int height, int size, byte orientation) {
+        protected static void OnPhoto (IntPtr imgPtr, int width, int height, int size, byte orientation) {
             instance.dispatch.Dispatch(() => {
-                if (imgPtr == UIntPtr.Zero) return;
+                if (imgPtr == IntPtr.Zero) return;
                 if (instance.photoCallback == null) return;
-                var photo = new Texture2D(width, height, TextureFormat.RGBA32, false);
+                Debug.Log("OnPhoto!! imgPtr="+ imgPtr);
+                /*var photo = new Texture2D(width, height, TextureFormat.RGBA32, false);
                 photo.LoadRawTextureData(unchecked((IntPtr)(long)(ulong)imgPtr), size);
                 photo.Apply();
-                Native.ReleasePhoto();
+                Native.ReleasePhoto();*/
+                var photo = Texture2D.CreateExternalTexture(width, height, TextureFormat.RGBA32, false, false, imgPtr);
                 instance.photoCallback(photo, (Orientation)orientation);
                 instance.photoCallback = null;
             });

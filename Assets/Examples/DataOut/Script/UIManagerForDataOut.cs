@@ -53,7 +53,6 @@ public class UIManagerForDataOut : MonoBehaviour {
     void RegisterUIFunc()
     {
         Btn_Switch.onClick.AddListener(delegate {
-            SetHeadActiveByToggle();
             rtm.SwitchCamera();
         });
         enableTrack.onValueChanged.AddListener(delegate
@@ -74,7 +73,24 @@ public class UIManagerForDataOut : MonoBehaviour {
 
         for (int i = 0; i < togglefaces.Length; i++)
         {
-            togglefaces[i].onValueChanged.AddListener(delegate { SetHeadActiveByToggle(); });
+            int id = i;
+            togglefaces[i].onValueChanged.AddListener(delegate {
+                if (togglefaces[id].isOn)
+                {
+                    if (id < stcs.Length)
+                    {
+                        stcs[id].gameObject.SetActive(true);
+                        stcs[id].ResetTransform();
+                    }
+                }
+                else
+                {
+                    if (id < stcs.Length)
+                    {
+                        stcs[id].gameObject.SetActive(false);
+                    }
+                }
+            });
         }
 
     }
@@ -87,6 +103,7 @@ public class UIManagerForDataOut : MonoBehaviour {
 
     void SetHeadActiveByToggle()
     {
+        Debug.Log("SetHeadActiveByToggle!!!!!!!!!!");
         for (int i = 0; i < togglefaces.Length; i++)
         {
             if (togglefaces[i].isOn)

@@ -11,24 +11,24 @@ namespace NatCamU.Core.Platforms {
     public static partial class NatCamNative {
 
         private const string CoreAssembly =
-        #if UNITY_IOS
+#if UNITY_IOS
         "__Internal";
-        #else
-        "NatCam";
-        #endif
+#else
+        "faceplugin";
+#endif
 
         #region ---Delegates---
         public delegate void StartCallback (IntPtr texPtr, int width, int height);
         public delegate void PreviewCallback (IntPtr texPtr);
-        public delegate void PhotoCallback (UIntPtr imgPtr, int width, int height, int size, byte orientation);
+        public delegate void PhotoCallback (IntPtr imgPtr, int width, int height, int size, byte orientation);
         #endregion
 
         #region --Initialization--
         [DllImport(CoreAssembly)]
         public static extern void RegisterCoreCallbacks (StartCallback startCallback,  PreviewCallback previewCallback, PhotoCallback photoCallback);
         #endregion
-        
-        #if INATCAM_C
+
+#if UNITY_IOS
 
         #region --Operations--
         [DllImport(CoreAssembly)]
@@ -61,7 +61,7 @@ namespace NatCamU.Core.Platforms {
         #endregion
 
 
-        #else
+#else
         public static int GetCamera () {return -1;}
         public static void SetCamera (int camera) {}
         public static bool IsPlaying () {return false;}
@@ -69,11 +69,11 @@ namespace NatCamU.Core.Platforms {
         public static void Pause () {}
         public static void Release () {}
         public static void CapturePhoto () {}
-        public static void ReleasePhoto () {}
+        public static void ReleasePhoto() {}
         public static byte GetOrientation () {return 0;}
         public static void SetOrientation (byte orientation) {}
         public static void OnPause (bool paused) {}
         public static void SetVerboseMode (bool verbose) {}
-        #endif
+#endif
     }
 }

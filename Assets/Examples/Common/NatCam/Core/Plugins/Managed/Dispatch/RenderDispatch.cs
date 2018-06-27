@@ -3,9 +3,9 @@
 *   Copyright (c) 2016 Yusuf Olokoba
 */
 
-#if UNITY_ANDROID
-    #define NATCAM_RENDER_DISPATCH
-#endif
+//#if UNITY_ANDROID
+//    #define NATCAM_RENDER_DISPATCH
+//#endif
 
 namespace NatCamU.Dispatch {
 
@@ -24,7 +24,7 @@ namespace NatCamU.Dispatch {
         /// </summary>
         [CoreDoc(89)]
         public RenderDispatch () : base () {
-            base.Dispatch(() => 
+            /*base.Dispatch(() => 
             #if NATCAM_RENDER_DISPATCH
             GL.IssuePluginEvent(OnRender(), 0),
             #else
@@ -32,7 +32,7 @@ namespace NatCamU.Dispatch {
             GL.IssuePluginEvent(0),
             #pragma warning restore 0618
             #endif
-            true);
+            true);*/
             Utilities.LogVerbose("Initialized render dispatcher");
         }
         #endregion

@@ -19,8 +19,7 @@ public class RenderToModel : MonoBehaviour
     //Debugging
     public Switch verbose;
 
-
-#if UNITY_EDITOR||UNITY_STANDALONE
+#if UNITY_EDITOR || UNITY_STANDALONE
     //byte[] img_bytes;
     Color32[] webtexdata;
     GCHandle img_handle;
@@ -35,7 +34,6 @@ public class RenderToModel : MonoBehaviour
 #endif
 
     //渲染显示UI
-    public Texture EmptyTex;
     public RawImage RawImg_BackGroud;
     private Quaternion baseRotation;
     public Camera camera3d;
@@ -68,7 +66,6 @@ public class RenderToModel : MonoBehaviour
             Debug.Log("RawImg_BackGroud.TexturePtr= " + RawImg_BackGroud.texture.GetNativeTexturePtr());
 
         SelfAdjusSize();
-        FaceunityWorker.SetPauseRender(false);
         if(onSwitchCamera!=null)
             onSwitchCamera(false);
     }
@@ -76,10 +73,20 @@ public class RenderToModel : MonoBehaviour
 
     public IEnumerator delaySet()
     {
+        SelfAdjusSize();
         yield return Util._endOfFrame;
         yield return Util._endOfFrame;
         yield return Util._endOfFrame;
-        OnStart();
+#if !(UNITY_EDITOR || UNITY_STANDALONE)
+        if (RawImg_BackGroud != null)
+        {
+            RawImg_BackGroud.texture = NatCam.Preview;
+            RawImg_BackGroud.gameObject.SetActive(true);
+        }
+        else Debug.Log("Preview RawImage has not been set");
+#else
+        m_tex_created = false;
+#endif
     }
 
 
@@ -153,19 +160,9 @@ public class RenderToModel : MonoBehaviour
         Debug.Log("ReSetFOV");
     }
 
-    IEnumerator delayClearPlugin()
-    {
-        FaceunityWorker.SetImageTexId((int)EmptyTex.GetNativeTexturePtr(), 0, EmptyTex.width, EmptyTex.height);
-        yield return Util._fixedupdate;
-#if !UNITY_IOS
-        yield return Util._fixedupdate;
-        FaceunityWorker.SetPauseRender(true);
-#endif
-    }
-
     public void SwitchCamera(int newCamera = -1)
     {
-		StartCoroutine(delayClearPlugin());
+        FaceunityWorker.fu_OnCameraChange();
 
         if (onSwitchCamera != null)
             onSwitchCamera(true);
