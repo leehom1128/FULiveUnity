@@ -2,16 +2,20 @@
 
 FULiveDemoUnity是集成了Faceunity面部跟踪，智能美颜，贴纸道具功能的Unity工程示例。
 
-## SDK v5.2.0 (2018.6.15) 更新
 
-本次更新主要包含以下改动：
+## Nama SDK v5.3.0 (2018.7.2)更新
 
-- 人脸表情跟踪效果进一步优化提升
-- 优化美颜性能，减低功耗
-- 新增美颜美型突变过渡效果功能
-- 修复换脸高级融合只显示半脸问题
+SDK更新主要包含以下改动：
 
-具体更新内容可以到[这里](https://github.com/Faceunity/FULiveDemo/blob/master/docs/FUNama%20SDK%20v4.6%20%E6%9B%B4%E6%96%B0%E6%96%87%E6%A1%A3.md)查看详细文档。
+- 新增物理模拟动效功能（请参考demoTexOut场景/Animoji/斗牛犬）
+- 新增阴影效果渲染功能
+- 修复ARmesh以及换脸自适应美型后脸型
+- 优化手势识别，支持同时多个手势，减少卡顿问题
+
+本工程案例更新主要包含以下改动：
+
+- license读取机制改变：请将license数据复制到场景中FaceunityWorker物体的Inspector面板的LICENSE输入框内。**每个场景都需要设置一遍。**
+- **因Github不支持上传100MB以上的文件，iOS的库经过压缩，使用时请自行解压！**
 
 ## 开发环境
 
@@ -41,25 +45,19 @@ FULiveDemoUnity是集成了Faceunity面部跟踪，智能美颜，贴纸道具�
   >
   > **----DataOut:** FacePlugin的数据输出模式，使用Unity进行内容渲染，使用了NatCam以提高效率。仅输出人脸的位置、旋转、表情系数等，以供Unity渲染。
   >
-  > ​	 **|----Live2D:** Live2D插件的库和资源。
+  > ​	 **|----Models:** 人头模型和对应材质纹理。
   >
-  > ​	 **|----Models:** 人头模型和对应材质。
+  > ​	 **|----Scene:** Demo场景，**demoDataOut** 是人头模型渲染，**demoDataOut_Multiple**是多人模型渲染。
   >
-  > ​	 **|----Scene:** Demo场景，**demoDataOut** 是人头模型渲染，**demoDataOut_Multiple**是多人模型渲染，**demoLive2D** 是Live2D渲染。
+  > ​	 **|----Script:** Demo的相关脚本。
   >
-  > ​	 **|----Script: ** Demo的相关脚本。
-  >
-  > ​		 **|----RenderToModel.cs:** 负责对接相机插件，输入输出图像数据，管理输出材质的旋转缩放。
+  > ​		 **|----RenderToModel.cs:** 负责对接相机插件，输入输出图像数据，管理输出纹理的旋转缩放。
   >
   > ​		 **|----StdController.cs:** 负责控制人头的位置、旋转和表情系数。
   >
   > ​		 **|----EyeController.cs:** 负责控制眼睛的位置和旋转。
   >
-  > ​		 **|----Live2DModel.cs:** 负责控制LIve2D的人物表情系数。
-  >
   > ​		 **|----UIManagerForDataOut.cs:** DataOut场景的UI控制器。
-  >
-  > ​		 **|----UIManagerForLive2d.cs:** Live2d场景的UI控制器。
   >
   > ​		 **|----UIManagerForDataOut_Multiple.cs:** DataOut_Multiple场景的UI控制器，也负责多人模型调度。
   >
@@ -83,7 +81,7 @@ FULiveDemoUnity是集成了Faceunity面部跟踪，智能美颜，贴纸道具�
   >
   > ​		 **|----RenderToTexture.cs:** 负责对接相机插件，输入输出图像数据，加载卸载道具。
   >
-  > ​		 **|----UIManagerForTexOut.cs:** 材质输出模式的UI控制器，和RenderToTexture.cs配合以展现所有道具的功能。
+  > ​		 **|----UIManagerForTexOut.cs:** 纹理输出模式的UI控制器，和RenderToTexture.cs配合以展现所有道具的功能。
   >
   > ​		 **|----ItemConfig.cs:** 道具的二进制文件和UI文件的路径等信息的配置文件。
 
@@ -92,6 +90,8 @@ FULiveDemoUnity是集成了Faceunity面部跟踪，智能美颜，贴纸道具�
   >各平台的faceunity插件
   >
   >安卓的arm64-v8a和x86_64平台的插件在libs.rar里，如有需要请自行替换
+  >
+  >因Github不支持上传100MB以上的文件，iOS的库经过压缩，使用时请自行解压！
 
 
 
@@ -129,7 +129,7 @@ FULiveDemoUnity是集成了Faceunity面部跟踪，智能美颜，贴纸道具�
 
 场景中挂载FaceunityWorker.cs，FaceunityWorker提供API接口。
 
-***将license文件中的数据复制到场景中FaceunityWorker所在物体的Inspector面板的LICENSE输入框内。***  
+***将license文件中的数据复制到场景中FaceunityWorker物体的Inspector面板的LICENSE输入框内。***  
 
 FaceunityWorker会载入license数据和v3.bytes，并调用fu_Setup进行初始化。
 
@@ -167,29 +167,31 @@ fu_SetRuningMode可以设置本插件运行模式，针对需求设置运行模�
 
 ***UNITY_EDITOR或UNITY_STANDALONE的环境下：*** 
 
-在RenderToModel/RenderToTexture/RenderSimple中，会在初始化时对应相机，在自适应后，在Update中使用GetPixels32获取原生图像材质，并将材质指针传入SetImage。
+在RenderToModel/RenderToTexture/RenderSimple中，会在初始化时对应相机，在自适应后，在Update中使用GetPixels32获取原生图像纹理，并将纹理指针传入SetImage。
 
 ```C#
-public static extern int SetImage(IntPtr imgbuf, bool isbgra, int w, int h);
+public static extern int SetImage(IntPtr imgbuf,int flags, bool isbgra, int w, int h);
 ```
 
-`imgbuf` 材质指针
+`imgbuf` 纹理指针
 
-`isbgra` 材质数据顺序是否为bgra
+`flags` FU_ADM_FLAG_FLIP_X = 0x40;FU_ADM_FLAG_FLIP_Y = 0x100; 翻转只翻转道具渲染，并不会翻转整个图像
 
-`w` 材质宽度
+`isbgra` 纹理数据顺序是否为bgra,否则应该为rgba
 
-`h` 材质高度
+`w` 纹理宽度
+
+`h` 纹理高度
 
 除了SetImage，输入函数还有：
 
 ```c#
-public static extern int SetDaulInput(System.IntPtr nv21buf, int texid, int flags, int w, int h);
-public static extern int SetNV21Input(System.IntPtr nv21buf, int flags, int w, int h);
-public static extern int SetImageTexId(int texid, int w, int h);
+public static extern int SetDualInput(IntPtr nv21buf, int texid, int flags, int w, int h);
+public static extern int SetNV21Input(IntPtr nv21buf, int flags, int w, int h);
+public static extern int SetImageTexId(int texid, int flags, int w, int h);
 ```
 
-**SetNV21Input仅支持ANDROID。** 
+**SetDualInput以及SetNV21Input仅支持ANDROID。** 
 
 ***UNITY_ANDROID的环境下：*** 
 
@@ -205,7 +207,7 @@ public static extern int SetImageTexId(int texid, int w, int h);
 
 ### 四、 输出跟踪数据
 
-**本条案例可查看demoDataOut或demoDataOut_live2d场景。** 
+**本条案例可查看demoDataOut场景。** 
 
 demoDataOut场景中点击UI上的TrackPositon可以切换渲染模式，点击头像Icon可以切换模型。
 
@@ -242,12 +244,6 @@ EyeController在每帧通过FaceunityWorker中预存的地址获取眼睛的旋�
 **demoDataOut_Multiple场景中：** 
 
 demoDataOut场景AR模式（开启TrackPositon）的多人版本，在场景中Faceunity Worker物体的Inspector中设置MAXFACE可以修改最多同时跟踪的人脸数量。
-
-**demoDataOut_live2d场景中：** 
-
-设置运行模式为FU_Mode_RenderItems或者FU_Mode_TrackFace。
-
-Live2DModel在每帧通过FaceunityWorker中预存的地址获取人脸跟踪数据，并根据镜像情况设置Live2D参数。
 
 
 
