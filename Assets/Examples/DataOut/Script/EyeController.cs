@@ -47,7 +47,7 @@ public class EyeController : MonoBehaviour {
         transform.localPosition=m_position0;
 
         Vector3 rotate_from=new Vector3(0.0f,0.0f,-1.0f);
-        Vector3 rotate_to = (new Vector3(-pupil_pos[0] * 0.8f, -pupil_pos[1] * 0.4f, -1.0f));
+        Vector3 rotate_to = (new Vector3(-pupil_pos[0] * 0.8f, pupil_pos[1] * 0.4f, -1.0f));
         rotate_to.Normalize();
         Vector3 axis=Vector3.Cross(rotate_from,rotate_to);
         float angle = 0;

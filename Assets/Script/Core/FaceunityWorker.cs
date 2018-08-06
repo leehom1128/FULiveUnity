@@ -614,6 +614,7 @@ public class FaceunityWorker : MonoBehaviour
         m_expression = new CFaceUnityCoefficientSet[MAXFACE];
         m_pupil_pos = new CFaceUnityCoefficientSet[MAXFACE];
         m_focallength = new CFaceUnityCoefficientSet[MAXFACE];
+        //m_landmarks = new CFaceUnityCoefficientSet[MAXFACE];
 
         for (int i=0;i<MAXFACE;i++)
         {
@@ -623,6 +624,7 @@ public class FaceunityWorker : MonoBehaviour
             m_expression[i] = new CFaceUnityCoefficientSet("expression", 46, i);
             m_pupil_pos[i] = new CFaceUnityCoefficientSet("pupil_pos", 4, i);
             m_focallength[i] = new CFaceUnityCoefficientSet("focal_length", 1, i);
+            //m_landmarks[i] = new CFaceUnityCoefficientSet("landmarks", 75 * 2, i);
         }
     }
 
