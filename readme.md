@@ -1,6 +1,6 @@
-# FULiveDemoUnity
+# FULiveUnity
 
-FULiveDemoUnity是集成了Faceunity面部跟踪，智能美颜，贴纸道具功能的Unity工程示例。
+FULiveUnity是集成了Faceunity面部跟踪，智能美颜，贴纸道具功能的Unity工程示例。
 
 
 ## Nama SDK v5.5.0 (2018.8.29)更新
@@ -18,7 +18,7 @@ SDK更新主要包含以下改动：
 
 ## 开发环境
 
-> Unity5.3.0f4 及以上
+> Unity5.4.6f3 及以上
 
 ## 文件说明
 
@@ -297,9 +297,9 @@ public static extern int fu_ItemSetParamdv(int itemid, [MarshalAs(UnmanagedType.
 
 public static extern int fu_ItemSetParams(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, [MarshalAs(UnmanagedType.LPStr)]string value);
 
- public static extern double fu_ItemGetParamd(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name);
+public static extern double fu_ItemGetParamd(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name);
  
- public static extern int fu_ItemGetParams(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, IntPtr buf, int buf_sz);
+public static extern int fu_ItemGetParams(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, IntPtr buf, int buf_sz);
 ```
 
 在成功渲染Item后，通过以上函数可以设置/获取对应Item的参数。
@@ -311,8 +311,8 @@ public static extern int fu_ItemSetParams(int itemid, [MarshalAs(UnmanagedType.L
 `value/buf` 参数
 
 ```C#
-public void UnLoadItem(string name)
-public void UnLoadAllItems()
+public void UnLoadItem(string name);
+public void UnLoadAllItems();
 ```
 
 使用UnLoadItem/UnLoadAllItems卸载Item，释放内存。
@@ -330,7 +330,7 @@ public void UnLoadAllItems()
 RenderSimple里的函数：
 
 ```c#
-public void UpdateData(IntPtr ptr,int texid,int w,int h)
+public void UpdateData(IntPtr ptr,int texid,int w,int h);
 ```
 
 这个函数展示了如何输入图像数据进本插件，以及怎样从插件中取出渲染完毕的数据。
