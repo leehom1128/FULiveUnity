@@ -107,7 +107,7 @@ public class FaceunityWorker : MonoBehaviour
     This function MUST be called in the same GLES context / thread as the original fuCreateItemFromPackage.
 \param item is the handle to be destroyed
 */
-	#if UNITY_IOS && !UNITY_EDITORfu_Clear
+#if UNITY_IOS && !UNITY_EDITOR
     [DllImport("__Internal")]
 #else
     [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
