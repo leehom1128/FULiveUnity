@@ -14,6 +14,7 @@ SDK更新主要包含以下改动：
 本工程案例更新主要包含以下改动：
 
 - license读取机制改变：请将license数据复制到场景中FaceunityWorker物体的Inspector面板的LICENSE输入框内。**每个场景都需要设置一遍。**
+- 添加支持**Mac**，但因插件通用限制，仅支持**OpenGL2**，即最高支持到**Unity5.4**，**不支持Unity5.5及以上**。具体原因请参考[这里](https://www.khronos.org/opengl/wiki/OpenGL_Context#Context_types)Platform Issue (MacOSX)，或者咨询技术支持。
 - **因Github不支持上传100MB以上的文件，iOS的库经过压缩，使用时请自行解压！**
 
 ## 开发环境
