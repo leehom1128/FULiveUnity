@@ -145,10 +145,10 @@ namespace NatCamU.Core.Platforms {
         public void SetZoom (int camera, float ratio) {
             Util.LogError("Zoom is not supported on legacy");
         }
-#endregion
+        #endregion
 
 
-#region --Ctor--
+        #region --Ctor--
         public NatCamDeviceLegacy () {
             formats = new Dictionary<int, long>();
             for (int i = 0; i < WebCamTexture.devices.Length; i++) formats.Add(i, 0L);

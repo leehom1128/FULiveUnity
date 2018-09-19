@@ -151,11 +151,20 @@ namespace NatCamU.Core.Platforms {
             photoCallback = callback;
             natcam.CallStatic("capturePhoto");
         }
+
+        public void SetFlipx(bool ifenable)
+        {
+            natcam.CallStatic("setFlipx", ifenable);
+        }
+        public void SetFlipy(bool ifenable)
+        {
+            natcam.CallStatic("setFlipy", ifenable);
+        }
         #endregion
 
 
         #region --Utility--
-        
+
         private void OnPause (bool paused) {
             #if NATCAM_PROFESSIONAL
             if (IsRecording) {

@@ -136,6 +136,15 @@ namespace NatCamU.Core {
             }
 			Implementation.CapturePhoto(callback);
         }
+
+        public static void SetFlipx(bool ifenable)
+        {
+            Implementation.SetFlipx(ifenable);
+        }
+        public static void SetFlipy(bool ifenable)
+        {
+            Implementation.SetFlipy(ifenable);
+        }
         #endregion
 
 

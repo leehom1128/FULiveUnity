@@ -51,6 +51,10 @@ namespace NatCamU.Core.Platforms {
         public static extern byte GetOrientation ();
         [DllImport(CoreAssembly)]
         public static extern void SetOrientation (byte orientation);
+        [DllImport(CoreAssembly)]
+        public static extern void SetFlipx (bool ifenable);
+        [DllImport(CoreAssembly)]
+        public static extern void SetFlipy (bool ifenable);
         #endregion
 
         #region --Utility--
@@ -72,6 +76,8 @@ namespace NatCamU.Core.Platforms {
         public static void ReleasePhoto() {}
         public static byte GetOrientation () {return 0;}
         public static void SetOrientation (byte orientation) {}
+        public static void SetFlipx(bool ifenable) {}
+        public static void SetFlipy(bool ifenable) {}
         public static void OnPause (bool paused) {}
         public static void SetVerboseMode (bool verbose) {}
 #endif

@@ -133,7 +133,7 @@ namespace NatCamU.Core.Platforms {
             natcam.CallStatic("setZoom", camera, ratio);
         }
         #endregion
-        
+
 
         #region --Interop--
 

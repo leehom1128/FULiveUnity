@@ -142,6 +142,15 @@ namespace NatCamU.Core.Platforms {
             photoCallback = callback;
             NatCamNative.CapturePhoto();
         }
+
+        public void SetFlipx(bool ifenable)
+        {
+            NatCamNative.SetFlipx(ifenable);
+        }
+        public void SetFlipy(bool ifenable)
+        {
+            NatCamNative.SetFlipy(ifenable);
+        }
         #endregion
 
 

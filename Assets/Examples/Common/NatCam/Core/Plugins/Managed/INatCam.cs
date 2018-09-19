@@ -28,6 +28,8 @@ namespace NatCamU.Core.Platforms {
         void Pause ();
         void Release ();
         void CapturePhoto (PhotoCallback callback);
+        void SetFlipx(bool ifenable);
+        void SetFlipy(bool ifenable);
         #endregion
     }
 }

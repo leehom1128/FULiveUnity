@@ -99,6 +99,10 @@ public class RenderToTexture : MonoBehaviour
 
         if (NatCam.Camera.Facing == Facing.Front)
         {
+#if UNITY_ANDROID
+            NatCam.SetFlipx(false);
+            NatCam.SetFlipy(false);
+#endif
             if (Util.isNexus6())
                 RawImg_BackGroud.rectTransform.rotation = baseRotation * Quaternion.AngleAxis((int)DispatchUtility.Orientation * 90, Vector3.back);
             else
@@ -111,6 +115,10 @@ public class RenderToTexture : MonoBehaviour
         }
         else
         {
+#if UNITY_ANDROID
+            NatCam.SetFlipx(true);
+            NatCam.SetFlipy(false);
+#endif
             if (Util.isNexus5X())
                 RawImg_BackGroud.rectTransform.rotation = baseRotation * Quaternion.AngleAxis((int)DispatchUtility.Orientation * 90, Vector3.forward);
             else
@@ -122,6 +130,8 @@ public class RenderToTexture : MonoBehaviour
 #endif
         }
 #else
+        NatCam.SetFlipx(false);
+        NatCam.SetFlipy(false);
         RawImg_BackGroud.rectTransform.sizeDelta = new Vector2(targetResolution.y * currentResolution.y / currentResolution.x, targetResolution.y);
 #endif
     }
@@ -507,11 +517,8 @@ public class RenderToTexture : MonoBehaviour
 
         //is3DFlipH 参数是用于对3D道具的镜像
         SetItemParamd(currentItem, "is3DFlipH", param);
-        //isFlipExpr 参数是用于对人像驱动道具的镜像
+        //isFlipExpr 参数是用于对道具内部的表情系数的镜像
         SetItemParamd(currentItem, "isFlipExpr", param);
-        //loc_y_flip与loc_x_flip 参数是用于对手势识别道具的镜像
-        SetItemParamd(currentItem, "loc_y_flip", param);
-        SetItemParamd(currentItem, "loc_x_flip", param);
     }
 
     private void OnApplicationQuit()
