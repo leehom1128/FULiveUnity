@@ -20,11 +20,7 @@ namespace NatCamU.Core.Platforms {
 
         #region --Properties--
         public bool IsRearFacing (int camera) {
-#if UNITY_STANDALONE_OSX
-            return WebCamTexture.devices[camera].isFrontFacing;
-#else
             return !WebCamTexture.devices[camera].isFrontFacing;
-#endif
         }
 
         public bool IsFlashSupported (int camera) {

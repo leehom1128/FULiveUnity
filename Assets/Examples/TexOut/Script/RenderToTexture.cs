@@ -91,7 +91,7 @@ public class RenderToTexture : MonoBehaviour
         Vector2 targetResolution = RawImg_BackGroud.canvas.GetComponent<CanvasScaler>().referenceResolution;
         Vector2 currentResolution = NatCam.Camera.PreviewResolution;
 
-#if !UNITY_IOS
+#if !UNITY_IOS || UNITY_EDITOR || UNITY_STANDALONE
         if (DispatchUtility.Orientation == Orientation.Rotation_0 || DispatchUtility.Orientation == Orientation.Rotation_180)
             RawImg_BackGroud.rectTransform.sizeDelta = new Vector2(targetResolution.y * currentResolution.x / currentResolution.y, targetResolution.y);
         else
