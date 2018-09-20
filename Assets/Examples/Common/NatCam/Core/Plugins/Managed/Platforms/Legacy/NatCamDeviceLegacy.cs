@@ -20,7 +20,11 @@ namespace NatCamU.Core.Platforms {
 
         #region --Properties--
         public bool IsRearFacing (int camera) {
+#if UNITY_STANDALONE_OSX
+            return false;
+#else
             return !WebCamTexture.devices[camera].isFrontFacing;
+#endif
         }
 
         public bool IsFlashSupported (int camera) {
@@ -141,10 +145,10 @@ namespace NatCamU.Core.Platforms {
         public void SetZoom (int camera, float ratio) {
             Util.LogError("Zoom is not supported on legacy");
         }
-        #endregion
+#endregion
 
 
-        #region --Ctor--
+#region --Ctor--
         public NatCamDeviceLegacy () {
             formats = new Dictionary<int, long>();
             for (int i = 0; i < WebCamTexture.devices.Length; i++) formats.Add(i, 0L);
