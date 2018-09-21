@@ -139,11 +139,9 @@ public class RenderToTexture : MonoBehaviour
     // 初始化摄像头 
     public IEnumerator InitCamera()
     {
-#if UNITY_EDITOR || UNITY_STANDALONE
         yield return Application.RequestUserAuthorization(UserAuthorization.WebCam);
         if (Application.HasUserAuthorization(UserAuthorization.WebCam))
         {
-#endif
             // Set verbose mode
             NatCam.Verbose = verbose;
             // Set the active camera
@@ -176,8 +174,8 @@ public class RenderToTexture : MonoBehaviour
             webtexdata = new Color32[(int)NatCam.Camera.PreviewResolution.x * (int)NatCam.Camera.PreviewResolution.y];
             img_handle = GCHandle.Alloc(webtexdata, GCHandleType.Pinned);
             p_img_ptr = img_handle.AddrOfPinnedObject();
-        }
 #endif
+        }
     }
 
     //nama插件使用gles2.0，不支持glGetTexImage，因此只能用ReadPixels来读取数据
@@ -221,13 +219,9 @@ public class RenderToTexture : MonoBehaviour
         Debug.Log("保存了一张照片:" + name);
     }
 
-    void Awake()
-    {
-        FaceunityWorker.instance.OnInitOK += InitApplication;
-    }
-
     void Start()
     {
+        FaceunityWorker.instance.OnInitOK += InitApplication;
         if (itemid_tosdk == null)
         {
             itemid_tosdk = new int[5];

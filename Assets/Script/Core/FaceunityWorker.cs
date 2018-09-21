@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Runtime.InteropServices;
 using System.Text;
+using UnityEngine.Rendering;
 
 public class FaceunityWorker : MonoBehaviour
 {
@@ -631,105 +632,113 @@ public class FaceunityWorker : MonoBehaviour
     //working methods
     IEnumerator Start()
     {
-        Debug.Log("jc_part_inited:   " + jc_part_inited());
-        if (m_plugin_inited == false)
+        if (EnvironmentCheck())
         {
-            Debug.LogFormat("FaceunityWorker Init");
-#if UNITY_EDITOR && !UNITY_IOS
-            RegisterDebugCallback(new DebugCallback(DebugMethod));
-#endif
-            fu_EnableLog(false);
-            ClearImages();
-
-            //fu_Setup init nama sdk
-            if (jc_part_inited() == 0)  //防止Editor下二次Play导致崩溃的bug
+            Debug.Log("jc_part_inited:   " + jc_part_inited());
+            if (m_plugin_inited == false)
             {
-                //load license data
-                if (LICENSE == null || LICENSE == "")
+                Debug.LogFormat("FaceunityWorker Init");
+#if UNITY_EDITOR && !UNITY_IOS
+                RegisterDebugCallback(new DebugCallback(DebugMethod));
+#endif
+                fu_EnableLog(false);
+                ClearImages();
+
+                //fu_Setup init nama sdk
+                if (jc_part_inited() == 0)  //防止Editor下二次Play导致崩溃的bug
                 {
-                    Debug.LogError("LICENSE is null! please paste the license data to the TextField named \"LICENSE\" in FaceunityWorker");
-                }
-                else
-                {
-                    sbyte[] m_licdata_bytes;
-                    GCHandle m_licdata_handle;
-                    string[] sbytes = LICENSE.Split(',');
-                    if (sbytes.Length <= 7)
+                    //load license data
+                    if (LICENSE == null || LICENSE == "")
                     {
-                        Debug.LogError("License Format Error");
+                        Debug.LogError("LICENSE is null! please paste the license data to the TextField named \"LICENSE\" in FaceunityWorker");
                     }
                     else
                     {
-                        m_licdata_bytes = new sbyte[sbytes.Length];
-                        Debug.LogFormat("length:{0}", sbytes.Length);
-                        for (int i = 0; i < sbytes.Length; i++)
+                        sbyte[] m_licdata_bytes;
+                        GCHandle m_licdata_handle;
+                        string[] sbytes = LICENSE.Split(',');
+                        if (sbytes.Length <= 7)
                         {
-                            //Debug.Log(sbytes[i]);
-                            m_licdata_bytes[i] = sbyte.Parse(sbytes[i]);
-                            //Debug.Log(m_licdata_bytes[i]);
+                            Debug.LogError("License Format Error");
                         }
-                        m_licdata_handle = GCHandle.Alloc(m_licdata_bytes, GCHandleType.Pinned);
-                        IntPtr licptr = m_licdata_handle.AddrOfPinnedObject();
+                        else
+                        {
+                            m_licdata_bytes = new sbyte[sbytes.Length];
+                            Debug.LogFormat("length:{0}", sbytes.Length);
+                            for (int i = 0; i < sbytes.Length; i++)
+                            {
+                                //Debug.Log(sbytes[i]);
+                                m_licdata_bytes[i] = sbyte.Parse(sbytes[i]);
+                                //Debug.Log(m_licdata_bytes[i]);
+                            }
+                            m_licdata_handle = GCHandle.Alloc(m_licdata_bytes, GCHandleType.Pinned);
+                            IntPtr licptr = m_licdata_handle.AddrOfPinnedObject();
 
-                        //load nama sdk data
-                        string fnv3 = Util.GetStreamingAssetsPath() + "/faceunity/v3.bytes";
-                        WWW v3data = new WWW(fnv3);
-                        yield return v3data;
-                        byte[] m_v3data_bytes = v3data.bytes;
-                        GCHandle m_v3data_handle = GCHandle.Alloc(m_v3data_bytes, GCHandleType.Pinned); //pinned avoid GC
-                        IntPtr dataptr = m_v3data_handle.AddrOfPinnedObject(); //pinned addr
+                            //load nama sdk data
+                            string fnv3 = Util.GetStreamingAssetsPath() + "/faceunity/v3.bytes";
+                            WWW v3data = new WWW(fnv3);
+                            yield return v3data;
+                            byte[] m_v3data_bytes = v3data.bytes;
+                            GCHandle m_v3data_handle = GCHandle.Alloc(m_v3data_bytes, GCHandleType.Pinned); //pinned avoid GC
+                            IntPtr dataptr = m_v3data_handle.AddrOfPinnedObject(); //pinned addr
 
-                        fu_Setup(dataptr, licptr, sbytes.Length); //要查看license是否有效请打开插件log（fu_EnableLog(true);）
+                            fu_Setup(dataptr, licptr, sbytes.Length); //要查看license是否有效请打开插件log（fu_EnableLog(true);）
 
-                        m_licdata_handle.Free();
-                        m_v3data_handle.Free();
-                        m_plugin_inited = true;
+                            m_licdata_handle.Free();
+                            m_v3data_handle.Free();
+                            m_plugin_inited = true;
+                        }
                     }
                 }
+                else
+                {
+                    fu_OnDeviceLost();  //清理残余，防止崩溃
+                    m_plugin_inited = true;
+                }
+
+                if (m_plugin_inited == true)
+                {
+                    string ardata_ex = Util.GetStreamingAssetsPath() + "/faceunity/ardata_ex.bytes";    //高精度AR数据
+                    WWW ardata_exdata = new WWW(ardata_ex);
+                    yield return ardata_exdata;
+                    byte[] ardata_exdata_bytes = ardata_exdata.bytes;
+                    GCHandle ardata_exdata_handle = GCHandle.Alloc(ardata_exdata_bytes, GCHandleType.Pinned);
+                    IntPtr ardata_exdataptr = ardata_exdata_handle.AddrOfPinnedObject();
+                    fu_LoadExtendedARData(ardata_exdataptr, ardata_exdata_bytes.Length);
+                    ardata_exdata_handle.Free();
+
+                    string anim_model = Util.GetStreamingAssetsPath() + "/faceunity/anim_model.bytes";    //优化面部跟踪数据
+                    WWW anim_modeldata = new WWW(anim_model);
+                    yield return anim_modeldata;
+                    byte[] anim_model_bytes = anim_modeldata.bytes;
+                    GCHandle anim_model_handle = GCHandle.Alloc(anim_model_bytes, GCHandleType.Pinned);
+                    IntPtr anim_modeldataptr = anim_model_handle.AddrOfPinnedObject();
+                    fu_LoadAnimModel(anim_modeldataptr, anim_model_bytes.Length);
+                    anim_model_handle.Free();
+
+
+
+                    SetRunningMode(FURuningMode.FU_Mode_RenderItems);   //默认模式，随时可以改
+                    SetUseNatCam(1);  //默认选项，仅安卓有效
+                    fu_SetFocalLengthScale(FocalLengthScale);   //默认值是1
+                    Debug.LogFormat("fu_SetFocalLengthScale({0})", FocalLengthScale);
+
+                    if (OnInitOK != null)
+                        OnInitOK(this, null);//触发初始化完成事件
+
+                    if (EnableExpressionLoop)
+                        InitCFaceUnityCoefficientSet();
+
+                    //Debug.Log("错误：" + fu_GetSystemError() +","+ Marshal.PtrToStringAnsi(fu_GetSystemErrorString(fu_GetSystemError())));
+
+                    yield return StartCoroutine("CallPluginAtEndOfFrames");
+                }
             }
-            else
-            {
-                fu_OnDeviceLost();  //清理残余，防止崩溃
-                m_plugin_inited = true;
-            }
-
-            if (m_plugin_inited == true)
-            {
-                string ardata_ex = Util.GetStreamingAssetsPath() + "/faceunity/ardata_ex.bytes";    //高精度AR数据
-                WWW ardata_exdata = new WWW(ardata_ex);
-                yield return ardata_exdata;
-                byte[] ardata_exdata_bytes = ardata_exdata.bytes;
-                GCHandle ardata_exdata_handle = GCHandle.Alloc(ardata_exdata_bytes, GCHandleType.Pinned);
-                IntPtr ardata_exdataptr = ardata_exdata_handle.AddrOfPinnedObject();
-                fu_LoadExtendedARData(ardata_exdataptr, ardata_exdata_bytes.Length);
-                ardata_exdata_handle.Free();
-
-                string anim_model = Util.GetStreamingAssetsPath() + "/faceunity/anim_model.bytes";    //优化面部跟踪数据
-                WWW anim_modeldata = new WWW(anim_model);
-                yield return anim_modeldata;
-                byte[] anim_model_bytes = anim_modeldata.bytes;
-                GCHandle anim_model_handle = GCHandle.Alloc(anim_model_bytes, GCHandleType.Pinned);
-                IntPtr anim_modeldataptr = anim_model_handle.AddrOfPinnedObject();
-                fu_LoadAnimModel(anim_modeldataptr, anim_model_bytes.Length);
-                anim_model_handle.Free();
-
-
-
-                SetRunningMode(FURuningMode.FU_Mode_RenderItems);   //默认模式，随时可以改
-                SetUseNatCam(1);  //默认选项，仅安卓有效
-                fu_SetFocalLengthScale(FocalLengthScale);   //默认值是1
-                Debug.LogFormat("fu_SetFocalLengthScale({0})", FocalLengthScale);
-
-                if (OnInitOK != null)
-                    OnInitOK(this, null);//触发初始化完成事件
-
-                if (EnableExpressionLoop)
-                    InitCFaceUnityCoefficientSet();
-
-                //Debug.Log("错误：" + fu_GetSystemError() +","+ Marshal.PtrToStringAnsi(fu_GetSystemErrorString(fu_GetSystemError())));
-
-                yield return StartCoroutine("CallPluginAtEndOfFrames");
-            }
+        }
+        else
+        {
+            Debug.LogError("please check your Graphics API,this plugin only supports OpenGL!");
+            yield return null;
         }
     }
     private IEnumerator CallPluginAtEndOfFrames()
@@ -780,4 +789,32 @@ public class FaceunityWorker : MonoBehaviour
         ClearImages();
     }
 
+    bool EnvironmentCheck()
+    {
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+        if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLCore
+            || SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGL2)
+            return true;
+        else
+            return false;
+#elif UNITY_STANDALONE_OSX||UNITY_EDITOR_OSX
+        if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLCore
+            || SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGL2)
+            return true;
+        else
+            return false;
+#elif UNITY_ANDROID
+        if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3
+            || SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES2)
+            return true;
+        else
+            return false;
+#elif UNITY_IOS
+        if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3
+            || SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES2)
+            return true;
+        else
+            return false;
+#endif
+    }
 }
