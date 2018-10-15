@@ -87,6 +87,13 @@ public class FaceunityWorker : MonoBehaviour
 #else
     [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
 #endif
+    public static extern int fu_LoadTongueModel(IntPtr databuf, int databuf_sz);
+
+#if UNITY_IOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+#else
+    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
+#endif
     public static extern void fu_SetExpressionCalibration(int enable);
 
 #if UNITY_IOS && !UNITY_EDITOR
@@ -162,6 +169,13 @@ public class FaceunityWorker : MonoBehaviour
     [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
 #endif
     public static extern int fu_GetModuleCode(int i);
+
+#if UNITY_IOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+#else
+    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
+#endif
+    public static extern int fu_SetASYNCTrackFace(int i);
 
 #if UNITY_IOS && !UNITY_EDITOR
     [DllImport("__Internal")]
@@ -416,6 +430,24 @@ public class FaceunityWorker : MonoBehaviour
     [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
 #endif
     public static extern void ClearImages();
+
+    /**
+     * 翻转输入的纹理，仅对使用了natcam的安卓平台有效
+     * natcam的安卓平台使用了SetDualInput，有些安卓平台nv21buf和tex的方向不一致，可以用这个接口设置tex的镜像。
+     */
+#if UNITY_IOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+#else
+    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
+#endif
+    public static extern int SetFlipTexMarkX(bool mark);
+
+#if UNITY_IOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+#else
+    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
+#endif
+    public static extern int SetFlipTexMarkY(bool mark);
 
     /**
 \brief provide camera frame data
@@ -716,7 +748,14 @@ public class FaceunityWorker : MonoBehaviour
                     fu_LoadAnimModel(anim_modeldataptr, anim_model_bytes.Length);
                     anim_model_handle.Free();
 
-
+                    string tongue = Util.GetStreamingAssetsPath() + "/faceunity/tongue.bytes";    //舌头检测
+                    WWW tonguedata = new WWW(tongue);
+                    yield return tonguedata;
+                    byte[] tongue_bytes = tonguedata.bytes;
+                    GCHandle tongue_handle = GCHandle.Alloc(tongue_bytes, GCHandleType.Pinned);
+                    IntPtr tonguedataptr = tongue_handle.AddrOfPinnedObject();
+                    fu_LoadTongueModel(tonguedataptr, tongue_bytes.Length);
+                    tongue_handle.Free();
 
                     SetRunningMode(FURuningMode.FU_Mode_RenderItems);   //默认模式，随时可以改
                     SetUseNatCam(1);  //默认选项，仅安卓有效

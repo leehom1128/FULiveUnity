@@ -44,10 +44,14 @@ public class RenderToTexture : MonoBehaviour
     public RawImage RawImg_BackGroud;
     private Quaternion baseRotation;
 
-    private string currentItem = "";
-    private int currentItemID = -1;
-    private string beautyitem = "";
-    private int beautyitemID = -1;
+    public const int SLOTLENGTH = 10;
+    private struct slot_item
+    {
+        public string name;
+        public int id;
+    };
+    private slot_item[] slot_items;
+
 
 
     public void OnStart()
@@ -83,7 +87,10 @@ public class RenderToTexture : MonoBehaviour
     IEnumerator delaySetItemMirror()
     {
         yield return Util._endOfFrame;
-        SetItemMirror();
+        for(int i=0;i< SLOTLENGTH;i++)
+        {
+            SetItemMirror(i);
+        }
     }
 
     public void SelfAdjusSize()
@@ -224,9 +231,17 @@ public class RenderToTexture : MonoBehaviour
         FaceunityWorker.instance.OnInitOK += InitApplication;
         if (itemid_tosdk == null)
         {
-            itemid_tosdk = new int[5];
+            //默认slot槽长度为SLOTLENGTH=10
+            itemid_tosdk = new int[SLOTLENGTH];
             itemid_handle = GCHandle.Alloc(itemid_tosdk, GCHandleType.Pinned);
             p_itemsid = itemid_handle.AddrOfPinnedObject();
+
+            slot_items = new slot_item[SLOTLENGTH];
+            for(int i=0;i< SLOTLENGTH;i++)
+            {
+                slot_items[i].id = 0;
+                slot_items[i].name = "";
+            }
         }
     }
 
@@ -312,14 +327,14 @@ public class RenderToTexture : MonoBehaviour
     }
 
     public delegate void LoadItemCallback(string message);
-    public IEnumerator LoadItem(Item item, LoadItemCallback cb=null)
+    public IEnumerator LoadItem(Item item, int slotid = 0, LoadItemCallback cb=null)
     {
-        if (LoadingItem == false && item.fullname != null && item.fullname.Length != 0)
+        if (LoadingItem == false && item.fullname != null && item.fullname.Length != 0 && slotid >= 0 && slotid < SLOTLENGTH)
         {
             LoadingItem = true;
-            if (!string.Equals(currentItem, item.name)&&!string.Equals(beautyitem, item.name))
+            int tempslot = GetSlotIDbyName(item.name);
+            if (tempslot < 0)   //如果尚未载入道具数据
             {
-                Debug.Log("载入Item：" + item.name + "    当前Item：" + currentItem);
                 var bundledata = Resources.LoadAsync<TextAsset>(item.fullname);
                 yield return bundledata;
                 var data = bundledata.asset as TextAsset;
@@ -329,160 +344,181 @@ public class RenderToTexture : MonoBehaviour
                 IntPtr pObject = hObject.AddrOfPinnedObject();
                 yield return FaceunityWorker.fu_CreateItemFromPackage(pObject, bundle_bytes.Length);
                 hObject.Free();
-
                 int itemid = FaceunityWorker.fu_getItemIdxFromPackage();
 
-                int itemnum = 0;
-                if (beautyitemID >= 0 && itemid >= 0)
-                {
-                    itemid_tosdk[0] = beautyitemID;
-                    itemid_tosdk[1] = itemid;
-                    itemnum = 2;
-                }
-                else if (beautyitemID >= 0)
-                {
-                    itemid_tosdk[0] = beautyitemID;
-                    itemnum = 1;
-                }
-                else if (itemid >= 0)
-                {
-                    itemid_tosdk[0] = itemid;
-                    itemnum = 1;
-                }
-                FaceunityWorker.fu_setItemIds(p_itemsid, itemnum, IntPtr.Zero);
-                UnLoadItem(currentItem);
+                UnLoadItem(slotid); //卸载上一个在这个slot槽内的道具，并非必要，但是为了节省内存还是清一下
 
-                if (string.Equals(item.name, ItemConfig.beautySkin[0].name))
-                {
-                    beautyitemID = itemid;
-                    beautyitem = item.name;
-                    Debug.LogFormat("fu_CreateItemFromPackage beautyitem id:{0}", beautyitemID);
-                }
-                else
-                {
-                    currentItemID = itemid;
-                    currentItem = item.name;
-                    Debug.LogFormat("fu_CreateItemFromPackage currentItem id:{0}", currentItemID);
-                }
+                itemid_tosdk[slotid] = itemid;
+                slot_items[slotid].id = itemid;
+                slot_items[slotid].name = item.name;
+
+                FaceunityWorker.fu_setItemIds(p_itemsid, SLOTLENGTH, IntPtr.Zero);
+                Debug.Log("载入Item：" + item.name + " @slotid=" + slotid);
             }
-            if (item.type==1)
+            else if(tempslot != slotid)    //道具已载入，但是不在请求的slot槽内
+            {
+                UnLoadItem(slotid);
+
+                itemid_tosdk[slotid] = slot_items[tempslot].id;
+                slot_items[slotid].id = slot_items[tempslot].id;
+                slot_items[slotid].name = slot_items[tempslot].name;
+
+                itemid_tosdk[tempslot] = 0;
+                slot_items[tempslot].id = 0;
+                slot_items[tempslot].name = "";
+
+                FaceunityWorker.fu_setItemIds(p_itemsid, SLOTLENGTH, IntPtr.Zero);
+                Debug.Log("移动Item：" + item.name + " from tempslot=" + tempslot + " to slotid="+ slotid);
+            }
+            else    //tempslot == slotid 即重复载入同一个道具进同一个slot槽，直接跳过
+            {
+                Debug.Log("重复载入Item："+ item.name +"  slotid="+ slotid);
+            }
+            if (item.type == 1)
                 flipmark = false;
             else
                 flipmark = true;
+            SetItemMirror(slotid);
+
             if (cb != null)
                 cb(item.name);//触发载入道具完成事件
-            SetItemMirror();
+            
             LoadingItem = false;
         }
     }
 
-    public string GetCurrentItemName()
+    public int GetItemIDbyName(string name)
     {
-        return currentItem;
+        for(int i=0;i< SLOTLENGTH; i++)
+        {
+            if (string.Equals(slot_items[i].name, name))
+                return slot_items[i].id;
+        }
+        return 0;
     }
 
-    public void UnLoadItem(string itemname)
+    public string GetItemNamebySlotID(int slotid)
     {
-        Debug.Log("UnLoadItem name=" + itemname);
-        if (itemname.Length > 0)
+        if (slotid >= 0 && slotid < SLOTLENGTH)
         {
-            if (string.Equals(currentItem, itemname))
-            {
-                FaceunityWorker.fu_DestroyItem(currentItemID);
-                currentItem = "";
-                currentItemID = -1;
-            }
-            else if (string.Equals(beautyitem, itemname))
-            {
-                FaceunityWorker.fu_DestroyItem(beautyitemID);
-                beautyitem = "";
-                beautyitemID = -1;
-            }
+            return slot_items[slotid].name;
         }
+        return "";
+    }
+
+    public int GetSlotIDbyName(string name)
+    {
+        for (int i = 0; i < SLOTLENGTH; i++)
+        {
+            if (string.Equals(slot_items[i].name, name))
+                return i;
+        }
+        return -1;
+    }
+
+    public bool UnLoadItem(string itemname)
+    {
+        return UnLoadItem(GetSlotIDbyName(itemname));
+    }
+
+    public bool UnLoadItem(int slotid)
+    {
+        if (slotid >= 0 && slotid< SLOTLENGTH)
+        {
+            if (slot_items[slotid].id == 0)
+                return true;
+            Debug.Log("UnLoadItem name=" + slot_items[slotid].name+ " slotid="+ slotid);
+
+            FaceunityWorker.fu_DestroyItem(slot_items[slotid].id);
+            itemid_tosdk[slotid] = 0;
+            slot_items[slotid].id = 0;
+            slot_items[slotid].name = "";
+            return true;
+        }
+        Debug.LogWarning("UnLoadItem Faild!!!");
+        return false;
     }
 
     public void UnLoadAllItems()
     {
         Debug.Log("UnLoadAllItems");
         FaceunityWorker.fu_DestroyAllItems();
-        currentItem = "";
-        currentItemID = -1;
-        beautyitem = "";
-        beautyitemID = -1;
+
+        for (int i = 0; i < SLOTLENGTH; i++)
+        {
+            itemid_tosdk[i] = 0;
+            slot_items[i] = new slot_item { name = "", id = 0 };
+        }
     }
 
     public void SetItemParamd(string itemname, string paramdname, double value)
     {
-        if (itemname.Length > 0)
+        SetItemParamd(GetSlotIDbyName(itemname), paramdname, value);
+    }
+
+    public void SetItemParamd(int slotid, string paramdname, double value)
+    {
+        if (slotid >= 0 && slotid< SLOTLENGTH)
         {
-            if (string.Equals(currentItem, itemname))
-            {
-                FaceunityWorker.fu_ItemSetParamd(currentItemID, paramdname, value);
-            }
-            else if(string.Equals(beautyitem, itemname))
-            {
-                FaceunityWorker.fu_ItemSetParamd(beautyitemID, paramdname, value);
-            }
+            FaceunityWorker.fu_ItemSetParamd(slot_items[slotid].id, paramdname, value);
         }
     }
 
     public double GetItemParamd(string itemname, string paramdname)
     {
-        if (itemname.Length > 0)
+
+        return GetItemParamd(GetSlotIDbyName(itemname), paramdname);
+    }
+
+    public double GetItemParamd(int slotid, string paramdname)
+    {
+        if (slotid >= 0 && slotid < SLOTLENGTH)
         {
-            if (string.Equals(currentItem, itemname))
-            {
-                return FaceunityWorker.fu_ItemGetParamd(currentItemID, paramdname);
-            }
-            else if (string.Equals(beautyitem, itemname))
-            {
-                return FaceunityWorker.fu_ItemGetParamd(beautyitemID, paramdname);
-            }
-            return 0;
+            return FaceunityWorker.fu_ItemGetParamd(slot_items[slotid].id, paramdname);
         }
         return 0;
     }
 
     public void SetItemParams(string itemname, string paramdname, string value)
     {
-        if (itemname.Length > 0)
+        SetItemParams(GetSlotIDbyName(itemname), paramdname, value);
+    }
+
+    public void SetItemParams(int slotid, string paramdname, string value)
+    {
+        if (slotid >= 0 && slotid < SLOTLENGTH)
         {
-            if (string.Equals(currentItem, itemname))
-            {
-                FaceunityWorker.fu_ItemSetParams(currentItemID, paramdname, value);
-            }
-            else if (string.Equals(beautyitem, itemname))
-            {
-                FaceunityWorker.fu_ItemSetParams(beautyitemID, paramdname, value);
-            }
+            FaceunityWorker.fu_ItemSetParams(slot_items[slotid].id, paramdname, value);
         }
     }
 
     public string GetItemParams(string itemname, string paramdname)
     {
-        if (itemname.Length > 0)
+        return GetItemParams(GetSlotIDbyName(itemname),paramdname);
+    }
+
+    public string GetItemParams(int slotid, string paramdname)
+    {
+        if (slotid >= 0 && slotid < SLOTLENGTH)
         {
-            if (string.Equals(currentItem, itemname))
-            {
-                byte[] bytes = new byte[32];
-                int i = FaceunityWorker.fu_ItemGetParams(currentItemID, paramdname, bytes, 32);
-                return System.Text.Encoding.Default.GetString(bytes).Replace("\0", "");
-            }
-            else if (string.Equals(beautyitem, itemname))
-            {
-                byte[] bytes = new byte[32];
-                int i = FaceunityWorker.fu_ItemGetParams(beautyitemID, paramdname, bytes, 32);
-                return System.Text.Encoding.Default.GetString(bytes).Replace("\0", "");
-            }
-            return "";
+            byte[] bytes = new byte[32];
+            int i = FaceunityWorker.fu_ItemGetParams(slot_items[slotid].id, paramdname, bytes, 32);
+            return System.Text.Encoding.Default.GetString(bytes).Replace("\0", "");
         }
         return "";
     }
 
     bool flipmark = true;
-    public void SetItemMirror()
+    public void SetItemMirror(int slotid)
     {
-        SetItemParamd(currentItem, "camera_change", 1.0);
+        if (slotid < 0 || slotid >= SLOTLENGTH)
+        {
+            return;
+        }
+        int itemid = slot_items[slotid].id;
+        if (itemid <= 0)
+            return;
+        FaceunityWorker.fu_ItemSetParamd(itemid, "camera_change", 1.0);
         bool ifMirrored = NatCam.Camera.Facing == Facing.Front;
 #if (UNITY_ANDROID) && (!UNITY_EDITOR)
         //道具旋转
@@ -501,7 +537,7 @@ public class RenderToTexture : MonoBehaviour
                 FaceunityWorker.fu_SetDefaultRotationMode(3);
         }
         ifMirrored = !ifMirrored;
-        SetItemParamd(currentItem, "isAndroid", 1.0);
+        FaceunityWorker.fu_ItemSetParamd(itemid, "isAndroid", 1.0);
 #endif
 #if (UNITY_IOS) && (!UNITY_EDITOR)
         FaceunityWorker.fu_SetDefaultRotationMode(2);
@@ -510,9 +546,9 @@ public class RenderToTexture : MonoBehaviour
         int param = ifMirrored && flipmark ? 1 : 0;
 
         //is3DFlipH 参数是用于对3D道具的镜像
-        SetItemParamd(currentItem, "is3DFlipH", param);
+        FaceunityWorker.fu_ItemSetParamd(itemid, "is3DFlipH", param);
         //isFlipExpr 参数是用于对道具内部的表情系数的镜像
-        SetItemParamd(currentItem, "isFlipExpr", param);
+        FaceunityWorker.fu_ItemSetParamd(itemid, "isFlipExpr", param);
     }
 
     private void OnApplicationQuit()

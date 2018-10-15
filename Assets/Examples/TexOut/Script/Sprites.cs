@@ -16,11 +16,19 @@ public class Sprites : MonoBehaviour {
     public Sprite[] spritelist_10;
     public Sprite[] spritelist_11;
 
+    public Sprite[] spritelist_12;  //makeup
+    public Sprite[] spritelist_13;
+    public Sprite[] spritelist_14;
+    public Sprite[] spritelist_15;
+    public Sprite[] spritelist_16;
+    public Sprite[] spritelist_17;
+    public Sprite[] spritelist_18;
+
     Sprite[][] spritelist;
 
     private void Awake()
     {
-        spritelist = new Sprite[12][];
+        spritelist = new Sprite[19][];
         spritelist[0] = spritelist_0;
         spritelist[1] = spritelist_1;
         spritelist[2] = spritelist_2;
@@ -33,6 +41,13 @@ public class Sprites : MonoBehaviour {
         spritelist[9] = spritelist_9;
         spritelist[10] = spritelist_10;
         spritelist[11] = spritelist_11;
+        spritelist[12] = spritelist_12;
+        spritelist[13] = spritelist_13;
+        spritelist[14] = spritelist_14;
+        spritelist[15] = spritelist_15;
+        spritelist[16] = spritelist_16;
+        spritelist[17] = spritelist_17;
+        spritelist[18] = spritelist_18;
     } 
 
     public Sprite GetSprite(int type,int id)

@@ -1,4 +1,7 @@
-﻿Shader "Custom/SpecularPerPixle"
+﻿// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
+// Upgrade NOTE: replaced '_World2Object' with 'unity_WorldToObject'
+
+Shader "Custom/SpecularPerPixle"
 {
     Properties
     {
@@ -49,9 +52,9 @@
                 v2f o;
                 o.pos = mul(UNITY_MATRIX_MVP,v.vertex);
 
-                o.worldNormal = mul(v.normal,(float3x3)_World2Object);
+                o.worldNormal = mul(v.normal,(float3x3)unity_WorldToObject);
 
-                o.worldPos = mul(_Object2World, v.vertex).xyz;
+                o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
 
                 //o.uv = v.texcoord.xy * _MainTex_ST.xy + _MainTex_ST.zw;
                 // Or just call the built-in function

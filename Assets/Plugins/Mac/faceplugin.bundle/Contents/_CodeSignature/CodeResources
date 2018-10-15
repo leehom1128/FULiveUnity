@@ -10,28 +10,37 @@
 		<dict>
 			<key>cdhash</key>
 			<data>
-			2VkQJFmjhINfpTuv5pcUn9g0cIQ=
+			j0N6AKSaOibJwv2ptpU1HxE2FV8=
 			</data>
 			<key>requirement</key>
-			<string>identifier "dde_core" and anchor apple generic and certificate leaf[subject.CN] = "Mac Developer: Qin Hao (V2A3BFAY3H)" and certificate 1[field.1.2.840.113635.100.6.2.1] /* exists */</string>
+			<string>identifier "dde_core" and anchor apple generic and certificate leaf[subject.CN] = "Mac Developer: Hao Qin (4BFVKDFJMK)" and certificate 1[field.1.2.840.113635.100.6.2.1] /* exists */</string>
 		</dict>
 		<key>MacOS/faceplugin.dylib</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			Eqxy68ZAv5iPKpGqePvghTZnoeE=
+			3EWxHTmXp5R6nfWeMNrKfzdxIuE=
 			</data>
 			<key>requirement</key>
-			<string>identifier faceplugin and anchor apple generic and certificate leaf[subject.CN] = "Mac Developer: Qin Hao (V2A3BFAY3H)" and certificate 1[field.1.2.840.113635.100.6.2.1] /* exists */</string>
+			<string>identifier faceplugin and anchor apple generic and certificate leaf[subject.CN] = "Mac Developer: Hao Qin (4BFVKDFJMK)" and certificate 1[field.1.2.840.113635.100.6.2.1] /* exists */</string>
+		</dict>
+		<key>MacOS/libtensorflow-lite.dylib</key>
+		<dict>
+			<key>cdhash</key>
+			<data>
+			XjDF1VFjb2rZInH9Eej1DDiUa+c=
+			</data>
+			<key>requirement</key>
+			<string>identifier "libtensorflow-lite" and anchor apple generic and certificate leaf[subject.CN] = "Mac Developer: Hao Qin (4BFVKDFJMK)" and certificate 1[field.1.2.840.113635.100.6.2.1] /* exists */</string>
 		</dict>
 		<key>MacOS/nama.dylib</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			PwQj6GEYxQJnpQOsOFESqyvR9VE=
+			ZAHG+ryVZD/b2GHQs85O1qDwfCQ=
 			</data>
 			<key>requirement</key>
-			<string>identifier nama and anchor apple generic and certificate leaf[subject.CN] = "Mac Developer: Qin Hao (V2A3BFAY3H)" and certificate 1[field.1.2.840.113635.100.6.2.1] /* exists */</string>
+			<string>identifier nama and anchor apple generic and certificate leaf[subject.CN] = "Mac Developer: Hao Qin (4BFVKDFJMK)" and certificate 1[field.1.2.840.113635.100.6.2.1] /* exists */</string>
 		</dict>
 	</dict>
 	<key>rules</key>

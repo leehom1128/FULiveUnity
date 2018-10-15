@@ -25,11 +25,15 @@ public class ItemConfig
 
     //Animoji
     public static Item[] item_1 = {
+        new Item { name = "frog_Animoji", fullname = "items/Animoji/frog_Animoji", iconid = 4 ,type=1},
+        new Item { name = "huangya_Animoji", fullname = "items/Animoji/huangya_Animoji", iconid = 7 ,type=1},
+        new Item { name = "hetun_Animoji", fullname = "items/Animoji/hetun_Animoji", iconid = 6 ,type=1},
+        new Item { name = "buoutuzi_Animoji", fullname = "items/Animoji/buoutuzi_Animoji", iconid = 1 ,type=1},
+        new Item { name = "douniuquan_Animoji", fullname = "items/Animoji/douniuquan_Animoji", iconid = 3 ,type=1},
+        new Item { name = "hashiqi_Animoji", fullname = "items/Animoji/hashiqi_Animoji", iconid = 5 ,type=1},
         new Item { name = "baimao_Animoji", fullname = "items/Animoji/baimao_Animoji", iconid = 0 ,type=1},
-        new Item { name = "chaiquan_Animoji", fullname = "items/Animoji/chaiquan_Animoji", iconid = 1 ,type=1},
-        new Item { name = "douniuquan_Animoji", fullname = "items/Animoji/douniuquan_Animoji", iconid = 2 ,type=1},
-        new Item { name = "kulutou_Animoji", fullname = "items/Animoji/kulutou_Animoji", iconid = 3 ,type=1},
-        new Item { name = "maotouying_Animoji", fullname = "items/Animoji/maotouying_Animoji", iconid = 4 ,type=1},
+        new Item { name = "chaiquan_Animoji", fullname = "items/Animoji/chaiquan_Animoji", iconid = 2 ,type=1},
+        new Item { name = "kuloutou_Animoji", fullname = "items/Animoji/kuloutou_Animoji", iconid = 8 ,type=1},
     };
 
     //ItemSticker
@@ -129,11 +133,87 @@ public class ItemConfig
         new Item { name = "picasso_e2", fullname = "items/PortraitDrive/picasso_e2", iconid = 1 ,type=11},
         new Item { name = "picasso_e3", fullname = "items/PortraitDrive/picasso_e3", iconid = 2 ,type=11},
     };
+
+    //Makeup lipstick
+    public static Item[] item_makeup_1 ={
+        new Item { name = "MU_Lipstick_01", fullname = "makeup/lipstick/MU_Lipstick_01", iconid = 0 ,type=12},
+        new Item { name = "MU_Lipstick_02", fullname = "makeup/lipstick/MU_Lipstick_02", iconid = 1 ,type=12},
+        new Item { name = "MU_Lipstick_03", fullname = "makeup/lipstick/MU_Lipstick_03", iconid = 2 ,type=12},
+        new Item { name = "MU_Lipstick_04", fullname = "makeup/lipstick/MU_Lipstick_04", iconid = 3 ,type=12},
+        new Item { name = "MU_Lipstick_05", fullname = "makeup/lipstick/MU_Lipstick_05", iconid = 4 ,type=12},
+        new Item { name = "MU_Lipstick_06", fullname = "makeup/lipstick/MU_Lipstick_06", iconid = 5 ,type=12},
+    };
+
+    //Makeup blusher
+    public static Item[] item_makeup_2 ={
+        new Item { name = "MU_Blush_01", fullname = "makeup/blusher/MU_Blush_01", iconid = 0 ,type=13},
+        new Item { name = "MU_Blush_02", fullname = "makeup/blusher/MU_Blush_02", iconid = 1 ,type=13},
+        new Item { name = "MU_Blush_03", fullname = "makeup/blusher/MU_Blush_03", iconid = 2 ,type=13},
+        new Item { name = "MU_Blush_04", fullname = "makeup/blusher/MU_Blush_04", iconid = 3 ,type=13},
+        new Item { name = "MU_Blush_05", fullname = "makeup/blusher/MU_Blush_05", iconid = 4 ,type=13},
+        new Item { name = "MU_Blush_06", fullname = "makeup/blusher/MU_Blush_06", iconid = 5 ,type=13},
+        new Item { name = "MU_Blush_07", fullname = "makeup/blusher/MU_Blush_07", iconid = 6 ,type=13},
+        new Item { name = "MU_Blush_08", fullname = "makeup/blusher/MU_Blush_08", iconid = 7 ,type=13},
+        new Item { name = "MU_Blush_09", fullname = "makeup/blusher/MU_Blush_09", iconid = 8 ,type=13},
+        new Item { name = "MU_Blush_10", fullname = "makeup/blusher/MU_Blush_10", iconid = 9 ,type=13},
+    };
+
+    //Makeup eyebrow
+    public static Item[] item_makeup_3 ={
+        new Item { name = "MU_Eyebrow_01", fullname = "makeup/eyebrow/MU_Eyebrow_01", iconid = 0 ,type=14},
+        new Item { name = "MU_Eyebrow_02", fullname = "makeup/eyebrow/MU_Eyebrow_02", iconid = 1 ,type=14},
+        new Item { name = "MU_Eyebrow_03", fullname = "makeup/eyebrow/MU_Eyebrow_03", iconid = 2 ,type=14},
+        new Item { name = "MU_Eyebrow_04", fullname = "makeup/eyebrow/MU_Eyebrow_04", iconid = 3 ,type=14},
+        new Item { name = "MU_Eyebrow_05", fullname = "makeup/eyebrow/MU_Eyebrow_05", iconid = 4 ,type=14},
+        new Item { name = "MU_Eyebrow_06", fullname = "makeup/eyebrow/MU_Eyebrow_06", iconid = 5 ,type=14},
+    };
+
+    //Makeup eyeshadow
+    public static Item[] item_makeup_4 ={
+        new Item { name = "MU_EyeShadow_01", fullname = "makeup/eyeshadow/MU_EyeShadow_01", iconid = 0 ,type=15},
+        new Item { name = "MU_EyeShadow_02", fullname = "makeup/eyeshadow/MU_EyeShadow_02", iconid = 1 ,type=15},
+        new Item { name = "MU_EyeShadow_03", fullname = "makeup/eyeshadow/MU_EyeShadow_03", iconid = 2 ,type=15},
+        new Item { name = "MU_EyeShadow_04", fullname = "makeup/eyeshadow/MU_EyeShadow_04", iconid = 3 ,type=15},
+        new Item { name = "MU_EyeShadow_05", fullname = "makeup/eyeshadow/MU_EyeShadow_05", iconid = 4 ,type=15},
+        new Item { name = "MU_EyeShadow_06", fullname = "makeup/eyeshadow/MU_EyeShadow_06", iconid = 5 ,type=15},
+    };
+
+    //Makeup eyeliner
+    public static Item[] item_makeup_5 ={
+        new Item { name = "MU_EyeLiner_01", fullname = "makeup/eyeliner/MU_EyeLiner_01", iconid = 0 ,type=16},
+        new Item { name = "MU_EyeLiner_02", fullname = "makeup/eyeliner/MU_EyeLiner_02", iconid = 1 ,type=16},
+        new Item { name = "MU_EyeLiner_03", fullname = "makeup/eyeliner/MU_EyeLiner_03", iconid = 2 ,type=16},
+        new Item { name = "MU_EyeLiner_04", fullname = "makeup/eyeliner/MU_EyeLiner_04", iconid = 3 ,type=16},
+        new Item { name = "MU_EyeLiner_05", fullname = "makeup/eyeliner/MU_EyeLiner_05", iconid = 4 ,type=16},
+        new Item { name = "MU_EyeLiner_06", fullname = "makeup/eyeliner/MU_EyeLiner_06", iconid = 5 ,type=16},
+    };
+
+    //Makeup eyelash
+    public static Item[] item_makeup_6 ={
+        new Item { name = "MU_Eyelash_01", fullname = "makeup/eyelash/MU_Eyelash_01", iconid = 0 ,type=17},
+        new Item { name = "MU_Eyelash_02", fullname = "makeup/eyelash/MU_Eyelash_02", iconid = 1 ,type=17},
+        new Item { name = "MU_Eyelash_03", fullname = "makeup/eyelash/MU_Eyelash_03", iconid = 2 ,type=17},
+        new Item { name = "MU_Eyelash_04", fullname = "makeup/eyelash/MU_Eyelash_04", iconid = 3 ,type=17},
+        new Item { name = "MU_Eyelash_05", fullname = "makeup/eyelash/MU_Eyelash_05", iconid = 4 ,type=17},
+        new Item { name = "MU_Eyelash_06", fullname = "makeup/eyelash/MU_Eyelash_06", iconid = 5 ,type=17},
+    };
+
+    //Makeup contactlens
+    public static Item[] item_makeup_7 ={
+        new Item { name = "MU_ContactLenses_01", fullname = "makeup/contactlens/MU_ContactLenses_01", iconid = 0 ,type=18},
+        new Item { name = "MU_ContactLenses_02", fullname = "makeup/contactlens/MU_ContactLenses_02", iconid = 1 ,type=18},
+        new Item { name = "MU_ContactLenses_03", fullname = "makeup/contactlens/MU_ContactLenses_03", iconid = 2 ,type=18},
+        new Item { name = "MU_ContactLenses_04", fullname = "makeup/contactlens/MU_ContactLenses_04", iconid = 3 ,type=18},
+        new Item { name = "MU_ContactLenses_05", fullname = "makeup/contactlens/MU_ContactLenses_05", iconid = 4 ,type=18},
+        new Item { name = "MU_ContactLenses_06", fullname = "makeup/contactlens/MU_ContactLenses_06", iconid = 5 ,type=18},
+        new Item { name = "MU_ContactLenses_07", fullname = "makeup/contactlens/MU_ContactLenses_07", iconid = 6 ,type=18},
+        new Item { name = "MU_ContactLenses_08", fullname = "makeup/contactlens/MU_ContactLenses_08", iconid = 7 ,type=18},
+        new Item { name = "MU_ContactLenses_09", fullname = "makeup/contactlens/MU_ContactLenses_09", iconid = 8 ,type=18},
+    };
 }
 
 public class Beauty
 {
-    public bool ifenable = false;
     public float currentvalue = 0;
 
     public string name = "";
@@ -143,47 +223,45 @@ public class Beauty
     public float disablevalue = 0;
     public int iconid_0 = -1;
     public int iconid_1 = -1;
-
 };
 
 public class BeautyConfig
 {
     public static Beauty[] beautySkin_1 = {
         new Beauty { name = "精准美肤", paramword = "skin_detect", maxvalue=1, defaultvalue=1, disablevalue=0, iconid_0 = 0,iconid_1=1 },//0-1 int,d=0
-        new Beauty { name = "清晰磨皮", paramword = "heavy_blur", maxvalue=1, defaultvalue=0, disablevalue=0, iconid_0 = 2,iconid_1=2 },//0-1 int,d=0 朦胧磨皮
-        new Beauty { name = "磨皮", paramword = "blur_level", maxvalue=6, defaultvalue=6, disablevalue=0, iconid_0 = 4,iconid_1=5 },//0-6 int,
-        new Beauty { name = "美白", paramword = "color_level", maxvalue=1, defaultvalue=0.5f, disablevalue=0, iconid_0 = 6,iconid_1=7 },//0-1f
-        new Beauty { name = "红润", paramword = "red_level", maxvalue=1, defaultvalue=0.5f, disablevalue=0, iconid_0 = 8,iconid_1=9 },//0-1f
-        new Beauty { name = "亮眼", paramword = "eye_bright", maxvalue=1, defaultvalue=0.7f, disablevalue=0, iconid_0 = 10,iconid_1=11 },//0-1f
-        new Beauty { name = "美牙", paramword = "tooth_whiten", maxvalue=1, defaultvalue=0.7f, disablevalue=0, iconid_0 = 12,iconid_1=13 },//0-1f
-        new Beauty { name = "重置", paramword = "RESET", iconid_0 = 14,iconid_1=14 },
+        new Beauty { name = "清晰磨皮", paramword = "heavy_blur", maxvalue=1, defaultvalue=0, disablevalue=0, iconid_0 = 2,iconid_1=3 },//0-1 int,d=0 朦胧磨皮
+        new Beauty { name = "磨皮", paramword = "blur_level", maxvalue=6, defaultvalue=6, disablevalue=0, iconid_0 = 2,iconid_1=3 },//0-6 int,
+        new Beauty { name = "美白", paramword = "color_level", maxvalue=1, defaultvalue=0.5f, disablevalue=0, iconid_0 = 4,iconid_1=5 },//0-1f
+        new Beauty { name = "红润", paramword = "red_level", maxvalue=1, defaultvalue=0.5f, disablevalue=0, iconid_0 = 6,iconid_1=7 },//0-1f
+        new Beauty { name = "亮眼", paramword = "eye_bright", maxvalue=1, defaultvalue=0.7f, disablevalue=0, iconid_0 = 8,iconid_1=9 },//0-1f
+        new Beauty { name = "美牙", paramword = "tooth_whiten", maxvalue=1, defaultvalue=0.7f, disablevalue=0, iconid_0 = 10,iconid_1=11 },//0-1f
     };
 
     public static Beauty[] beautySkin_2 = {
-        new Beauty { name = "脸型", paramword = "face_shape", maxvalue=4, defaultvalue=4, disablevalue=3, iconid_0 = 15,iconid_1=16 },//0-4 int ,d=3
-        new Beauty { name = "大眼", paramword = "eye_enlarging", maxvalue=1, defaultvalue=0.4f, disablevalue=0, iconid_0 = 17,iconid_1=18 },//0-1f
-        new Beauty { name = "瘦脸", paramword = "cheek_thinning", maxvalue=1, defaultvalue=0.4f, disablevalue=0, iconid_0 = 19,iconid_1=20 },//0-1f
-        new Beauty { name = "下巴", paramword = "intensity_chin", maxvalue=1, defaultvalue=0.3f, disablevalue=0.5f, iconid_0 = 21,iconid_1=22 },//0-1f
-        new Beauty { name = "额头", paramword = "intensity_forehead", maxvalue=1, defaultvalue=0.3f, disablevalue=0.5f, iconid_0 = 23,iconid_1=24 },//0-1f
-        new Beauty { name = "瘦鼻", paramword = "intensity_nose", maxvalue=1, defaultvalue=0.5f, disablevalue=0, iconid_0 = 25,iconid_1=26 },//0-1f
-        new Beauty { name = "嘴型", paramword = "intensity_mouth", maxvalue=1, defaultvalue=0.4f, disablevalue=0.5f, iconid_0 = 27,iconid_1=28 },//0-1f
-        new Beauty { name = "重置", paramword = "RESET", iconid_0 = 14,iconid_1=14 },
+        new Beauty { name = "脸型", paramword = "face_shape", maxvalue=4, defaultvalue=4, disablevalue=-1, iconid_0 = 12,iconid_1=13 },//0-4 int ,d=3
+        new Beauty { name = "大眼", paramword = "eye_enlarging", maxvalue=1, defaultvalue=0.4f, disablevalue=0, iconid_0 = 14,iconid_1=15 },//0-1f
+        new Beauty { name = "瘦脸", paramword = "cheek_thinning", maxvalue=1, defaultvalue=0.4f, disablevalue=0, iconid_0 = 16,iconid_1=17 },//0-1f
+        new Beauty { name = "下巴", paramword = "intensity_chin", maxvalue=1, defaultvalue=0.3f, disablevalue=0.5f, iconid_0 = 18,iconid_1=19 },//0-1f
+        new Beauty { name = "额头", paramword = "intensity_forehead", maxvalue=1, defaultvalue=0.3f, disablevalue=0.5f, iconid_0 = 20,iconid_1=21 },//0-1f
+        new Beauty { name = "瘦鼻", paramword = "intensity_nose", maxvalue=1, defaultvalue=0.5f, disablevalue=0, iconid_0 = 22,iconid_1=23 },//0-1f
+        new Beauty { name = "嘴型", paramword = "intensity_mouth", maxvalue=1, defaultvalue=0.4f, disablevalue=0.5f, iconid_0 = 24,iconid_1=25 },//0-1f
     };
 
     public static Beauty[] beautySkin_3 = {
-        new Beauty { name = "自然", paramword = "ziran", maxvalue=1, defaultvalue=0.5f, iconid_0 = 29},//0-1f
-        new Beauty { name = "淡雅", paramword = "danya", maxvalue=1, defaultvalue=0.5f, iconid_0 = 30},
-        new Beauty { name = "粉嫩", paramword = "fennen", maxvalue=1, defaultvalue=0.5f, iconid_0 = 31},
-        new Beauty { name = "清新", paramword = "qingxin", maxvalue=1, defaultvalue=0.5f, iconid_0 = 32},
-        new Beauty { name = "红润", paramword = "hongrun", maxvalue=1, defaultvalue=0.5f, iconid_0 = 33},
+        new Beauty { name = "原图", paramword = "origin", maxvalue=1, defaultvalue=0.5f, iconid_0 = 31},//0-1f
+        new Beauty { name = "自然", paramword = "ziran", maxvalue=1, defaultvalue=0.5f, iconid_0 = 26},
+        new Beauty { name = "淡雅", paramword = "danya", maxvalue=1, defaultvalue=0.5f, iconid_0 = 27},
+        new Beauty { name = "粉嫩", paramword = "fennen", maxvalue=1, defaultvalue=0.5f, iconid_0 = 28},
+        new Beauty { name = "清新", paramword = "qingxin", maxvalue=1, defaultvalue=0.5f, iconid_0 = 29},
+        new Beauty { name = "红润", paramword = "hongrun", maxvalue=1, defaultvalue=0.5f, iconid_0 = 30},
     };
 
     public static Beauty[] beautySkin_4 = {
-        new Beauty { name = "origin", paramword = "origin", maxvalue=1, defaultvalue=0.5f, iconid_0 = 34},//0-1f
-        new Beauty { name = "delta", paramword = "delta", maxvalue=1, defaultvalue=0.5f, iconid_0 = 35},
-        new Beauty { name = "electric", paramword = "electric", maxvalue=1, defaultvalue=0.5f, iconid_0 = 36},
-        new Beauty { name = "slowlived", paramword = "slowlived", maxvalue=1, defaultvalue=0.5f, iconid_0 = 37},
-        new Beauty { name = "tokyo", paramword = "tokyo", maxvalue=1, defaultvalue=0.5f, iconid_0 = 38},
-        new Beauty { name = "warm", paramword = "warm", maxvalue=1, defaultvalue=0.5f, iconid_0 = 39},
+        new Beauty { name = "Origin", paramword = "origin", maxvalue=1, defaultvalue=0.5f, iconid_0 = 31},//0-1f
+        new Beauty { name = "Delta", paramword = "delta", maxvalue=1, defaultvalue=0.5f, iconid_0 = 32},
+        new Beauty { name = "Electric", paramword = "electric", maxvalue=1, defaultvalue=0.5f, iconid_0 = 33},
+        new Beauty { name = "Slowlived", paramword = "slowlived", maxvalue=1, defaultvalue=0.5f, iconid_0 = 34},
+        new Beauty { name = "Tokyo", paramword = "tokyo", maxvalue=1, defaultvalue=0.5f, iconid_0 = 35},
+        new Beauty { name = "Warm", paramword = "warm", maxvalue=1, defaultvalue=0.5f, iconid_0 = 36},
     };
 }
