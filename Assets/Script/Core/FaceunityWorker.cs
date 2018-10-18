@@ -769,6 +769,7 @@ public class FaceunityWorker : MonoBehaviour
                         InitCFaceUnityCoefficientSet();
 
                     //Debug.Log("错误：" + fu_GetSystemError() +","+ Marshal.PtrToStringAnsi(fu_GetSystemErrorString(fu_GetSystemError())));
+                    Debug.Log("SDK Version:" + Marshal.PtrToStringAnsi(fu_GetVersion()));
 
                     yield return StartCoroutine("CallPluginAtEndOfFrames");
                 }
