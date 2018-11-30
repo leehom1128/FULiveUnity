@@ -606,8 +606,6 @@ MonoBehaviour:
   - {fileID: 21300000, guid: b3302b7b2f0c73d41a567d9653143e3c, type: 3}
   spritelist_1:
   - {fileID: 21300000, guid: 54d99a41371381945bb6349574ec614a, type: 3}
-  - {fileID: 21300000, guid: ca7189ff11a604c4da267d1c7d20af2b, type: 3}
-  - {fileID: 21300000, guid: f83d7ca8a61ca5c4f9e08cad95eb0c6b, type: 3}
   - {fileID: 21300000, guid: 5297823a084ca5e4f9d3fef254a5a301, type: 3}
   - {fileID: 21300000, guid: 0d6cf3e459574ee42a01cd36f948e3fd, type: 3}
   - {fileID: 21300000, guid: 7491a9d4585c39c4db0c4432b8cb583a, type: 3}

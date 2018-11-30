@@ -131,6 +131,7 @@ public class UIManagerForTexOut : MonoBehaviour
     {
         Beauty = 0,
         Item = 1,
+        CommonFilter,
         EyeShadow,
         EyeLiner,
         EyeLash,
@@ -199,6 +200,8 @@ public class UIManagerForTexOut : MonoBehaviour
         RegisterUIFunc();
         if (permissions[0])
         {
+            //yield return rtt.LoadItem(ItemConfig.commonFilter[0], (int)SlotForItems.CommonFilter);
+            //rtt.SetItemParamd((int)SlotForItems.CommonFilter, "style", 1);
             yield return rtt.LoadItem(ItemConfig.beautySkin[0], (int)SlotForItems.Beauty);
             BeautySkinItemName = ItemConfig.beautySkin[0].name;
             for (int i = 0; i < BeautyConfig.beautySkin_1.Length; i++)
@@ -915,9 +918,16 @@ public class UIManagerForTexOut : MonoBehaviour
         }
     }
 
-    void OnItemLoaded(string name)
+    void OnItemLoaded(Item item)
     {
-        musiccor = StartCoroutine(PlayMusic(name));
+        if (item.type == 1)    //animoji
+        {
+            rtt.SetItemParamd(item.name, "{\"thing\":\"<global>\",\"param\":\"follow\"}", 1);
+        }
+        else if (item.type == 6)    //MusicFilter
+        {
+            musiccor = StartCoroutine(PlayMusic(item.name));
+        }
     }
 
     void CloseItemUI()
@@ -1042,9 +1052,9 @@ public class UIManagerForTexOut : MonoBehaviour
         return option;
     }
 
-    void OnMakeUpLoaded(string name)
+    void OnMakeUpLoaded(Item item)
     {
-        Makeup_Slider.value = (float)rtt.GetItemParamd(name, "makeup_intensity");
+        Makeup_Slider.value = (float)rtt.GetItemParamd(item.name, "makeup_intensity");
         MakeupContentPanels[2].SetActive(true);
     }
 
