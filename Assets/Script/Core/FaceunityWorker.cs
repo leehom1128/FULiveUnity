@@ -10,17 +10,38 @@ public class FaceunityWorker : MonoBehaviour
     public class CFaceUnityCoefficientSet
     {
         public float[] m_data;
+        public int[] m_data_int;
         public GCHandle m_handle;
         public IntPtr m_addr;
         public string m_name;
         public int m_addr_size;
         public int m_faceId = 0;
+        public int m_datatype = 0;  //0为float，1为int
 
-        public CFaceUnityCoefficientSet(string s, int num, int faceId = 0)
+        public CFaceUnityCoefficientSet(string s, int num, int faceId = 0,int datatype=0)
         {
             m_name = s;
             m_addr_size = num;
             m_faceId = faceId;
+            m_datatype = datatype;
+
+            if (m_datatype == 0)
+            {
+                m_data = new float[m_addr_size];
+                m_handle = GCHandle.Alloc(m_data, GCHandleType.Pinned);
+                m_addr = m_handle.AddrOfPinnedObject();
+            }
+            else if (m_datatype == 1)
+            {
+                m_data_int = new int[m_addr_size];
+                m_handle = GCHandle.Alloc(m_data_int, GCHandleType.Pinned);
+                m_addr = m_handle.AddrOfPinnedObject();
+            }
+            else
+            {
+                Debug.LogError("CFaceUnityCoefficientSet Error! Unknown datatype");
+                return;
+            }
         }
         ~CFaceUnityCoefficientSet()
         {
@@ -28,15 +49,37 @@ public class FaceunityWorker : MonoBehaviour
             {
                 m_handle.Free();
                 m_data = default(float[]);
+                m_data_int = default(int[]);
             }
         }
         public void Update()
         {
-            if (m_data == default(float[]))
+            fu_GetFaceInfo(m_faceId, m_addr, m_addr_size, m_name);
+        }
+
+        public void Update(int num)
+        {
+            if(num!= m_addr_size)
             {
-                m_data = new float[m_addr_size];
-                m_handle = GCHandle.Alloc(m_data, GCHandleType.Pinned);
-                m_addr = m_handle.AddrOfPinnedObject();
+                if (m_handle != null && m_handle.IsAllocated)
+                {
+                    m_handle.Free();
+                }
+                m_addr_size = num;
+                if (m_datatype == 0)
+                {
+                    m_data = new float[m_addr_size];
+                    m_handle = GCHandle.Alloc(m_data, GCHandleType.Pinned);
+                    m_addr = m_handle.AddrOfPinnedObject();
+                }
+                else if (m_datatype == 1)
+                {
+                    m_data_int = new int[m_addr_size];
+                    m_handle = GCHandle.Alloc(m_data_int, GCHandleType.Pinned);
+                    m_addr = m_handle.AddrOfPinnedObject();
+                }
+                else
+                    return;
             }
             fu_GetFaceInfo(m_faceId, m_addr, m_addr_size, m_name);
         }
@@ -633,9 +676,15 @@ public class FaceunityWorker : MonoBehaviour
     public CFaceUnityCoefficientSet[] m_pupil_pos;// = new CFaceUnityCoefficientSet("pupil_pos", 4);
     public CFaceUnityCoefficientSet[] m_focallength;// = new CFaceUnityCoefficientSet("focal_length", 1);
 
+    //public CFaceUnityCoefficientSet[] m_armesh_vertex_num;
+    //public CFaceUnityCoefficientSet[] m_armesh_vertices;
+    //public CFaceUnityCoefficientSet[] m_armesh_uvs;
+    //public CFaceUnityCoefficientSet[] m_armesh_face_num;
+    //public CFaceUnityCoefficientSet[] m_armesh_faces;
+
     public static float FocalLengthScale = 1f;
 
-    public event EventHandler OnInitOK;
+    public static event EventHandler OnInitOK;
     private delegate void DebugCallback(string message);
 
     ///////////////////////////////
@@ -649,6 +698,12 @@ public class FaceunityWorker : MonoBehaviour
         m_focallength = new CFaceUnityCoefficientSet[MAXFACE];
         //m_landmarks = new CFaceUnityCoefficientSet[MAXFACE];
 
+        //m_armesh_vertex_num = new CFaceUnityCoefficientSet[MAXFACE];
+        //m_armesh_vertices = new CFaceUnityCoefficientSet[MAXFACE];
+        //m_armesh_uvs = new CFaceUnityCoefficientSet[MAXFACE];
+        //m_armesh_face_num = new CFaceUnityCoefficientSet[MAXFACE];
+        //m_armesh_faces = new CFaceUnityCoefficientSet[MAXFACE];
+
         for (int i=0;i<MAXFACE;i++)
         {
             m_translation[i] = new CFaceUnityCoefficientSet("translation", 3, i);
@@ -658,6 +713,12 @@ public class FaceunityWorker : MonoBehaviour
             m_pupil_pos[i] = new CFaceUnityCoefficientSet("pupil_pos", 4, i);
             m_focallength[i] = new CFaceUnityCoefficientSet("focal_length", 1, i);
             //m_landmarks[i] = new CFaceUnityCoefficientSet("landmarks", 75 * 2, i);
+
+            //m_armesh_vertex_num[i] = new CFaceUnityCoefficientSet("armesh_vertex_num", 1, i, 1);
+            //m_armesh_vertices[i] = new CFaceUnityCoefficientSet("armesh_vertices", 1, i);   //这个长度值需要动态更新
+            //m_armesh_uvs[i] = new CFaceUnityCoefficientSet("armesh_uvs", 1, i);
+            //m_armesh_face_num[i] = new CFaceUnityCoefficientSet("armesh_face_num", 1, i, 1);
+            //m_armesh_faces[i] = new CFaceUnityCoefficientSet("armesh_faces", 1, i, 1);
         }
     }
 
@@ -757,6 +818,7 @@ public class FaceunityWorker : MonoBehaviour
                     fu_LoadTongueModel(tonguedataptr, tongue_bytes.Length);
                     tongue_handle.Free();
 
+                    fu_SetASYNCTrackFace(0);    //异步人脸跟踪，部分平台能提升性能，默认关闭
                     SetRunningMode(FURuningMode.FU_Mode_RenderItems);   //默认模式，随时可以改
                     SetUseNatCam(1);  //默认选项，仅安卓有效
                     fu_SetFocalLengthScale(FocalLengthScale);   //默认值是1
@@ -796,6 +858,12 @@ public class FaceunityWorker : MonoBehaviour
                 m_need_blendshape_update = num < MAXFACE ? num : MAXFACE;
                 for (int i = 0; i < m_need_blendshape_update; i++)
                 {
+                    //m_armesh_vertex_num[i].Update();
+                    //m_armesh_vertices[i].Update(m_armesh_vertex_num[i].m_data_int[0]*3);
+                    //m_armesh_uvs[i].Update(m_armesh_vertex_num[i].m_data_int[0] * 2);
+                    //m_armesh_face_num[i].Update();
+                    //m_armesh_faces[i].Update(m_armesh_face_num[i].m_data_int[0] * 3);
+
                     m_translation[i].Update();
                     m_rotation[i].Update();
                     m_rotation_mode[i].Update();

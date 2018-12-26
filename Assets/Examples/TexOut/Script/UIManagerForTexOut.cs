@@ -122,7 +122,12 @@ public class UIManagerForTexOut : MonoBehaviour
             0x10000,                //哈哈镜
             0x4000,                 //人像光效
             0x8000,                 //人像驱动
-            0x80000                 //美妆
+            0x80000,                //美妆
+            0x40000,                //情绪识别
+            0x100000,               //美发
+            0x200000,               //动漫滤镜
+            0x400000,               //手势跟踪
+            0x800000,               //海报换脸
     };
     private static bool[] permissions;
     Sprites uisprites;
@@ -146,11 +151,11 @@ public class UIManagerForTexOut : MonoBehaviour
         rtt = GetComponent<RenderToTexture>();
         audios = GetComponent<AudioSource>();
         uisprites = GetComponent<Sprites>();
+        FaceunityWorker.OnInitOK += InitApplication;
     }
 
     void Start()
     {
-        FaceunityWorker.instance.OnInitOK += InitApplication;
         Canvas_TopUI.SetActive(true);
         Canvas_FrontUI.SetActive(true);
         Canvas_BackUI.SetActive(true);
@@ -197,11 +202,11 @@ public class UIManagerForTexOut : MonoBehaviour
                 SetItemTypeEnable(i, false);
             }
         }
-        RegisterUIFunc();
         if (permissions[0])
         {
             //yield return rtt.LoadItem(ItemConfig.commonFilter[0], (int)SlotForItems.CommonFilter);
-            //rtt.SetItemParamd((int)SlotForItems.CommonFilter, "style", 1);
+            //rtt.SetItemParamd((int)SlotForItems.CommonFilter, "style", 0);
+
             yield return rtt.LoadItem(ItemConfig.beautySkin[0], (int)SlotForItems.Beauty);
             BeautySkinItemName = ItemConfig.beautySkin[0].name;
             for (int i = 0; i < BeautyConfig.beautySkin_1.Length; i++)
@@ -213,6 +218,7 @@ public class UIManagerForTexOut : MonoBehaviour
                 rtt.SetItemParamd(BeautySkinItemName, BeautyConfig.beautySkin_2[i].paramword, BeautyConfig.beautySkin_2[i].defaultvalue);
             }
         }
+        RegisterUIFunc();
     }
 
     void SetItemTypeEnable(int i,bool ifenable)

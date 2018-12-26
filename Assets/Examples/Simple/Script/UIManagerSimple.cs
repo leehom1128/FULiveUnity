@@ -15,11 +15,12 @@ public class UIManagerSimple : MonoBehaviour {
     void Awake()
     {
         rs = GetComponent<RenderSimple>();
+        FaceunityWorker.OnInitOK += InitApplication;
     }
 
     void Start()
     {
-        FaceunityWorker.instance.OnInitOK += InitApplication;
+
     }
 
     void InitApplication(object source, EventArgs e)

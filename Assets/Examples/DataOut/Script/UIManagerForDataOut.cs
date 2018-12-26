@@ -18,10 +18,10 @@ public class UIManagerForDataOut : MonoBehaviour {
     void Awake()
     {
         rtm = GetComponent<RenderToModel>();
+        FaceunityWorker.OnInitOK += InitApplication;
     }
 
     void Start () {
-        FaceunityWorker.instance.OnInitOK += InitApplication;
         foreach (StdController stc in stcs)
         {
             stc.gameObject.SetActive(false);

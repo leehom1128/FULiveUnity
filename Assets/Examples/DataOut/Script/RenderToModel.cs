@@ -264,9 +264,9 @@ public class RenderToModel : MonoBehaviour
         }
     }
 
-    void Start()
+    void Awake()
     {
-        FaceunityWorker.instance.OnInitOK += InitApplication;
+        FaceunityWorker.OnInitOK += InitApplication;
     }
 
     void InitApplication(object source, EventArgs e)

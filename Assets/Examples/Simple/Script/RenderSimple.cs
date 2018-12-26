@@ -81,9 +81,9 @@ public class RenderSimple : MonoBehaviour {
         p_img_nv21_ptr = img_nv21_handle.AddrOfPinnedObject();
     }
 
-    void Start()
+    void Awake()
     {
-        FaceunityWorker.instance.OnInitOK += InitApplication;
+        FaceunityWorker.OnInitOK += InitApplication;
     }
 
     void InitApplication(object source, EventArgs e)

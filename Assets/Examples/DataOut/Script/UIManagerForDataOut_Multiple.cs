@@ -18,7 +18,7 @@ public class UIManagerForDataOut_Multiple : MonoBehaviour {
     void Awake()
     {
         rtm = GetComponent<RenderToModel>();
-        
+        FaceunityWorker.OnInitOK += InitApplication;
     }
 
     void Start()
@@ -29,7 +29,6 @@ public class UIManagerForDataOut_Multiple : MonoBehaviour {
             stc.gameObject.SetActive(false);
         }
         rtm.ifTrackPos = true;
-        FaceunityWorker.instance.OnInitOK += InitApplication;
     }
 
     void InitApplication(object source, EventArgs e)

@@ -226,9 +226,13 @@ public class RenderToTexture : MonoBehaviour
         Debug.Log("保存了一张照片:" + name);
     }
 
+    void Awake()
+    {
+        FaceunityWorker.OnInitOK += InitApplication;
+    }
+
     void Start()
     {
-        FaceunityWorker.instance.OnInitOK += InitApplication;
         if (itemid_tosdk == null)
         {
             //默认slot槽长度为SLOTLENGTH=10
