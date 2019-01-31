@@ -687,6 +687,13 @@ public class FaceunityWorker : MonoBehaviour
     public static event EventHandler OnInitOK;
     private delegate void DebugCallback(string message);
 
+    bool isfirstLoop = true;
+    GCHandle m_licdata_handle;
+    GCHandle m_v3data_handle;
+    GCHandle ardata_exdata_handle;
+    GCHandle anim_model_handle;
+    GCHandle tongue_handle;
+
     ///////////////////////////////
     void InitCFaceUnityCoefficientSet()
     {
@@ -748,7 +755,6 @@ public class FaceunityWorker : MonoBehaviour
                     else
                     {
                         sbyte[] m_licdata_bytes;
-                        GCHandle m_licdata_handle;
                         string[] sbytes = LICENSE.Split(',');
                         if (sbytes.Length <= 7)
                         {
@@ -764,6 +770,8 @@ public class FaceunityWorker : MonoBehaviour
                                 m_licdata_bytes[i] = sbyte.Parse(sbytes[i]);
                                 //Debug.Log(m_licdata_bytes[i]);
                             }
+                            if (m_licdata_handle.IsAllocated)
+                                m_licdata_handle.Free();
                             m_licdata_handle = GCHandle.Alloc(m_licdata_bytes, GCHandleType.Pinned);
                             IntPtr licptr = m_licdata_handle.AddrOfPinnedObject();
 
@@ -772,13 +780,13 @@ public class FaceunityWorker : MonoBehaviour
                             WWW v3data = new WWW(fnv3);
                             yield return v3data;
                             byte[] m_v3data_bytes = v3data.bytes;
-                            GCHandle m_v3data_handle = GCHandle.Alloc(m_v3data_bytes, GCHandleType.Pinned); //pinned avoid GC
+                            if (m_v3data_handle.IsAllocated)
+                                m_v3data_handle.Free();
+                            m_v3data_handle = GCHandle.Alloc(m_v3data_bytes, GCHandleType.Pinned); //pinned avoid GC
                             IntPtr dataptr = m_v3data_handle.AddrOfPinnedObject(); //pinned addr
 
                             fu_Setup(dataptr, licptr, sbytes.Length); //要查看license是否有效请打开插件log（fu_EnableLog(true);）
 
-                            m_licdata_handle.Free();
-                            m_v3data_handle.Free();
                             m_plugin_inited = true;
                         }
                     }
@@ -795,28 +803,31 @@ public class FaceunityWorker : MonoBehaviour
                     WWW ardata_exdata = new WWW(ardata_ex);
                     yield return ardata_exdata;
                     byte[] ardata_exdata_bytes = ardata_exdata.bytes;
-                    GCHandle ardata_exdata_handle = GCHandle.Alloc(ardata_exdata_bytes, GCHandleType.Pinned);
+                    if (ardata_exdata_handle.IsAllocated)
+                        ardata_exdata_handle.Free();
+                    ardata_exdata_handle = GCHandle.Alloc(ardata_exdata_bytes, GCHandleType.Pinned);
                     IntPtr ardata_exdataptr = ardata_exdata_handle.AddrOfPinnedObject();
                     fu_LoadExtendedARData(ardata_exdataptr, ardata_exdata_bytes.Length);
-                    ardata_exdata_handle.Free();
 
                     string anim_model = Util.GetStreamingAssetsPath() + "/faceunity/anim_model.bytes";    //优化面部跟踪数据
                     WWW anim_modeldata = new WWW(anim_model);
                     yield return anim_modeldata;
                     byte[] anim_model_bytes = anim_modeldata.bytes;
-                    GCHandle anim_model_handle = GCHandle.Alloc(anim_model_bytes, GCHandleType.Pinned);
+                    if (anim_model_handle.IsAllocated)
+                        anim_model_handle.Free();
+                    anim_model_handle = GCHandle.Alloc(anim_model_bytes, GCHandleType.Pinned);
                     IntPtr anim_modeldataptr = anim_model_handle.AddrOfPinnedObject();
                     fu_LoadAnimModel(anim_modeldataptr, anim_model_bytes.Length);
-                    anim_model_handle.Free();
 
                     string tongue = Util.GetStreamingAssetsPath() + "/faceunity/tongue.bytes";    //舌头检测
                     WWW tonguedata = new WWW(tongue);
                     yield return tonguedata;
                     byte[] tongue_bytes = tonguedata.bytes;
-                    GCHandle tongue_handle = GCHandle.Alloc(tongue_bytes, GCHandleType.Pinned);
+                    if (tongue_handle.IsAllocated)
+                        tongue_handle.Free();
+                    tongue_handle = GCHandle.Alloc(tongue_bytes, GCHandleType.Pinned);
                     IntPtr tonguedataptr = tongue_handle.AddrOfPinnedObject();
                     fu_LoadTongueModel(tonguedataptr, tongue_bytes.Length);
-                    tongue_handle.Free();
 
                     fu_SetASYNCTrackFace(0);    //异步人脸跟踪，部分平台能提升性能，默认关闭
                     SetRunningMode(FURuningMode.FU_Mode_RenderItems);   //默认模式，随时可以改
@@ -851,6 +862,20 @@ public class FaceunityWorker : MonoBehaviour
             ////////////////////////////////
             fu_SetMaxFaces(MAXFACE);
             GL.IssuePluginEvent(fu_GetRenderEventFunc(), 1);// cal for sdk render
+            if (isfirstLoop)
+            {
+                isfirstLoop = false;
+                if (m_licdata_handle.IsAllocated)
+                    m_licdata_handle.Free();
+                if (m_v3data_handle.IsAllocated)
+                    m_v3data_handle.Free();
+                if (ardata_exdata_handle.IsAllocated)
+                    ardata_exdata_handle.Free();
+                if (anim_model_handle.IsAllocated)
+                    anim_model_handle.Free();
+                if (tongue_handle.IsAllocated)
+                    tongue_handle.Free();
+            }
             if (EnableExpressionLoop)
             {
                 //only update other stuff when there is new data
@@ -892,7 +917,17 @@ public class FaceunityWorker : MonoBehaviour
 
     private void OnApplicationQuit()
     {
-        if(m_plugin_inited == true)
+        if (m_licdata_handle.IsAllocated)
+            m_licdata_handle.Free();
+        if (m_v3data_handle.IsAllocated)
+            m_v3data_handle.Free();
+        if (ardata_exdata_handle.IsAllocated)
+            ardata_exdata_handle.Free();
+        if (anim_model_handle.IsAllocated)
+            anim_model_handle.Free();
+        if (tongue_handle.IsAllocated)
+            tongue_handle.Free();
+        if (m_plugin_inited == true)
             fu_OnDeviceLost();
         ClearImages();
     }
