@@ -228,6 +228,34 @@ public class FaceunityWorker : MonoBehaviour
     public static extern int fu_SetRuningMode(int runningMode);//refer to FURuningMode 
 
     /**
+\brief Create Tex For Item
+\param item specifies the item
+\param name is the tex name
+\param value is the tex rgba buffer to be set ,use GCHandle to get ptr
+\param width is the tex width
+\param height is the tex height
+\return zero for failure, non-zero for success
+*/
+#if UNITY_IOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+#else
+    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
+#endif
+    public static extern int fu_CreateTexForItem(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, IntPtr value, int width, int height);
+
+    /**
+\brief Delete Tex For Item
+\param item specifies the item
+\param name is the parameter name
+*/
+#if UNITY_IOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+#else
+    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
+#endif
+    public static extern int fu_DeleteTexForItem(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name);
+
+    /**
 \brief Set an item parameter to a double value
 \param item specifies the item
 \param name is the parameter name

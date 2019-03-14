@@ -452,6 +452,48 @@ public class RenderToTexture : MonoBehaviour
         }
     }
 
+    public void CreateTexForItem(string itemname, string paramdname, IntPtr value, int width, int height)
+    {
+        CreateTexForItem(GetSlotIDbyName(itemname), paramdname, value, width, height);
+    }
+
+    public void CreateTexForItem(int slotid, string paramdname, IntPtr value,int width,int height)
+    {
+        if (slotid >= 0 && slotid < SLOTLENGTH)
+        {
+            FaceunityWorker.fu_CreateTexForItem(slot_items[slotid].id, paramdname, value, width, height);
+        }
+    }
+
+    public void DeleteTexForItem(string itemname, string paramdname)
+    {
+        DeleteTexForItem(GetSlotIDbyName(itemname), paramdname);
+    }
+
+    public void DeleteTexForItem(int slotid, string paramdname)
+    {
+        if (slotid >= 0 && slotid < SLOTLENGTH)
+        {
+            FaceunityWorker.fu_DeleteTexForItem(slot_items[slotid].id, paramdname);
+        }
+    }
+
+    public void SetItemParamdv(string itemname, string paramdname, double[] value)
+    {
+        SetItemParamdv(GetSlotIDbyName(itemname), paramdname, value);
+    }
+
+    public void SetItemParamdv(int slotid, string paramdname, double[] value)
+    {
+        if (slotid >= 0 && slotid < SLOTLENGTH && value!=null && value.Length>0)
+        {
+            GCHandle vgc = GCHandle.Alloc(value, GCHandleType.Pinned);
+            IntPtr vptr = vgc.AddrOfPinnedObject();
+            FaceunityWorker.fu_ItemSetParamdv(slot_items[slotid].id, paramdname, vptr, value.Length);
+            vgc.Free();
+        }
+    }
+
     public void SetItemParamd(string itemname, string paramdname, double value)
     {
         SetItemParamd(GetSlotIDbyName(itemname), paramdname, value);

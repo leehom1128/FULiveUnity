@@ -165,6 +165,7 @@ MonoBehaviour:
   cameraHeight: 720
   cameraFrameRate: 30
   RawImg_BackGroud: {fileID: 1792170471}
+  updateDataMode: 3
 --- !u!114 &51551133
 MonoBehaviour:
   m_ObjectHideFlags: 0

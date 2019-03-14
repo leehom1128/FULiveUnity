@@ -27,6 +27,10 @@ public class ItemConfig
         new Item { name = "fuzzytoonfilter", fullname = "fuzzytoonfilter", iconid = -1 ,type=0},
     };
 
+    public static Item[] makeup ={
+        new Item { name = "face_makeup", fullname = "face_makeup", iconid = -1 ,type=0},
+    };
+
     //Animoji
     public static Item[] item_1 = {
         new Item { name = "frog_Animoji", fullname = "items/Animoji/frog_Animoji", iconid = 2 ,type=1},

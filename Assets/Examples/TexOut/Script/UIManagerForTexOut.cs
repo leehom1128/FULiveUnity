@@ -5,6 +5,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.Events;
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 public class UIManagerForTexOut : MonoBehaviour
 {
@@ -55,6 +56,8 @@ public class UIManagerForTexOut : MonoBehaviour
     public RectTransform MakeupOptionContentTrans;
     public GameObject Makeup_UIExample;
     public GameObject Makeup_Disable;
+
+    public Texture2D makeuptesttex0;
 
     Coroutine musiccor = null;
     AudioSource audios;
@@ -137,6 +140,7 @@ public class UIManagerForTexOut : MonoBehaviour
         Beauty = 0,
         Item = 1,
         CommonFilter,
+        Makeup,
         EyeShadow,
         EyeLiner,
         EyeLash,
@@ -204,9 +208,26 @@ public class UIManagerForTexOut : MonoBehaviour
         }
         if (permissions[0])
         {
+            //动漫滤镜
             //yield return rtt.LoadItem(ItemConfig.commonFilter[0], (int)SlotForItems.CommonFilter);
             //rtt.SetItemParamd((int)SlotForItems.CommonFilter, "style", 0);
 
+            //新版美妆
+            //yield return rtt.LoadItem(ItemConfig.makeup[0], (int)SlotForItems.Makeup);
+            //rtt.SetItemParamd((int)SlotForItems.Makeup, "is_makeup_on", 1);
+            //rtt.SetItemParamd((int)SlotForItems.Makeup, "makeup_intensity", 1);
+            //rtt.SetItemParamdv((int)SlotForItems.Makeup, "makeup_lip_color", new double[4] { 1, 0, 0, 1 });
+
+            //var webtexdata = makeuptesttex0.GetPixels32(0);
+            //var tex_handle = GCHandle.Alloc(webtexdata, GCHandleType.Pinned);
+            //var p_tex_ptr = tex_handle.AddrOfPinnedObject();
+            //rtt.CreateTexForItem((int)SlotForItems.Makeup, "tex_eye", p_tex_ptr, makeuptesttex0.width, makeuptesttex0.height);
+            //tex_handle.Free();
+
+            //rtt.SetItemParamd((int)SlotForItems.Makeup, "makeup_intensity_eye", 1);
+            //rtt.SetItemParamd((int)SlotForItems.Makeup, "makeup_lip_mask", 1);
+
+            //美颜
             yield return rtt.LoadItem(ItemConfig.beautySkin[0], (int)SlotForItems.Beauty);
             BeautySkinItemName = ItemConfig.beautySkin[0].name;
             for (int i = 0; i < BeautyConfig.beautySkin_1.Length; i++)

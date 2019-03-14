@@ -91,6 +91,16 @@ public class RenderSimple : MonoBehaviour {
         StartCoroutine(InitCamera());
     }
 
+    public enum UpdateDataMode
+    {
+        NV21,
+        Dual,
+        Image,
+        ImageTexId
+    }
+
+    public UpdateDataMode updateDataMode = UpdateDataMode.Image;
+
     void Update()
     {
 		
@@ -98,29 +108,44 @@ public class RenderSimple : MonoBehaviour {
         {
             if (wtex.didUpdateThisFrame)
             {
-				if (webtexdata.Length != wtex.width * wtex.height) {
-					if (img_handle.IsAllocated)
-						img_handle.Free();
-					webtexdata = new Color32[wtex.width * wtex.height];
-					img_handle = GCHandle.Alloc(webtexdata, GCHandleType.Pinned);
-					p_img_ptr = img_handle.AddrOfPinnedObject();
-				}
-                wtex.GetPixels32(webtexdata);
-                //int[] argb = new int[wtex.width * wtex.height];       //模拟NV21模式
-                //for (int i = 0; i < webtexdata.Length; i++)
-                //{
-                //    argb[i] = 0;
-                //    argb[i] |= (webtexdata[i].a << 24);
-                //    argb[i] |= (webtexdata[i].r << 16);
-                //    argb[i] |= (webtexdata[i].g << 8);
-                //    argb[i] |= (webtexdata[i].b);
+                if (updateDataMode == UpdateDataMode.ImageTexId)
+                {
+                    UpdateData(IntPtr.Zero, (int)wtex.GetNativeTexturePtr(), wtex.width, wtex.height, updateDataMode);
+                }
+                else
+                {
+                    if (webtexdata.Length != wtex.width * wtex.height)
+                    {
+                        if (img_handle.IsAllocated)
+                            img_handle.Free();
+                        webtexdata = new Color32[wtex.width * wtex.height];
+                        img_handle = GCHandle.Alloc(webtexdata, GCHandleType.Pinned);
+                        p_img_ptr = img_handle.AddrOfPinnedObject();
+                    }
+                    wtex.GetPixels32(webtexdata);
 
-                //}
-                //encodeYUV420SP(img_nv21, argb, wtex.width, wtex.height);
-                //UpdateData(p_img_nv21_ptr, 0, wtex.width, wtex.height);
-                //UpdateData(p_img_nv21_ptr, (int)wtex.GetNativeTexturePtr(), wtex.width, wtex.height);
-                UpdateData(p_img_ptr, 0, wtex.width, wtex.height);
-                //UpdateData(IntPtr.Zero, (int)wtex.GetNativeTexturePtr(), wtex.width, wtex.height);
+                    if (updateDataMode == UpdateDataMode.Image)
+                    {
+                        UpdateData(p_img_ptr, 0, wtex.width, wtex.height, updateDataMode);
+                    }
+                    else if (updateDataMode == UpdateDataMode.NV21 || updateDataMode == UpdateDataMode.Dual)
+                    {
+                        int[] argb = new int[wtex.width * wtex.height];       //模拟NV21模式,仅测试用,仅安卓手机上能正常运行
+                        for (int i = 0; i < webtexdata.Length; i++)
+                        {
+                            argb[i] = 0;
+                            argb[i] |= (webtexdata[i].a << 24);
+                            argb[i] |= (webtexdata[i].r << 16);
+                            argb[i] |= (webtexdata[i].g << 8);
+                            argb[i] |= (webtexdata[i].b);
+                        }
+                        encodeYUV420SP(img_nv21, argb, wtex.width, wtex.height);
+                        if (updateDataMode == UpdateDataMode.NV21)
+                            UpdateData(p_img_nv21_ptr, 0, wtex.width, wtex.height, updateDataMode);
+                        else
+                            UpdateData(p_img_nv21_ptr, (int)wtex.GetNativeTexturePtr(), wtex.width, wtex.height, updateDataMode);
+                    }
+                }
             }
         }
     }
@@ -152,12 +177,16 @@ public class RenderSimple : MonoBehaviour {
     }
 
     //输入数据接口案例
-    public void UpdateData(IntPtr ptr,int texid,int w,int h)
+    public void UpdateData(IntPtr ptr,int texid,int w,int h, UpdateDataMode mode)
     {
-        //FaceunityWorker.SetNV21Input(ptr, 0, w, h);
-        //FaceunityWorker.SetDualInput(ptr, texid, 0, w, h);
-        FaceunityWorker.SetImage(ptr,0, false, w, h);   //传输数据方法之一
-        //FaceunityWorker.SetImageTexId(texid, 0, w, h);
+        if (mode == UpdateDataMode.NV21)
+            FaceunityWorker.SetNV21Input(ptr, 0, w, h);
+        else if (mode == UpdateDataMode.Dual)
+            FaceunityWorker.SetDualInput(ptr, texid, 0, w, h);
+        else if (mode == UpdateDataMode.Image)
+            FaceunityWorker.SetImage(ptr, 0, false, w, h);
+        else if (mode == UpdateDataMode.ImageTexId)
+            FaceunityWorker.SetImageTexId(texid, 0, w, h);
         if (m_tex_created == false)
         {
             m_fu_texid = FaceunityWorker.fu_GetNamaTextureId();
