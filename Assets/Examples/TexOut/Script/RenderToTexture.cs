@@ -52,6 +52,52 @@ public class RenderToTexture : MonoBehaviour
     };
     private slot_item[] slot_items;
 
+    public Shader bgShader;
+    private Material bgMaterial;
+    public Material bgMat
+    {
+        get
+        {
+            if (bgMaterial == null)
+            {
+                bgMaterial = new Material(bgShader);
+                bgMaterial.hideFlags = HideFlags.HideAndDontSave;
+            }
+            return bgMaterial;
+        }
+    }
+
+    public Texture2D AdjustTex(Texture2D tex_origin,int SwichXY, int flipx, int flipy)
+    {
+        int w = 0;
+        int h = 0;
+
+        w = tex_origin.width;
+        h = tex_origin.height;
+
+        RenderTexture currentActiveRT = RenderTexture.active;
+        RenderTexture bufferdst = RenderTexture.GetTemporary(w, h, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.sRGB);
+        RenderTexture.active = bufferdst;
+
+        bgMat.SetFloat("_FlipX", flipx);
+        bgMat.SetFloat("_FlipY", flipy);
+        bgMat.SetFloat("_SwichXY", SwichXY);
+        bgMat.SetFloat("_sRGBToLinear", 0);
+        bgMat.SetFloat("_LinearTosRGB", 0);
+
+        Graphics.Blit(tex_origin, bufferdst, bgMat);
+
+        Texture2D tex_new = new Texture2D(w, h, TextureFormat.ARGB32, false);
+        tex_new.ReadPixels(new Rect(0, 0, w, h), 0, 0);// 注：这个时候，它是从RenderTexture.active中读取像素  
+        tex_new.Apply();
+
+        RenderTexture.ReleaseTemporary(bufferdst);
+        RenderTexture.active = currentActiveRT;
+
+        Debug.Log("AdjustTex");
+
+        return tex_new;
+    }
 
 
     public void OnStart()

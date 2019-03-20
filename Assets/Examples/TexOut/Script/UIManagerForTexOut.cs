@@ -218,10 +218,11 @@ public class UIManagerForTexOut : MonoBehaviour
             //rtt.SetItemParamd((int)SlotForItems.Makeup, "makeup_intensity", 1);
             //rtt.SetItemParamdv((int)SlotForItems.Makeup, "makeup_lip_color", new double[4] { 1, 0, 0, 1 });
 
-            //var webtexdata = makeuptesttex0.GetPixels32(0);
+            //var newtex = rtt.AdjustTex(makeuptesttex0, 0, 0, 1);   //纹理需要在Y轴镜像一下
+            //var webtexdata = newtex.GetPixels32();
             //var tex_handle = GCHandle.Alloc(webtexdata, GCHandleType.Pinned);
             //var p_tex_ptr = tex_handle.AddrOfPinnedObject();
-            //rtt.CreateTexForItem((int)SlotForItems.Makeup, "tex_eye", p_tex_ptr, makeuptesttex0.width, makeuptesttex0.height);
+            //rtt.CreateTexForItem((int)SlotForItems.Makeup, "tex_blusher", p_tex_ptr, newtex.width, newtex.height);
             //tex_handle.Free();
 
             //rtt.SetItemParamd((int)SlotForItems.Makeup, "makeup_intensity_eye", 1);
@@ -241,6 +242,8 @@ public class UIManagerForTexOut : MonoBehaviour
         }
         RegisterUIFunc();
     }
+
+
 
     void SetItemTypeEnable(int i,bool ifenable)
     {
@@ -963,9 +966,10 @@ public class UIManagerForTexOut : MonoBehaviour
     }
     #endregion
 
-    #region MakeUp
+    #region MakeUp(deprecated!)
     void OpenMakeUpUI(MakeupType type)
     {
+        return;
         currentItemType = ItemType.MakeUp;
         currentMakeupType = type;
         MakeupOptionContentTrans.localPosition = Vector3.zero;

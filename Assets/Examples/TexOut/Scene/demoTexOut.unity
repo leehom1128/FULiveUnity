@@ -468,6 +468,7 @@ MonoBehaviour:
   framerate: 30
   verbose: 0
   RawImg_BackGroud: {fileID: 1792170471}
+  bgShader: {fileID: 4800000, guid: a592c7ed21c6a5a4cb8d64da029009dc, type: 3}
 --- !u!114 &51551134
 MonoBehaviour:
   m_ObjectHideFlags: 0
