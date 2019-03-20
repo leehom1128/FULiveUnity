@@ -556,7 +556,7 @@ MonoBehaviour:
   MakeupOptionContentTrans: {fileID: 938233570}
   Makeup_UIExample: {fileID: 175234, guid: 3d6c474c614e49e45a49809cebc743f4, type: 2}
   Makeup_Disable: {fileID: 1750451065}
-  makeuptesttex0: {fileID: 2800000, guid: 3dfa0822b2920f243b4157e2dc88a9c7, type: 3}
+  makeuptesttex0: {fileID: 2800000, guid: 3e5739784dba4f644a7749cd18bbbd17, type: 3}
 --- !u!114 &51551135
 MonoBehaviour:
   m_ObjectHideFlags: 0
