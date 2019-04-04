@@ -122,8 +122,8 @@ RectTransform:
   m_RootOrder: 0
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 539.46906, y: -110}
-  m_SizeDelta: {x: 1078.9381, y: 220}
+  m_AnchoredPosition: {x: 540, y: -110}
+  m_SizeDelta: {x: 1080, y: 220}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &10712117
 MonoBehaviour:
@@ -352,7 +352,7 @@ MonoBehaviour:
   MAXFACE: 1
   EnableExpressionLoop: 0
   LICENSE: 
-  m_need_blendshape_update: 0
+  m_need_update_facenum: 0
 --- !u!4 &51551130
 Transform:
   m_ObjectHideFlags: 0
@@ -500,7 +500,6 @@ MonoBehaviour:
   - {fileID: 1105743876}
   - {fileID: 1116579521}
   - {fileID: 1359192013}
-  - {fileID: 478399779}
   Canvas_FrontUI: {fileID: 517978778}
   Camera_FrontUI: {fileID: 1448864237}
   Btn_Switch: {fileID: 1724314696}
@@ -511,8 +510,8 @@ MonoBehaviour:
   BeautySkinSelecterOptions:
   - {fileID: 213199962}
   - {fileID: 1717450475}
-  - {fileID: 1943547131}
   - {fileID: 660628335}
+  - {fileID: 1002182562}
   BeautySkinContent: {fileID: 1892585973}
   BeautySkinContentPanels:
   - {fileID: 1314735267}
@@ -537,26 +536,6 @@ MonoBehaviour:
   ItemOptionContentTrans: {fileID: 795182207}
   Item_UIExample: {fileID: 186348, guid: cf794053802b4da4eb24709e41813ba3, type: 2}
   Item_Disable: {fileID: 134934, guid: d126cc5b7cda4a14aabe40f9b1fabad9, type: 2}
-  Btn_TakePic_mini_3: {fileID: 1763875781}
-  MakeupSelecter: {fileID: 1405260292}
-  MakeupSelecterOptions:
-  - {fileID: 1592314838}
-  - {fileID: 1261656153}
-  - {fileID: 2034220558}
-  - {fileID: 2093259700}
-  - {fileID: 1747954733}
-  - {fileID: 164065063}
-  - {fileID: 1860007014}
-  MakeupContent: {fileID: 496873849}
-  MakeupContentPanels:
-  - {fileID: 1199891251}
-  - {fileID: 748739233}
-  - {fileID: 2040070846}
-  Makeup_Slider: {fileID: 240743391}
-  MakeupOptionContentTrans: {fileID: 938233570}
-  Makeup_UIExample: {fileID: 175234, guid: 3d6c474c614e49e45a49809cebc743f4, type: 2}
-  Makeup_Disable: {fileID: 1750451065}
-  makeuptesttex0: {fileID: 2800000, guid: 3e5739784dba4f644a7749cd18bbbd17, type: 3}
 --- !u!114 &51551135
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -568,7 +547,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a0767a74d6a4de640919c31d728bbe55, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spritelist_0:
+  Beauty:
   - {fileID: 21300000, guid: 44ac39d591acfef4299d6845e4be9cff, type: 3}
   - {fileID: 21300000, guid: 5d60c8135bdf50447b4b65577bcb41f7, type: 3}
   - {fileID: 21300000, guid: 7c16ac550f0002f4287382b61ffe4d5b, type: 3}
@@ -595,18 +574,20 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 8ac8588858fc80442974703696c66862, type: 3}
   - {fileID: 21300000, guid: a7dd06834e19ab9418b9aa1c7e12f063, type: 3}
   - {fileID: 21300000, guid: cf996fa4e68159943a64d9131ca8866e, type: 3}
-  - {fileID: 21300000, guid: e841fb885b9bfbf499824c7f039ec638, type: 3}
-  - {fileID: 21300000, guid: f33bd140f73acbf43b7b6f426e8114fa, type: 3}
-  - {fileID: 21300000, guid: d44cb528d75c98143a1c1b9bfcd1eb31, type: 3}
-  - {fileID: 21300000, guid: 3f6190e4d87be8f40841bf61dd859016, type: 3}
-  - {fileID: 21300000, guid: 2623ac01dbe25db4e991a681d4621c11, type: 3}
-  - {fileID: 21300000, guid: 373ff08688ca3a940bff3ba9f8612d04, type: 3}
-  - {fileID: 21300000, guid: 92c16ebeefe052142ba4e67d03b96f82, type: 3}
-  - {fileID: 21300000, guid: 39cf03d0a4f4c5244899133cfb5e165b, type: 3}
-  - {fileID: 21300000, guid: 5149cf1816c54d94a85b843f0290a23f, type: 3}
-  - {fileID: 21300000, guid: e83ea47139f91ae44b8a6b4a8d76b133, type: 3}
-  - {fileID: 21300000, guid: b3302b7b2f0c73d41a567d9653143e3c, type: 3}
-  spritelist_1:
+  - {fileID: 21300000, guid: 36c67aa5a59d2c14f92bc49fb4df6874, type: 3}
+  - {fileID: 21300000, guid: 9528fd025312efb44a18cacad8a6dbde, type: 3}
+  - {fileID: 21300000, guid: a0fca9c86fa75734e80b40f1d6326ba1, type: 3}
+  - {fileID: 21300000, guid: bc1092e1871347a41bb273d387aaa151, type: 3}
+  - {fileID: 21300000, guid: 084f1e2836140984bb67dd189755434c, type: 3}
+  - {fileID: 21300000, guid: 46677b1907583fa4dba1e3415f828dd7, type: 3}
+  CommonFilter: []
+  Makeup:
+  - {fileID: 21300000, guid: fc287335ea2739b4aacf229863b87283, type: 3}
+  - {fileID: 21300000, guid: 7c50b047dac9860478a8dd820824c405, type: 3}
+  - {fileID: 21300000, guid: 0744789af07e92c4e822d25fa5316d9d, type: 3}
+  - {fileID: 21300000, guid: 80e73ca36d98d324c918d07f636bf403, type: 3}
+  - {fileID: 21300000, guid: bc020118a646aab47b67adddb350f640, type: 3}
+  Animoji:
   - {fileID: 21300000, guid: 54d99a41371381945bb6349574ec614a, type: 3}
   - {fileID: 21300000, guid: 5297823a084ca5e4f9d3fef254a5a301, type: 3}
   - {fileID: 21300000, guid: 0d6cf3e459574ee42a01cd36f948e3fd, type: 3}
@@ -614,7 +595,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: d044549ba690d9b42b4f5d7e1d89e24d, type: 3}
   - {fileID: 21300000, guid: 6e9f876af8b23834da0237341d209d38, type: 3}
   - {fileID: 21300000, guid: 911faf1ccf6ff7d4cbccd563d34881ad, type: 3}
-  spritelist_2:
+  ItemSticker:
   - {fileID: 21300000, guid: 8144171c2c93792428622895ece3a106, type: 3}
   - {fileID: 21300000, guid: a07059f19b4f8fa4ebfe1eb59b8de0f9, type: 3}
   - {fileID: 21300000, guid: fee69d99b38f5f94baff3ab21421b9aa, type: 3}
@@ -622,14 +603,13 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 38e838dc7d95ce24782a1d8cf9eab06a, type: 3}
   - {fileID: 21300000, guid: 00ffa8b2c1f897c4ca2023561fde610f, type: 3}
   - {fileID: 21300000, guid: fb9bd11d06ec2684db8abfb295627de2, type: 3}
-  spritelist_3:
+  ARMask:
   - {fileID: 21300000, guid: e6a283946faa96848a6cb5d8830b784c, type: 3}
   - {fileID: 21300000, guid: 86873a99611d57644a825179a4ffe52b, type: 3}
-  - {fileID: 21300000, guid: ddd03699e9b6bec49a4f5ee345467295, type: 3}
   - {fileID: 21300000, guid: a7798cf62ff70f245b5aa7e855c0b5ab, type: 3}
   - {fileID: 21300000, guid: f86414f8d0bff2248a19ecc634607c83, type: 3}
   - {fileID: 21300000, guid: 00307756ad6ec4b4dbebf831f2907a33, type: 3}
-  spritelist_4:
+  ChangeFace:
   - {fileID: 21300000, guid: 5072e073aacf3ea499acf382e9539feb, type: 3}
   - {fileID: 21300000, guid: 482f9d603cfae614bacf37acd8eec5ee, type: 3}
   - {fileID: 21300000, guid: 37eb4ebda0507d14fb36f41fd8a9b44b, type: 3}
@@ -637,7 +617,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 161eaebf337757346bcaccf7e05ccc1f, type: 3}
   - {fileID: 21300000, guid: 26cf2915cf8847e4bb567e152ee41d4b, type: 3}
   - {fileID: 21300000, guid: a3cdb282ef408114a9567561b6f8967a, type: 3}
-  spritelist_5:
+  ExpressionRecognition:
   - {fileID: 21300000, guid: 5b3d264a0d4f86d44943f282920b21b8, type: 3}
   - {fileID: 21300000, guid: c118c78e81a473347ac3999ad649b056, type: 3}
   - {fileID: 21300000, guid: 100226185fd4c4b4abe2e2d70fb914ef, type: 3}
@@ -645,99 +625,102 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 93f066c88a136924086aebb60b7a625e, type: 3}
   - {fileID: 21300000, guid: 4fe84f4dc49feca478b41bbcdc85bbd9, type: 3}
   - {fileID: 21300000, guid: 0fbe41e354cd97244b6e6da8d7a072ce, type: 3}
-  spritelist_6:
+  MusicFilter:
   - {fileID: 21300000, guid: c2f64d8817639bb46abe8d829e537b4e, type: 3}
   - {fileID: 21300000, guid: 40e86009bf5a65943b5f370e9b6d6472, type: 3}
-  spritelist_7:
-  - {fileID: 21300000, guid: cfdebbcaba5441d449dafe8ee50e92d1, type: 3}
+  BackgroundSegmentation:
   - {fileID: 21300000, guid: 333e2a05064ba564183632c4dcee2fc4, type: 3}
   - {fileID: 21300000, guid: c3c923491b7a0f94da5d16fe26d9a838, type: 3}
   - {fileID: 21300000, guid: 65c64979177482b458f23946d89df772, type: 3}
-  - {fileID: 21300000, guid: 816ba55650f9d164bba43973db177824, type: 3}
-  - {fileID: 21300000, guid: 31775470015e3c142916125f96c50bae, type: 3}
   - {fileID: 21300000, guid: 1754864d2ab7df64a9f4ba0e15caa1d2, type: 3}
   - {fileID: 21300000, guid: 50c2062fa988bc04f86aa616b67ba043, type: 3}
-  spritelist_8:
-  - {fileID: 21300000, guid: 9e53b97e3a238344e98c7e4a09717a48, type: 3}
-  - {fileID: 21300000, guid: 0c0371de94ea8104798a3d3f8a961235, type: 3}
-  - {fileID: 21300000, guid: 0cbff74f6996d554e99ebbb0637d9ed6, type: 3}
-  - {fileID: 21300000, guid: eac89bd79bfc0ca4e94d6cc45da3af20, type: 3}
-  - {fileID: 21300000, guid: 30dfe4202e57bf5438e266aec997e381, type: 3}
-  - {fileID: 21300000, guid: c18bdd1b8a7c8fb47856a995b063de16, type: 3}
+  GestureRecognition:
+  - {fileID: 21300000, guid: bc12542cce262f741b61a0b100462bfc, type: 3}
+  - {fileID: 21300000, guid: 60159010c63d1b64a84fc267581ab1d6, type: 3}
+  - {fileID: 21300000, guid: 6ae8f98b2a315c84eb351af2491fa7cb, type: 3}
+  - {fileID: 21300000, guid: 91ec067021cc1b546bf97f07964d35ac, type: 3}
+  - {fileID: 21300000, guid: 383f6af07dde8264791f68c13869b3e6, type: 3}
+  - {fileID: 21300000, guid: f150754caa0c3a84abdbc84eba7fcaf7, type: 3}
   - {fileID: 21300000, guid: 3e3da33bb8bb7894ebf358292f2fc3ac, type: 3}
-  spritelist_9:
+  MagicMirror:
   - {fileID: 21300000, guid: 6b10e54cb82165445a34fca6c97ff3d4, type: 3}
   - {fileID: 21300000, guid: 73ac354c848a5614ca36dac239bd170f, type: 3}
   - {fileID: 21300000, guid: 69b210a50deb0d149abf5ef438153c8b, type: 3}
   - {fileID: 21300000, guid: 8678de02631f14d4f9873566c5e22e3d, type: 3}
   - {fileID: 21300000, guid: 5f1986fede22c63488592a8439c4f3a4, type: 3}
-  spritelist_10:
-  - {fileID: 21300000, guid: a870308f6e76f92488bf4b25c52b55b5, type: 3}
-  - {fileID: 21300000, guid: 46dc9aceeb3976a498dea40dffa40f86, type: 3}
-  - {fileID: 21300000, guid: 6f758251e0478c245ad42cdabd0d4561, type: 3}
-  - {fileID: 21300000, guid: d400e7c8b71bc0646a3a2a5edfdea027, type: 3}
-  - {fileID: 21300000, guid: 9b956137a79f7154790048abe86c37e2, type: 3}
-  - {fileID: 21300000, guid: 09400ce0fc84fe5458fefc3c23adc9fe, type: 3}
-  spritelist_11:
+  PortraitLightEffect: []
+  PortraitDrive:
   - {fileID: 21300000, guid: e6e772e88adedeb40a009b42420a7bbf, type: 3}
   - {fileID: 21300000, guid: 33f8a4d267a942b469da489a9a4cad36, type: 3}
   - {fileID: 21300000, guid: 501dd916eeb7ceb43b7a6a358a1c3fe2, type: 3}
-  spritelist_12:
-  - {fileID: 21300000, guid: 4e298bae0e34e1a4d9aec92f622d58a9, type: 3}
-  - {fileID: 21300000, guid: f9bc023729f6d874abf56cc7c16b1daf, type: 3}
-  - {fileID: 21300000, guid: b7eb05576d164074b9dcc2f08a0a52f6, type: 3}
-  - {fileID: 21300000, guid: d2e4bade1c13c814088a6bcaaa1621b3, type: 3}
-  - {fileID: 21300000, guid: 717366534e13ad24fafb552f910d7050, type: 3}
-  - {fileID: 21300000, guid: cda62abed46b9b74d837fbd5cffd8282, type: 3}
-  spritelist_13:
-  - {fileID: 21300000, guid: 8dc6e91074f3ad24a9cb9279f45cd56a, type: 3}
-  - {fileID: 21300000, guid: 192e29f0a69fcce40ba5ccaed65012ef, type: 3}
-  - {fileID: 21300000, guid: a1431a37502b1d3448d10d8502441e75, type: 3}
-  - {fileID: 21300000, guid: cb205c755ab3bb24eb95f1103cfc6a7c, type: 3}
-  - {fileID: 21300000, guid: bc8f485dd4f5a0c4b9f35f05ef282132, type: 3}
-  - {fileID: 21300000, guid: 4b54b0796dc93d747b261a693a089c17, type: 3}
-  - {fileID: 21300000, guid: 1fceb4e7959385a4097c5c9c5ea538bf, type: 3}
-  - {fileID: 21300000, guid: 19577095fb3f2a848a185901ac1acead, type: 3}
-  - {fileID: 21300000, guid: e26c5c376f729a14b99ff1d0c4d77a3c, type: 3}
-  - {fileID: 21300000, guid: fe808caad9783fd49a0f2fbf3f6c230c, type: 3}
-  spritelist_14:
-  - {fileID: 21300000, guid: 5c0b3e26b83fe5240a89a01943b54411, type: 3}
-  - {fileID: 21300000, guid: 5cc105e7dabd628418b80d279d9b317d, type: 3}
-  - {fileID: 21300000, guid: 97013aabb75b16542aa61040ca87ed4f, type: 3}
-  - {fileID: 21300000, guid: 86fe2a94554c1a74f87b3cf24f62b303, type: 3}
-  - {fileID: 21300000, guid: de5fb9dad56e57e40840a8496f849b53, type: 3}
-  - {fileID: 21300000, guid: db0d9fd6db5819b4890306aee8033585, type: 3}
-  spritelist_15:
-  - {fileID: 21300000, guid: 5154eab07d2ed4947b1aeaa212626edd, type: 3}
-  - {fileID: 21300000, guid: 10c4d1a2c9ae05a45a8b4cc86abeacc1, type: 3}
-  - {fileID: 21300000, guid: f711cdff9c2c33c49b3c3089eeb11f90, type: 3}
-  - {fileID: 21300000, guid: 5843f0ccc00610943b869ba6d0029f96, type: 3}
-  - {fileID: 21300000, guid: 2ceea7d15453c2f41b525f106745d137, type: 3}
-  - {fileID: 21300000, guid: f58ca6dd47f5992438d636d96ab0df8c, type: 3}
-  spritelist_16:
-  - {fileID: 21300000, guid: eea682b6a246c6c45876852853ca3854, type: 3}
-  - {fileID: 21300000, guid: c5b42ebfce1876443b4b33fcf88625ca, type: 3}
-  - {fileID: 21300000, guid: 9191205cda231c242857f92f6afb7749, type: 3}
-  - {fileID: 21300000, guid: 7280e5ffb10af1c43b7c111c576d1a07, type: 3}
-  - {fileID: 21300000, guid: e9cd08ca64d6e6f4dbc5c2f0415cbc6b, type: 3}
-  - {fileID: 21300000, guid: ff842fde1e73bd24885af2884b2b5871, type: 3}
-  spritelist_17:
-  - {fileID: 21300000, guid: 634eeae21203b39408461ed4415ab24d, type: 3}
-  - {fileID: 21300000, guid: 4bb68cc1653462647a83aabf27ef2f83, type: 3}
-  - {fileID: 21300000, guid: 8366c9ea71e8f1f489cc4fedd7d76c12, type: 3}
-  - {fileID: 21300000, guid: 00d5e5043e11f40499e9e55a15c68586, type: 3}
-  - {fileID: 21300000, guid: 2a98eda28a46bf74d80690ad40df6f32, type: 3}
-  - {fileID: 21300000, guid: c072d2813c70afc4a975963fad7ca37f, type: 3}
-  spritelist_18:
-  - {fileID: 21300000, guid: 1b182654890fc844b8da0d3578f85e8f, type: 3}
-  - {fileID: 21300000, guid: e8e2802c3e1e02e49b5c334e4627d241, type: 3}
-  - {fileID: 21300000, guid: 980f7b53fdae6cf469e2c55afc107fdb, type: 3}
-  - {fileID: 21300000, guid: b0696e8e2994b584198ec80fbe69a487, type: 3}
-  - {fileID: 21300000, guid: 600b2d1a014ca624ebb01dde5a85c627, type: 3}
-  - {fileID: 21300000, guid: 269248d655b3a3643b89cc6b84ee75bb, type: 3}
-  - {fileID: 21300000, guid: 65bf2c93cd337144ea46a7b62c61771a, type: 3}
-  - {fileID: 21300000, guid: 98e639b1ce7f4d24895ee63510ed2c4a, type: 3}
-  - {fileID: 21300000, guid: 7fcc7207e6b499346b7ea46131ef32f8, type: 3}
+  MakeupBlush:
+  - {fileID: 2800000, guid: 1c6da124f4ee5bc498822ffcde727f81, type: 3}
+  - {fileID: 2800000, guid: 85135af0ef016d444954dd579726c3d5, type: 3}
+  - {fileID: 2800000, guid: 604564c4b7381584f8aec8f9d0ce0e15, type: 3}
+  - {fileID: 2800000, guid: 34375a7233f43ab47b65d3bb870d330b, type: 3}
+  - {fileID: 2800000, guid: 3d11b33644b242d48ab73cf89b751d36, type: 3}
+  - {fileID: 2800000, guid: b5fd958a3f2e9654c862fa149003ab2f, type: 3}
+  - {fileID: 2800000, guid: 95485338426c9db4aadfb35821c5ed73, type: 3}
+  - {fileID: 2800000, guid: 2f34158e062aa6743b79e86da4d5d014, type: 3}
+  - {fileID: 2800000, guid: a569b9b50e03240479050b028c461c9b, type: 3}
+  - {fileID: 2800000, guid: 4bfddc08d41af3646a41cb4b18633941, type: 3}
+  - {fileID: 2800000, guid: ed5b5834963727845af3a50592c7d8c6, type: 3}
+  - {fileID: 2800000, guid: 28340109ca9018447a1fe2d052277fcd, type: 3}
+  - {fileID: 2800000, guid: 5c22be580b251904298da065723f8f92, type: 3}
+  - {fileID: 2800000, guid: 0fdf15a1ae9f5fd4496f2a7f1a71c151, type: 3}
+  - {fileID: 2800000, guid: c2e62fb6850ff90499b1162264fdb367, type: 3}
+  - {fileID: 2800000, guid: 066752b1dca49a447848d9ce01f71551, type: 3}
+  - {fileID: 2800000, guid: 92523bdca84d1a14e952fca8c943c32c, type: 3}
+  - {fileID: 2800000, guid: 262dc29218beec04daffcdf4ea08a594, type: 3}
+  - {fileID: 2800000, guid: 078e0dca66c6fd845bd9b1ec14f4bb8e, type: 3}
+  - {fileID: 2800000, guid: 841a2d092d6d1d942a87cf3c77ef1c72, type: 3}
+  - {fileID: 2800000, guid: 520af664307749a4293a0d157b9eb139, type: 3}
+  - {fileID: 2800000, guid: 272a3ad7638d275438890c0a4809ab0e, type: 3}
+  - {fileID: 2800000, guid: 7ce497669788ef746bef268f76997965, type: 3}
+  - {fileID: 2800000, guid: 13f69102cc693d64d9493f298c198328, type: 3}
+  MakeupEyebrow:
+  - {fileID: 2800000, guid: 2c3e06585a3aa334f8ba73be9f60ef85, type: 3}
+  - {fileID: 2800000, guid: 08803c5eb9c7f4a499f36e922c2f617a, type: 3}
+  - {fileID: 2800000, guid: 002337e884041284fb44cd60260bb606, type: 3}
+  - {fileID: 2800000, guid: 8e3229800b7f75c44b20971bfb418773, type: 3}
+  - {fileID: 2800000, guid: 20b7ff31589fd9543802d8d7fca48c53, type: 3}
+  - {fileID: 2800000, guid: 8458ad9c9c65d554bacde1c71da728e1, type: 3}
+  - {fileID: 2800000, guid: 4e5235f7d5080784ca2d7a9541cfdbd5, type: 3}
+  - {fileID: 2800000, guid: 93e449973b241e54d8a7bc17b420e5c2, type: 3}
+  - {fileID: 2800000, guid: c6e79a66c0a733a4798e1123fd2c9593, type: 3}
+  - {fileID: 2800000, guid: 3814c26faca06ef43a8104cdd7819611, type: 3}
+  - {fileID: 2800000, guid: 897f144069305ce408ac79940d731748, type: 3}
+  - {fileID: 2800000, guid: 04535d3a819f3d6479497b879504713b, type: 3}
+  - {fileID: 2800000, guid: 28ae288ceb98d8e4e9aa3b70ffe1e76c, type: 3}
+  - {fileID: 2800000, guid: b69ea9a3a850d504a9a11fb8279684fe, type: 3}
+  - {fileID: 2800000, guid: 55989ad0745a3274193d9daebd0f602c, type: 3}
+  - {fileID: 2800000, guid: c2db974ed87e4ba429a9ad8cd712af3f, type: 3}
+  - {fileID: 2800000, guid: 79a92ad1f7cd12e489b3a199a9c9f911, type: 3}
+  - {fileID: 2800000, guid: baea81bffdefdff44bdc65924ef1a12f, type: 3}
+  - {fileID: 2800000, guid: 1ecd37ac265fb4242a8289be4cde0e15, type: 3}
+  MakeupEyeshadow:
+  - {fileID: 2800000, guid: f630a4c5918ed5e469c7031f686279f8, type: 3}
+  - {fileID: 2800000, guid: e645ade017e6a3148a87d96c7b7fe0dc, type: 3}
+  - {fileID: 2800000, guid: 7bd1bfd46950c9043b3577f150c76239, type: 3}
+  - {fileID: 2800000, guid: 1ba586931b5ebe849a1ffb54c7b03047, type: 3}
+  - {fileID: 2800000, guid: 58047a9b47798c540b8c6f9f6ad74b47, type: 3}
+  - {fileID: 2800000, guid: 684c78b8e6da64e4b950392340d46d33, type: 3}
+  - {fileID: 2800000, guid: 55feedfa0978dfe4eab5ac6b9c89209b, type: 3}
+  - {fileID: 2800000, guid: e9bb69ee5d537b44ca89c36d96b0c789, type: 3}
+  - {fileID: 2800000, guid: 9712da1c38ab28847a8221e0c761dc95, type: 3}
+  - {fileID: 2800000, guid: c30637cba6154014895784db9b343d64, type: 3}
+  - {fileID: 2800000, guid: 229afc48a6643e94d93b23799375e65e, type: 3}
+  - {fileID: 2800000, guid: 10063582088a8324c926199113c58026, type: 3}
+  - {fileID: 2800000, guid: 4e1697fb985a6f64bb7f81ffb0a311f6, type: 3}
+  - {fileID: 2800000, guid: 2dd51fa0731396847a58d5b31d4f86a0, type: 3}
+  - {fileID: 2800000, guid: 92c61ae246cb009429b87c1335681ce7, type: 3}
+  - {fileID: 2800000, guid: 43472301713e4a14e94c7c8222393a19, type: 3}
+  - {fileID: 2800000, guid: 3289938d1494c0c4a8d4ae2c47a723f8, type: 3}
+  - {fileID: 2800000, guid: f5294bd01b65993469e859232cad507e, type: 3}
+  - {fileID: 2800000, guid: 3e55e390afa7ac94e813144f99d9d352, type: 3}
+  - {fileID: 2800000, guid: 2454a52aee0ca7844bba41e1ce727624, type: 3}
+  - {fileID: 2800000, guid: 59a14775a0756d64789ea1ab3e3174b8, type: 3}
+  - {fileID: 2800000, guid: a70ea6807c341ce4e9c3c917f9e313c7, type: 3}
 --- !u!1 &56567669
 GameObject:
   m_ObjectHideFlags: 0
@@ -1161,7 +1144,7 @@ GameObject:
   - 224: {fileID: 136547563}
   - 114: {fileID: 136547564}
   m_Layer: 9
-  m_Name: 4
+  m_Name: ChangeFace
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1486,7 +1469,7 @@ GameObject:
   - 224: {fileID: 176649839}
   - 114: {fileID: 176649840}
   m_Layer: 9
-  m_Name: 3
+  m_Name: ARMask
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1811,8 +1794,8 @@ RectTransform:
   m_Father: {fileID: 442958763}
   m_RootOrder: 0
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0.23185275, y: 1}
-  m_AnchoredPosition: {x: 0.2602539, y: 0}
+  m_AnchorMax: {x: 0.25, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &213199964
@@ -2952,7 +2935,7 @@ GameObject:
   - 224: {fileID: 385108655}
   - 114: {fileID: 385108656}
   m_Layer: 9
-  m_Name: 2
+  m_Name: ItemSticker
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3129,8 +3112,8 @@ RectTransform:
   m_Children:
   - {fileID: 213199963}
   - {fileID: 1717450476}
-  - {fileID: 1943547132}
   - {fileID: 660628336}
+  - {fileID: 1002182563}
   m_Father: {fileID: 517978782}
   m_RootOrder: 4
   m_AnchorMin: {x: 0, y: 0}
@@ -3508,7 +3491,7 @@ GameObject:
   - 224: {fileID: 471078129}
   - 114: {fileID: 471078130}
   m_Layer: 9
-  m_Name: 6
+  m_Name: MusicFilter
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3560,7 +3543,7 @@ GameObject:
   - 224: {fileID: 478399780}
   - 114: {fileID: 478399781}
   m_Layer: 9
-  m_Name: 12
+  m_Name: Makeup
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4510,8 +4493,8 @@ RectTransform:
   m_RootOrder: 1
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 539.46906, y: -270}
-  m_SizeDelta: {x: 1078.9381, y: 100}
+  m_AnchoredPosition: {x: 540, y: -270}
+  m_SizeDelta: {x: 1080, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &590636380
 MonoBehaviour:
@@ -4644,7 +4627,7 @@ GameObject:
   - 114: {fileID: 660628337}
   - 114: {fileID: 660628340}
   m_Layer: 5
-  m_Name: Text_4
+  m_Name: Text_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4662,10 +4645,10 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children: []
   m_Father: {fileID: 442958763}
-  m_RootOrder: 3
-  m_AnchorMin: {x: 0.76863194, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.25976562, y: 0}
+  m_RootOrder: 2
+  m_AnchorMin: {x: 0.5, y: 0}
+  m_AnchorMax: {x: 0.75, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &660628337
@@ -5468,7 +5451,7 @@ GameObject:
   - 224: {fileID: 910663490}
   - 114: {fileID: 910663491}
   m_Layer: 9
-  m_Name: 8
+  m_Name: GestureRecognition
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5940,6 +5923,92 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1001059835}
+--- !u!1 &1002182562
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 4
+  m_Component:
+  - 224: {fileID: 1002182563}
+  - 222: {fileID: 1002182566}
+  - 114: {fileID: 1002182565}
+  - 114: {fileID: 1002182564}
+  m_Layer: 5
+  m_Name: Text_4
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1002182563
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1002182562}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_Children: []
+  m_Father: {fileID: 442958763}
+  m_RootOrder: 3
+  m_AnchorMin: {x: 0.75, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1002182564
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1002182562}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc771303e09daae4388c55c74cc25e14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1002182565
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1002182562}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 708705254, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
+      Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  m_FontData:
+    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_FontSize: 50
+    m_FontStyle: 0
+    m_BestFit: 0
+    m_MinSize: 5
+    m_MaxSize: 74
+    m_Alignment: 4
+    m_AlignByGeometry: 0
+    m_RichText: 1
+    m_HorizontalOverflow: 0
+    m_VerticalOverflow: 0
+    m_LineSpacing: 1
+  m_Text: "\u8D28\u611F\u7F8E\u989C"
+--- !u!222 &1002182566
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1002182562}
 --- !u!1 &1009808835
 GameObject:
   m_ObjectHideFlags: 0
@@ -6768,7 +6837,7 @@ GameObject:
   - 224: {fileID: 1105743877}
   - 114: {fileID: 1105743878}
   m_Layer: 9
-  m_Name: 9
+  m_Name: MagicMirror
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6854,7 +6923,7 @@ GameObject:
   - 224: {fileID: 1116579522}
   - 114: {fileID: 1116579523}
   m_Layer: 9
-  m_Name: 10
+  m_Name: PortraitLightEffect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7137,7 +7206,7 @@ GameObject:
   - 224: {fileID: 1172941944}
   - 114: {fileID: 1172941945}
   m_Layer: 9
-  m_Name: 7
+  m_Name: BackgroundSegmentation
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7885,8 +7954,8 @@ RectTransform:
   m_RootOrder: 2
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 539.46906, y: -445}
-  m_SizeDelta: {x: 1078.9381, y: 250}
+  m_AnchoredPosition: {x: 540, y: -445}
+  m_SizeDelta: {x: 1080, y: 250}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1314735269
 MonoBehaviour:
@@ -8144,7 +8213,7 @@ GameObject:
   - 224: {fileID: 1350869270}
   - 114: {fileID: 1350869271}
   m_Layer: 9
-  m_Name: 5
+  m_Name: ExpressionRecognition
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8196,7 +8265,7 @@ GameObject:
   - 224: {fileID: 1359192014}
   - 114: {fileID: 1359192015}
   m_Layer: 9
-  m_Name: 11
+  m_Name: PortraitDrive
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8248,7 +8317,7 @@ GameObject:
   - 224: {fileID: 1359395638}
   - 114: {fileID: 1359395639}
   m_Layer: 9
-  m_Name: 0
+  m_Name: Beauty
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10115,9 +10184,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 442958763}
   m_RootOrder: 1
-  m_AnchorMin: {x: 0.23185275, y: 0}
-  m_AnchorMax: {x: 0.46400002, y: 1}
-  m_AnchoredPosition: {x: -0.73999023, y: 0}
+  m_AnchorMin: {x: 0.25, y: 0}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1717450477
@@ -10984,7 +11053,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -498.9381, y: -50}
+  m_SizeDelta: {x: -500, y: -50}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1797791881
 MonoBehaviour:
@@ -12098,92 +12167,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
---- !u!1 &1943547131
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 4
-  m_Component:
-  - 224: {fileID: 1943547132}
-  - 222: {fileID: 1943547134}
-  - 114: {fileID: 1943547133}
-  - 114: {fileID: 1943547136}
-  m_Layer: 5
-  m_Name: Text_3
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &1943547132
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1943547131}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_Children: []
-  m_Father: {fileID: 442958763}
-  m_RootOrder: 2
-  m_AnchorMin: {x: 0.46400002, y: 0}
-  m_AnchorMax: {x: 0.76863194, y: 1}
-  m_AnchoredPosition: {x: -0.23999023, y: 0}
-  m_SizeDelta: {x: 1, y: 0}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1943547133
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1943547131}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 708705254, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-    m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
-      Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 50
-    m_FontStyle: 0
-    m_BestFit: 0
-    m_MinSize: 5
-    m_MaxSize: 74
-    m_Alignment: 4
-    m_AlignByGeometry: 0
-    m_RichText: 1
-    m_HorizontalOverflow: 0
-    m_VerticalOverflow: 0
-    m_LineSpacing: 1
-  m_Text: "\u7F8E\u989C\u6EE4\u955C"
---- !u!222 &1943547134
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1943547131}
---- !u!114 &1943547136
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1943547131}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bc771303e09daae4388c55c74cc25e14, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1944704081
 GameObject:
   m_ObjectHideFlags: 0
@@ -12194,7 +12177,7 @@ GameObject:
   - 224: {fileID: 1944704082}
   - 114: {fileID: 1944704083}
   m_Layer: 9
-  m_Name: 1
+  m_Name: Animoji
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

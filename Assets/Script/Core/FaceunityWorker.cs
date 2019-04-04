@@ -4,6 +4,7 @@ using System.Collections;
 using System.Runtime.InteropServices;
 using System.Text;
 using UnityEngine.Rendering;
+using System.Collections.Generic;
 
 public class FaceunityWorker : MonoBehaviour
 {
@@ -81,7 +82,7 @@ public class FaceunityWorker : MonoBehaviour
                 else
                     return;
             }
-            fu_GetFaceInfo(m_faceId, m_addr, m_addr_size, m_name);
+            Update();
         }
     }
 
@@ -96,11 +97,11 @@ public class FaceunityWorker : MonoBehaviour
 	\brief Initialize and authenticate your SDK instance to the FaceUnity server, must be called exactly once before all other functions.
 		The buffers should NEVER be freed while the other functions are still being called.
 		You can call this function multiple times to "switch pointers".
-	\param v3data should point to contents of the "v3.bin" we provide
-	\param ardata should be NULL
-	\param authdata is the pointer to the authentication data pack we provide. You must avoid storing the data in a file.
+	\param v3buf should point to contents of the "v3.bin" we provide
+    \param v3buf_sz should point to num-of-bytes of the "v3.bin" we provide
+	\param licbuf is the pointer to the authentication data pack we provide. You must avoid storing the data in a file.
 		Normally you can just `#include "authpack.h"` and put `g_auth_package` here.
-	\param sz_authdata is the authenticafu_Cleartion data size, we use plain int to avoid cross-language compilation issues.
+	\param licbuf_sz is the authenticafu_Cleartion data size, we use plain int to avoid cross-language compilation issues.
 		Normally you can just `#include "authpack.h"` and put `sizeof(g_auth_package)` here.
 	\return non-zero for success, zero for failure
 	*/
@@ -109,7 +110,14 @@ public class FaceunityWorker : MonoBehaviour
 #else
     [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
 #endif
-    public static extern int fu_Setup(IntPtr databuf, IntPtr licbuf, int licbuf_sz);
+    public static extern int fu_Setup(IntPtr v3buf, int v3buf_sz, IntPtr licbuf, int licbuf_sz);
+
+#if UNITY_IOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+#else
+    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
+#endif
+    public static extern int fu_GetNamaInited();
 
 #if UNITY_IOS && !UNITY_EDITOR
     [DllImport("__Internal")]
@@ -626,6 +634,51 @@ public class FaceunityWorker : MonoBehaviour
 #endif
     public static extern int fu_GetFaceInfo(int face_id, IntPtr ret, int szret, [MarshalAs(UnmanagedType.LPStr)]string name);
 
+    /**
+     * FURuningMode为FU_Mode_RenderItems的时候，加载EnableTongueForUnity.bytes，才能开启舌头跟踪。
+     * FURuningMode为FU_Mode_TrackFace的时候，调用fu_SetTongueTracking(1)，才能开启舌头跟踪。注意，每次切换到FU_Mode_TrackFace之后都需要设置一次！！！
+\brief Turn on or turn off Tongue Tracking, used in trackface.
+\param enable > 0 means turning on, enable <= 0 means turning off
+*/
+#if UNITY_IOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+#else
+    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
+#endif
+    public static extern int fu_SetTongueTracking(int enable);
+
+    /**
+\brief Set a face detector parameter.
+\param detector is the detector context, currently it is allowed to set to NULL, i.e., globally set all contexts.
+\param name is the parameter name, it can be:
+	"use_new_cnn_detection": 1 if the new cnn-based detection method is used, 0 else
+	"other_face_detection_frame_step": if one face already exists, then we detect other faces not each frame, but with a step
+	if use_new_cnn_detection == 1, then
+		"min_facesize_small", int[default=18]: minimum size to detect a small face; must be called **BEFORE** fuSetup
+		"min_facesize_big", int[default=27]: minimum size to detect a big face; must be called **BEFORE** fuSetup
+		"small_face_frame_step", int[default=5]: the frame step to detect a small face; it is time cost, thus we do not detect each frame
+		"use_cross_frame_speedup", int[default=0]: perform a half-cnn inference each frame to speedup
+	else
+		"scaling_factor": the scaling across image pyramids, default 1.2f
+		"step_size": the step of each sliding window, default 2.f
+		"size_min": minimal face supported on 640x480 image, default 50.f
+		"size_max": maximal face supported on 640x480 image, default is a large value
+		"min_neighbors": algorithm internal, default 3.f
+		"min_required_variance": algorithm internal, default 15.f
+		"is_mono": specifies the input is monocular or BGRA 
+\param value points to the new parameter value, e.g., 
+	float scaling_factor=1.2f;
+	dde_facedet_set(ctx, "scaling_factor", &scaling_factor);
+	float size_min=100.f;
+	dde_facedet_set(ctx, "size_min", &size_min);
+*/
+#if UNITY_IOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+#else
+    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
+#endif
+    public static extern int fu_SetFaceDetParam([MarshalAs(UnmanagedType.LPStr)]string name, IntPtr value);
+
     #endregion
 
     /**
@@ -687,28 +740,30 @@ public class FaceunityWorker : MonoBehaviour
 
     public int MAXFACE = 1;
     public bool EnableExpressionLoop = true;
+    int MaxExpression = 0;
     public string LICENSE = "";
 
     [HideInInspector]
-    public int m_need_blendshape_update = 0;
-    public CFaceUnityCoefficientSet[] m_translation;// = new CFaceUnityCoefficientSet("translation", 3); //3D translation of face in camera space - 3 float
-    public CFaceUnityCoefficientSet[] m_rotation;// = new CFaceUnityCoefficientSet("rotation", 4); //rotation quaternion - 4 float
-    public CFaceUnityCoefficientSet[] m_rotation_mode;// = new CFaceUnityCoefficientSet("rotation_mode", 1); //the relative orientaion of face agains phone, 0-3 - 1 float
-    public CFaceUnityCoefficientSet[] m_expression;// = new CFaceUnityCoefficientSet("expression", 46);
-    //public CFaceUnityCoefficientSet[] m_landmarks;// =new CFaceUnityCoefficientSet("landmarks",75*2); //2D landmarks coordinates in image space - 75*2 float
-    //public CFaceUnityCoefficientSet[] m_landmarks_ar;// =new CFaceUnityCoefficientSet("landmarks_ar",75*3); //3D landmarks coordinates in camera space - 75*3 float
-    //public CFaceUnityCoefficientSet[] m_projection_matrix;// =new CFaceUnityCoefficientSet("projection_matrix",16); //the transform matrix from camera space to image space - 16 float
-    //public CFaceUnityCoefficientSet[] m_eye_rotation;// =new CFaceUnityCoefficientSet("eye_rotation",4); //eye rotation quaternion - 4 float
-    //public CFaceUnityCoefficientSet[] m_face_rect;// =new CFaceUnityCoefficientSet("face_rect",4); //the rectangle of tracked face in image space, (xmin,ymin,xmax,ymax) - 4 float
-    //public CFaceUnityCoefficientSet[] m_failure_rate;// =new CFaceUnityCoefficientSet("failure_rate",1); //the failure rate of face tracking, the less the more confident about tracking result - 1 float
-    public CFaceUnityCoefficientSet[] m_pupil_pos;// = new CFaceUnityCoefficientSet("pupil_pos", 4);
-    public CFaceUnityCoefficientSet[] m_focallength;// = new CFaceUnityCoefficientSet("focal_length", 1);
+    public int m_need_update_facenum = 0;
+    public List<CFaceUnityCoefficientSet> m_translation = new List<CFaceUnityCoefficientSet>();//("translation", 3); //3D translation of face in camera space - 3 float
+    public List<CFaceUnityCoefficientSet> m_rotation = new List<CFaceUnityCoefficientSet>();//("rotation", 4); //rotation quaternion - 4 float
+    public List<CFaceUnityCoefficientSet> m_rotation_mode = new List<CFaceUnityCoefficientSet>();//("rotation_mode", 1); //the relative orientaion of face agains phone, 0-3 - 1 float
+    //public List<CFaceUnityCoefficientSet> m_expression = new List<CFaceUnityCoefficientSet>();//("expression", 46);
+    public List<CFaceUnityCoefficientSet> m_expression_with_tongue = new List<CFaceUnityCoefficientSet>();//("expression_with_tongue", 56);
+    //public List<CFaceUnityCoefficientSet> m_landmarks = new List<CFaceUnityCoefficientSet>();//("landmarks",75*2); //2D landmarks coordinates in image space - 75*2 float
+    //public List<CFaceUnityCoefficientSet> m_landmarks_ar = new List<CFaceUnityCoefficientSet>();//("landmarks_ar",75*3); //3D landmarks coordinates in camera space - 75*3 float
+    //public List<CFaceUnityCoefficientSet> m_projection_matrix = new List<CFaceUnityCoefficientSet>();//("projection_matrix",16); //the transform matrix from camera space to image space - 16 float
+    //public List<CFaceUnityCoefficientSet> m_eye_rotation = new List<CFaceUnityCoefficientSet>();//("eye_rotation",4); //eye rotation quaternion - 4 float
+    //public List<CFaceUnityCoefficientSet> m_face_rect = new List<CFaceUnityCoefficientSet>();//("face_rect",4); //the rectangle of tracked face in image space, (xmin,ymin,xmax,ymax) - 4 float
+    //public List<CFaceUnityCoefficientSet> m_failure_rate = new List<CFaceUnityCoefficientSet>();//("failure_rate",1); //the failure rate of face tracking, the less the more confident about tracking result - 1 float
+    public List<CFaceUnityCoefficientSet> m_pupil_pos = new List<CFaceUnityCoefficientSet>();//("pupil_pos", 4);
+    public List<CFaceUnityCoefficientSet> m_focallength = new List<CFaceUnityCoefficientSet>();//("focal_length", 1);
 
-    //public CFaceUnityCoefficientSet[] m_armesh_vertex_num;
-    //public CFaceUnityCoefficientSet[] m_armesh_vertices;
-    //public CFaceUnityCoefficientSet[] m_armesh_uvs;
-    //public CFaceUnityCoefficientSet[] m_armesh_face_num;
-    //public CFaceUnityCoefficientSet[] m_armesh_faces;
+    //public List<CFaceUnityCoefficientSet> m_armesh_vertex_num = new List<CFaceUnityCoefficientSet>();
+    //public List<CFaceUnityCoefficientSet> m_armesh_vertices = new List<CFaceUnityCoefficientSet>();
+    //public List<CFaceUnityCoefficientSet> m_armesh_uvs = new List<CFaceUnityCoefficientSet>();
+    //public List<CFaceUnityCoefficientSet> m_armesh_face_num = new List<CFaceUnityCoefficientSet>();
+    //public List<CFaceUnityCoefficientSet> m_armesh_faces = new List<CFaceUnityCoefficientSet>();
 
     public static float FocalLengthScale = 1f;
 
@@ -723,38 +778,45 @@ public class FaceunityWorker : MonoBehaviour
     GCHandle tongue_handle;
 
     ///////////////////////////////
-    void InitCFaceUnityCoefficientSet()
+    void InitCFaceUnityCoefficientSet(int maxface)
     {
-        m_translation = new CFaceUnityCoefficientSet[MAXFACE];
-        m_rotation = new CFaceUnityCoefficientSet[MAXFACE];
-        m_rotation_mode = new CFaceUnityCoefficientSet[MAXFACE];
-        m_expression = new CFaceUnityCoefficientSet[MAXFACE];
-        m_pupil_pos = new CFaceUnityCoefficientSet[MAXFACE];
-        m_focallength = new CFaceUnityCoefficientSet[MAXFACE];
-        //m_landmarks = new CFaceUnityCoefficientSet[MAXFACE];
+        if (MaxExpression < maxface)
+            for (int i = MaxExpression; i < maxface; i++)
+            {
+                m_translation.Add(new CFaceUnityCoefficientSet("translation", 3, i));
+                m_rotation.Add(new CFaceUnityCoefficientSet("rotation", 4, i));
+                m_rotation_mode.Add(new CFaceUnityCoefficientSet("rotation_mode", 1, i));
+                //m_expression.Add(new CFaceUnityCoefficientSet("expression", 46, i));
+                m_expression_with_tongue.Add(new CFaceUnityCoefficientSet("expression_with_tongue", 56, i));
+                m_pupil_pos.Add(new CFaceUnityCoefficientSet("pupil_pos", 4, i));
+                m_focallength.Add(new CFaceUnityCoefficientSet("focal_length", 1, i));
+                //m_landmarks.Add(new CFaceUnityCoefficientSet("landmarks", 75 * 2, i));
 
-        //m_armesh_vertex_num = new CFaceUnityCoefficientSet[MAXFACE];
-        //m_armesh_vertices = new CFaceUnityCoefficientSet[MAXFACE];
-        //m_armesh_uvs = new CFaceUnityCoefficientSet[MAXFACE];
-        //m_armesh_face_num = new CFaceUnityCoefficientSet[MAXFACE];
-        //m_armesh_faces = new CFaceUnityCoefficientSet[MAXFACE];
+                //m_armesh_vertex_num.Add(new CFaceUnityCoefficientSet("armesh_vertex_num", 1, i, 1));
+                //m_armesh_vertices.Add(new CFaceUnityCoefficientSet("armesh_vertices", 1, i));   //这个长度值需要动态更新
+                //m_armesh_uvs.Add(new CFaceUnityCoefficientSet("armesh_uvs", 1, i));
+                //m_armesh_face_num.Add(new CFaceUnityCoefficientSet("armesh_face_num", 1, i, 1));
+                //m_armesh_faces.Add(new CFaceUnityCoefficientSet("armesh_faces", 1, i, 1));
+            }
+        else if (MaxExpression > maxface)
+            for (int i = maxface; i < MaxExpression; i++)
+            {
+                m_translation.RemoveAt(i);
+                m_rotation.RemoveAt(i);
+                m_rotation_mode.RemoveAt(i);
+                //m_expression.RemoveAt(i);
+                m_expression_with_tongue.RemoveAt(i);
+                m_pupil_pos.RemoveAt(i);
+                m_focallength.RemoveAt(i);
+                //m_landmarks.RemoveAt(i);
 
-        for (int i=0;i<MAXFACE;i++)
-        {
-            m_translation[i] = new CFaceUnityCoefficientSet("translation", 3, i);
-            m_rotation[i] = new CFaceUnityCoefficientSet("rotation", 4, i);
-            m_rotation_mode[i] = new CFaceUnityCoefficientSet("rotation_mode", 1, i);
-            m_expression[i] = new CFaceUnityCoefficientSet("expression", 46, i);
-            m_pupil_pos[i] = new CFaceUnityCoefficientSet("pupil_pos", 4, i);
-            m_focallength[i] = new CFaceUnityCoefficientSet("focal_length", 1, i);
-            //m_landmarks[i] = new CFaceUnityCoefficientSet("landmarks", 75 * 2, i);
-
-            //m_armesh_vertex_num[i] = new CFaceUnityCoefficientSet("armesh_vertex_num", 1, i, 1);
-            //m_armesh_vertices[i] = new CFaceUnityCoefficientSet("armesh_vertices", 1, i);   //这个长度值需要动态更新
-            //m_armesh_uvs[i] = new CFaceUnityCoefficientSet("armesh_uvs", 1, i);
-            //m_armesh_face_num[i] = new CFaceUnityCoefficientSet("armesh_face_num", 1, i, 1);
-            //m_armesh_faces[i] = new CFaceUnityCoefficientSet("armesh_faces", 1, i, 1);
-        }
+                //m_armesh_vertex_num.RemoveAt(i);
+                //m_armesh_vertices.RemoveAt(i);
+                //m_armesh_uvs.RemoveAt(i);
+                //m_armesh_face_num.RemoveAt(i);
+                //m_armesh_faces.RemoveAt(i);
+            }
+        MaxExpression = maxface;
     }
 
     //working methods
@@ -811,9 +873,9 @@ public class FaceunityWorker : MonoBehaviour
                             if (m_v3data_handle.IsAllocated)
                                 m_v3data_handle.Free();
                             m_v3data_handle = GCHandle.Alloc(m_v3data_bytes, GCHandleType.Pinned); //pinned avoid GC
-                            IntPtr dataptr = m_v3data_handle.AddrOfPinnedObject(); //pinned addr
+                            IntPtr v3ptr = m_v3data_handle.AddrOfPinnedObject(); //pinned addr
 
-                            fu_Setup(dataptr, licptr, sbytes.Length); //要查看license是否有效请打开插件log（fu_EnableLog(true);）
+                            fu_Setup(v3ptr, m_v3data_bytes.Length, licptr, sbytes.Length); //要查看license是否有效请打开插件log（fu_EnableLog(true);）
 
                             m_plugin_inited = true;
                         }
@@ -827,26 +889,6 @@ public class FaceunityWorker : MonoBehaviour
 
                 if (m_plugin_inited == true)
                 {
-                    string ardata_ex = Util.GetStreamingAssetsPath() + "/faceunity/ardata_ex.bytes";    //高精度AR数据
-                    WWW ardata_exdata = new WWW(ardata_ex);
-                    yield return ardata_exdata;
-                    byte[] ardata_exdata_bytes = ardata_exdata.bytes;
-                    if (ardata_exdata_handle.IsAllocated)
-                        ardata_exdata_handle.Free();
-                    ardata_exdata_handle = GCHandle.Alloc(ardata_exdata_bytes, GCHandleType.Pinned);
-                    IntPtr ardata_exdataptr = ardata_exdata_handle.AddrOfPinnedObject();
-                    fu_LoadExtendedARData(ardata_exdataptr, ardata_exdata_bytes.Length);
-
-                    string anim_model = Util.GetStreamingAssetsPath() + "/faceunity/anim_model.bytes";    //优化面部跟踪数据
-                    WWW anim_modeldata = new WWW(anim_model);
-                    yield return anim_modeldata;
-                    byte[] anim_model_bytes = anim_modeldata.bytes;
-                    if (anim_model_handle.IsAllocated)
-                        anim_model_handle.Free();
-                    anim_model_handle = GCHandle.Alloc(anim_model_bytes, GCHandleType.Pinned);
-                    IntPtr anim_modeldataptr = anim_model_handle.AddrOfPinnedObject();
-                    fu_LoadAnimModel(anim_modeldataptr, anim_model_bytes.Length);
-
                     string tongue = Util.GetStreamingAssetsPath() + "/faceunity/tongue.bytes";    //舌头检测
                     WWW tonguedata = new WWW(tongue);
                     yield return tonguedata;
@@ -865,9 +907,6 @@ public class FaceunityWorker : MonoBehaviour
 
                     if (OnInitOK != null)
                         OnInitOK(this, null);//触发初始化完成事件
-
-                    if (EnableExpressionLoop)
-                        InitCFaceUnityCoefficientSet();
 
                     //Debug.Log("错误：" + fu_GetSystemError() +","+ Marshal.PtrToStringAnsi(fu_GetSystemErrorString(fu_GetSystemError())));
                     Debug.Log("SDK Version:" + Marshal.PtrToStringAnsi(fu_GetVersion()));
@@ -906,13 +945,15 @@ public class FaceunityWorker : MonoBehaviour
             }
             if (EnableExpressionLoop)
             {
+                if (MaxExpression != MAXFACE)
+                    InitCFaceUnityCoefficientSet(MAXFACE);
                 //only update other stuff when there is new data
                 int num = fu_IsTracking();
-                m_need_blendshape_update = num < MAXFACE ? num : MAXFACE;
-                for (int i = 0; i < m_need_blendshape_update; i++)
+                m_need_update_facenum = num < MAXFACE ? num : MAXFACE;
+                for (int i = 0; i < m_need_update_facenum; i++)
                 {
                     //m_armesh_vertex_num[i].Update();
-                    //m_armesh_vertices[i].Update(m_armesh_vertex_num[i].m_data_int[0]*3);
+                    //m_armesh_vertices[i].Update(m_armesh_vertex_num[i].m_data_int[0] * 3);
                     //m_armesh_uvs[i].Update(m_armesh_vertex_num[i].m_data_int[0] * 2);
                     //m_armesh_face_num[i].Update();
                     //m_armesh_faces[i].Update(m_armesh_face_num[i].m_data_int[0] * 3);
@@ -920,19 +961,22 @@ public class FaceunityWorker : MonoBehaviour
                     m_translation[i].Update();
                     m_rotation[i].Update();
                     m_rotation_mode[i].Update();
-                    m_expression[i].Update();
                     //m_landmarks[i].Update();
-
                     m_pupil_pos[i].Update();
                     m_focallength[i].Update();
-                    //Debug.Log("m_focallength["+ i + "]=" + m_focallength[i].m_data[0]);
                     ////////////////////////
-                    //post-process the coefficients
-                    m_expression[i].m_data[6] = m_expression[i].m_data[7] = m_pupil_pos[i].m_data[0];
-                    m_expression[i].m_data[10] = m_expression[i].m_data[11] = -m_pupil_pos[i].m_data[0];
 
-                    m_expression[i].m_data[12] = m_expression[i].m_data[13] = m_pupil_pos[i].m_data[1];
-                    m_expression[i].m_data[4] = m_expression[i].m_data[5] = -m_pupil_pos[i].m_data[1];
+                    m_expression_with_tongue[i].Update();
+                    m_expression_with_tongue[i].m_data[6] = m_expression_with_tongue[i].m_data[7] = m_pupil_pos[i].m_data[0];
+                    m_expression_with_tongue[i].m_data[10] = m_expression_with_tongue[i].m_data[11] = -m_pupil_pos[i].m_data[0];
+                    m_expression_with_tongue[i].m_data[12] = m_expression_with_tongue[i].m_data[13] = m_pupil_pos[i].m_data[1];
+                    m_expression_with_tongue[i].m_data[4] = m_expression_with_tongue[i].m_data[5] = -m_pupil_pos[i].m_data[1];
+
+                    //m_expression[i].Update();
+                    //m_expression[i].m_data[6] = m_expression[i].m_data[7] = m_pupil_pos[i].m_data[0];
+                    //m_expression[i].m_data[10] = m_expression[i].m_data[11] = -m_pupil_pos[i].m_data[0];
+                    //m_expression[i].m_data[12] = m_expression[i].m_data[13] = m_pupil_pos[i].m_data[1];
+                    //m_expression[i].m_data[4] = m_expression[i].m_data[5] = -m_pupil_pos[i].m_data[1];
                 }
             }
         }

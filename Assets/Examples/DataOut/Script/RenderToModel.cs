@@ -45,6 +45,12 @@ public class RenderToModel : MonoBehaviour
     public delegate void OnSwitchCamera(bool isSwitching);
     public event OnSwitchCamera onSwitchCamera;
 
+    const int SLOTLENGTH = 1;
+    int[] itemid_tosdk;
+    GCHandle itemid_handle;
+    IntPtr p_itemsid;
+
+
     public void OnStart()
     {
 #if !(UNITY_EDITOR || UNITY_STANDALONE)
@@ -267,6 +273,13 @@ public class RenderToModel : MonoBehaviour
     void Awake()
     {
         FaceunityWorker.OnInitOK += InitApplication;
+
+        if (itemid_tosdk == null)
+        {
+            itemid_tosdk = new int[SLOTLENGTH];
+            itemid_handle = GCHandle.Alloc(itemid_tosdk, GCHandleType.Pinned);
+            p_itemsid = itemid_handle.AddrOfPinnedObject();
+        }
     }
 
     void InitApplication(object source, EventArgs e)
@@ -343,6 +356,36 @@ public class RenderToModel : MonoBehaviour
         }
     }
 
+    public IEnumerator LoadItem(string path, int slotid = 0)
+    {
+        Debug.Log("LoadItem:" + path);
+        WWW bundledata = new WWW(path);
+        yield return bundledata;
+        byte[] bundle_bytes = bundledata.bytes;
+        GCHandle hObject = GCHandle.Alloc(bundle_bytes, GCHandleType.Pinned);
+        IntPtr pObject = hObject.AddrOfPinnedObject();
+
+        yield return FaceunityWorker.fu_CreateItemFromPackage(pObject, bundle_bytes.Length);
+        hObject.Free();
+        int itemid = FaceunityWorker.fu_getItemIdxFromPackage();
+
+        itemid_tosdk[slotid] = itemid;
+
+        FaceunityWorker.fu_setItemIds(p_itemsid, SLOTLENGTH, IntPtr.Zero);
+    }
+
+    public bool UnLoadItem(int slotid = 0)
+    {
+        if (slotid >= 0 && slotid < SLOTLENGTH)
+        {
+            FaceunityWorker.fu_DestroyItem(itemid_tosdk[slotid]);
+            itemid_tosdk[slotid] = 0;
+            return true;
+        }
+        Debug.LogError("UnLoadItem Faild!!!");
+        return false;
+    }
+
     private void OnApplicationQuit()
     {
 #if UNITY_EDITOR || UNITY_STANDALONE
@@ -351,6 +394,7 @@ public class RenderToModel : MonoBehaviour
             img_handle.Free();
         }
 #endif
+        UnLoadItem();
     }
 
     void OnGUI()

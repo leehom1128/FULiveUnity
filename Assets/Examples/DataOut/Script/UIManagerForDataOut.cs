@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine.UI;
 using System;
 using NatCamU.Core;
+using System.Runtime.InteropServices;
 
 public class UIManagerForDataOut : MonoBehaviour {
 
@@ -33,6 +34,7 @@ public class UIManagerForDataOut : MonoBehaviour {
     {
         NatCam.OnStart += OnStart;
         RegisterUIFunc();
+        StartCoroutine(rtm.LoadItem(Util.GetStreamingAssetsPath() + "/faceunity/EnableTongueForUnity.bytes"));
     }
 
     public void OnStart()
@@ -61,12 +63,14 @@ public class UIManagerForDataOut : MonoBehaviour {
             {
                 rtm.ifTrackPos = true;
                 FaceunityWorker.SetRunningMode(FaceunityWorker.FURuningMode.FU_Mode_RenderItems);
+                StartCoroutine(rtm.LoadItem(Util.GetStreamingAssetsPath() + "/faceunity/EnableTongueForUnity.bytes"));
                 StartCoroutine(rtm.delaySet());
             }
             else
             {
                 rtm.ifTrackPos = false;
                 FaceunityWorker.SetRunningMode(FaceunityWorker.FURuningMode.FU_Mode_TrackFace);
+                FaceunityWorker.fu_SetTongueTracking(1);
                 rtm.ReSetBackGroud();
             }
         });

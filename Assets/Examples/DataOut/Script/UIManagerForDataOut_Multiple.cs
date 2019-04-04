@@ -34,6 +34,7 @@ public class UIManagerForDataOut_Multiple : MonoBehaviour {
     void InitApplication(object source, EventArgs e)
     {
         RegisterUIFunc();
+        StartCoroutine(rtm.LoadItem(Util.GetStreamingAssetsPath() + "/faceunity/EnableTongueForUnity.bytes"));
     }
 
     void Update()
@@ -51,7 +52,7 @@ public class UIManagerForDataOut_Multiple : MonoBehaviour {
             marks[i] = false;
         }
         string tmps = "trueid:";
-        for (int i = 0; i < FaceunityWorker.instance.m_need_blendshape_update; i++)
+        for (int i = 0; i < FaceunityWorker.instance.m_need_update_facenum; i++)
         {
             int trueid = (int)Mathf.Log(FaceunityWorker.fu_GetFaceIdentifier(i),2);
             tmps += trueid + ",";
@@ -68,7 +69,7 @@ public class UIManagerForDataOut_Multiple : MonoBehaviour {
                 stcs[i].gameObject.SetActive(false);
         }
 
-        text = "faceNum=" + FaceunityWorker.instance.m_need_blendshape_update+"\n"+ tmps;
+        text = "faceNum=" + FaceunityWorker.instance.m_need_update_facenum+"\n"+ tmps;
     }
 
     void RegisterUIFunc()

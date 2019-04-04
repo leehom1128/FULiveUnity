@@ -124,7 +124,7 @@ MonoBehaviour:
   MAXFACE: 1
   EnableExpressionLoop: 0
   LICENSE: 
-  m_need_blendshape_update: 0
+  m_need_update_facenum: 0
 --- !u!4 &51551130
 Transform:
   m_ObjectHideFlags: 0

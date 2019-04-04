@@ -10,7 +10,7 @@
 		<dict>
 			<key>cdhash</key>
 			<data>
-			i67ybGprJHuSdhAhH4DHNyF9wkA=
+			iSCF4tJvU0RE9iyNlS14cXplCAw=
 			</data>
 			<key>requirement</key>
 			<string>identifier "dde_core" and anchor apple generic and certificate leaf[subject.CN] = "Mac Developer: Hao Qin (4BFVKDFJMK)" and certificate 1[field.1.2.840.113635.100.6.2.1] /* exists */</string>
@@ -19,7 +19,7 @@
 		<dict>
 			<key>cdhash</key>
 			<data>
-			RYOFhzL+kWwWhXnEZT6n0Az2dQU=
+			swxCIbO5BcLRJKeA0txoLrBr3dQ=
 			</data>
 			<key>requirement</key>
 			<string>identifier faceplugin and anchor apple generic and certificate leaf[subject.CN] = "Mac Developer: Hao Qin (4BFVKDFJMK)" and certificate 1[field.1.2.840.113635.100.6.2.1] /* exists */</string>
@@ -28,7 +28,7 @@
 		<dict>
 			<key>cdhash</key>
 			<data>
-			iSe5v2x8jhisHl0HD2xDLgY9Q9o=
+			pyXDg0AZcBpYCASjIXOpTSe16+8=
 			</data>
 			<key>requirement</key>
 			<string>identifier "libtensorflow-lite" and anchor apple generic and certificate leaf[subject.CN] = "Mac Developer: Hao Qin (4BFVKDFJMK)" and certificate 1[field.1.2.840.113635.100.6.2.1] /* exists */</string>
@@ -37,7 +37,7 @@
 		<dict>
 			<key>cdhash</key>
 			<data>
-			qbYVY5OXg+Lcedu+pRZzFV8355k=
+			qD5pQhMGf1P3eVth4HdZ0WtU58k=
 			</data>
 			<key>requirement</key>
 			<string>identifier nama and anchor apple generic and certificate leaf[subject.CN] = "Mac Developer: Hao Qin (4BFVKDFJMK)" and certificate 1[field.1.2.840.113635.100.6.2.1] /* exists */</string>

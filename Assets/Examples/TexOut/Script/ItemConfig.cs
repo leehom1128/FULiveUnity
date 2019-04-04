@@ -1,13 +1,34 @@
 ﻿using System.Collections;
+using UnityEngine;
+
+public enum ItemType
+{
+    Undefine = -1,
+    Beauty = 0,
+    CommonFilter,
+    Makeup,
+    Animoji,
+    ItemSticker,
+    ARMask,
+    ChangeFace,
+    ExpressionRecognition,
+    MusicFilter,
+    BackgroundSegmentation,
+    GestureRecognition,
+    MagicMirror,
+    PortraitLightEffect,
+    PortraitDrive,
+    //...更多类型道具请咨询技术支持
+}
 
 public struct Item
 {
     public string name;
     public string fullname; //路径
     public int iconid;
-    public int type;
+    public ItemType type;
 
-    Item(string _name="",string _fullname="",int _iconid = -1,int _type=0)
+    Item(string _name = "", string _fullname = "", int _iconid = -1, ItemType _type = ItemType.Undefine)
     {
         name = _name;
         fullname = _fullname;
@@ -15,207 +36,129 @@ public struct Item
         type = _type;
     }
 
+    public static Item Empty = new Item();
+
 };
 
 public class ItemConfig
 {
     public static Item[] beautySkin ={
-        new Item { name = "beautification", fullname = "face_beautification", iconid = -1 ,type=0},
+        new Item { name = "beautification", fullname = "face_beautification", iconid = -1 ,type=ItemType.Beauty},
     };
 
     public static Item[] commonFilter ={
-        new Item { name = "fuzzytoonfilter", fullname = "fuzzytoonfilter", iconid = -1 ,type=0},
+        new Item { name = "fuzzytoonfilter", fullname = "fuzzytoonfilter", iconid = -1 ,type=ItemType.CommonFilter},
     };
 
     public static Item[] makeup ={
-        new Item { name = "face_makeup", fullname = "face_makeup", iconid = -1 ,type=0},
+        new Item { name = "face_makeup", fullname = "face_makeup", iconid = -1 ,type=ItemType.Makeup},
     };
 
     //Animoji
     public static Item[] item_1 = {
-        new Item { name = "frog_Animoji", fullname = "items/Animoji/frog_Animoji", iconid = 2 ,type=1},
-        new Item { name = "huangya_Animoji", fullname = "items/Animoji/huangya_Animoji", iconid = 5 ,type=1},
-        new Item { name = "hetun_Animoji", fullname = "items/Animoji/hetun_Animoji", iconid = 4 ,type=1},
-        new Item { name = "douniuquan_Animoji", fullname = "items/Animoji/douniuquan_Animoji", iconid = 1 ,type=1},
-        new Item { name = "hashiqi_Animoji", fullname = "items/Animoji/hashiqi_Animoji", iconid = 3 ,type=1},
-        new Item { name = "baimao_Animoji", fullname = "items/Animoji/baimao_Animoji", iconid = 0 ,type=1},
-        new Item { name = "kuloutou_Animoji", fullname = "items/Animoji/kuloutou_Animoji", iconid = 6 ,type=1},
+        new Item { name = "frog_Animoji", fullname = "items/Animoji/frog_Animoji", iconid = 2 ,type=ItemType.Animoji},
+        new Item { name = "huangya_Animoji", fullname = "items/Animoji/huangya_Animoji", iconid = 5 ,type=ItemType.Animoji},
+        new Item { name = "hetun_Animoji", fullname = "items/Animoji/hetun_Animoji", iconid = 4 ,type=ItemType.Animoji},
+        new Item { name = "douniuquan_Animoji", fullname = "items/Animoji/douniuquan_Animoji", iconid = 1 ,type=ItemType.Animoji},
+        new Item { name = "hashiqi_Animoji", fullname = "items/Animoji/hashiqi_Animoji", iconid = 3 ,type=ItemType.Animoji},
+        new Item { name = "baimao_Animoji", fullname = "items/Animoji/baimao_Animoji", iconid = 0 ,type=ItemType.Animoji},
+        new Item { name = "kuloutou_Animoji", fullname = "items/Animoji/kuloutou_Animoji", iconid = 6 ,type=ItemType.Animoji},
     };
 
     //ItemSticker
     public static Item[] item_2 = {
-        new Item { name = "fengya_ztt_fu", fullname = "items/ItemSticker/fengya_ztt_fu", iconid = 0 ,type=2},
-        new Item { name = "hudie_lm_fu", fullname = "items/ItemSticker/hudie_lm_fu", iconid = 1 ,type=2},
-        new Item { name = "juanhuzi_lm_fu", fullname = "items/ItemSticker/juanhuzi_lm_fu", iconid = 2 ,type=2},
-        new Item { name = "mask_hat", fullname = "items/ItemSticker/mask_hat", iconid = 3 ,type=2},
-        new Item { name = "touhua_ztt_fu", fullname = "items/ItemSticker/touhua_ztt_fu", iconid = 4 ,type=2},
-        new Item { name = "yazui", fullname = "items/ItemSticker/yazui", iconid = 5 ,type=2},
-        new Item { name = "yuguan", fullname = "items/ItemSticker/yuguan", iconid = 6 ,type=2},
+        new Item { name = "fengya_ztt_fu", fullname = "items/ItemSticker/fengya_ztt_fu", iconid = 0 ,type=ItemType.ItemSticker},
+        new Item { name = "hudie_lm_fu", fullname = "items/ItemSticker/hudie_lm_fu", iconid = 1 ,type=ItemType.ItemSticker},
+        new Item { name = "juanhuzi_lm_fu", fullname = "items/ItemSticker/juanhuzi_lm_fu", iconid = 2 ,type=ItemType.ItemSticker},
+        new Item { name = "mask_hat", fullname = "items/ItemSticker/mask_hat", iconid = 3 ,type=ItemType.ItemSticker},
+        new Item { name = "touhua_ztt_fu", fullname = "items/ItemSticker/touhua_ztt_fu", iconid = 4 ,type=ItemType.ItemSticker},
+        new Item { name = "yazui", fullname = "items/ItemSticker/yazui", iconid = 5 ,type=ItemType.ItemSticker},
+        new Item { name = "yuguan", fullname = "items/ItemSticker/yuguan", iconid = 6 ,type=ItemType.ItemSticker},
     };
 
     //ARMask
     public static Item[] item_3 = {
-        new Item { name = "afd", fullname = "items/ARMask/afd", iconid = 0 ,type=3},
-        new Item { name = "armesh", fullname = "items/ARMask/armesh", iconid = 1 ,type=3},
-        new Item { name = "armesh_ex", fullname = "items/ARMask/armesh_ex", iconid = 2 ,type=3},
-        new Item { name = "baozi", fullname = "items/ARMask/baozi", iconid = 3 ,type=3},
-        new Item { name = "tiger", fullname = "items/ARMask/tiger", iconid = 4 ,type=3},
-        new Item { name = "xiongmao", fullname = "items/ARMask/xiongmao", iconid = 5 ,type=3},
+        new Item { name = "afd", fullname = "items/ARMask/afd", iconid = 0 ,type=ItemType.ARMask},
+        new Item { name = "armesh", fullname = "items/ARMask/armesh", iconid = 1 ,type=ItemType.ARMask},
+        new Item { name = "baozi", fullname = "items/ARMask/baozi", iconid = 2 ,type=ItemType.ARMask},
+        new Item { name = "tiger", fullname = "items/ARMask/tiger", iconid = 3 ,type=ItemType.ARMask},
+        new Item { name = "xiongmao", fullname = "items/ARMask/xiongmao", iconid = 4 ,type=ItemType.ARMask},
     };
 
     //ChangeFace
     public static Item[] item_4 = {
-        new Item { name = "mask_guocaijie", fullname = "items/ChangeFace/mask_guocaijie", iconid = 0 ,type=4},
-        new Item { name = "mask_huangxiaoming", fullname = "items/ChangeFace/mask_huangxiaoming", iconid = 1 ,type=4},
-        new Item { name = "mask_linzhiling", fullname = "items/ChangeFace/mask_linzhiling", iconid = 2 ,type=4},
-        new Item { name = "mask_liudehua", fullname = "items/ChangeFace/mask_liudehua", iconid = 3 ,type=4},
-        new Item { name = "mask_luhan", fullname = "items/ChangeFace/mask_luhan", iconid = 4 ,type=4},
-        new Item { name = "mask_matianyu", fullname = "items/ChangeFace/mask_matianyu", iconid = 5 ,type=4},
-        new Item { name = "mask_tongliya", fullname = "items/ChangeFace/mask_tongliya", iconid = 6 ,type=4},
+        new Item { name = "mask_guocaijie", fullname = "items/ChangeFace/mask_guocaijie", iconid = 0 ,type=ItemType.ChangeFace},
+        new Item { name = "mask_huangxiaoming", fullname = "items/ChangeFace/mask_huangxiaoming", iconid = 1 ,type=ItemType.ChangeFace},
+        new Item { name = "mask_linzhiling", fullname = "items/ChangeFace/mask_linzhiling", iconid = 2 ,type=ItemType.ChangeFace},
+        new Item { name = "mask_liudehua", fullname = "items/ChangeFace/mask_liudehua", iconid = 3 ,type=ItemType.ChangeFace},
+        new Item { name = "mask_luhan", fullname = "items/ChangeFace/mask_luhan", iconid = 4 ,type=ItemType.ChangeFace},
+        new Item { name = "mask_matianyu", fullname = "items/ChangeFace/mask_matianyu", iconid = 5 ,type=ItemType.ChangeFace},
+        new Item { name = "mask_tongliya", fullname = "items/ChangeFace/mask_tongliya", iconid = 6 ,type=ItemType.ChangeFace},
     };
 
     //ExpressionRecognition
     public static Item[] item_5 = {
-        new Item { name = "future_warrior", fullname = "items/ExpressionRecognition/future_warrior", iconid = 0 ,type=5},
-        new Item { name = "jet_mask", fullname = "items/ExpressionRecognition/jet_mask", iconid = 1 ,type=5},
-        new Item { name = "luhantongkuan_ztt_fu", fullname = "items/ExpressionRecognition/luhantongkuan_ztt_fu", iconid = 2 ,type=5},
-        new Item { name = "qingqing_ztt_fu", fullname = "items/ExpressionRecognition/qingqing_ztt_fu", iconid = 3 ,type=5},
-        new Item { name = "sdx2", fullname = "items/ExpressionRecognition/sdx2", iconid = 4 ,type=5},
-        new Item { name = "xiaobianzi_zh_fu", fullname = "items/ExpressionRecognition/xiaobianzi_zh_fu", iconid = 5 ,type=5},
-        new Item { name = "xiaoxueshen_ztt_fu", fullname = "items/ExpressionRecognition/xiaoxueshen_ztt_fu", iconid = 6 ,type=5},
+        new Item { name = "future_warrior", fullname = "items/ExpressionRecognition/future_warrior", iconid = 0 ,type=ItemType.ExpressionRecognition},
+        new Item { name = "jet_mask", fullname = "items/ExpressionRecognition/jet_mask", iconid = 1 ,type=ItemType.ExpressionRecognition},
+        new Item { name = "luhantongkuan_ztt_fu", fullname = "items/ExpressionRecognition/luhantongkuan_ztt_fu", iconid = 2 ,type=ItemType.ExpressionRecognition},
+        new Item { name = "qingqing_ztt_fu", fullname = "items/ExpressionRecognition/qingqing_ztt_fu", iconid = 3 ,type=ItemType.ExpressionRecognition},
+        new Item { name = "sdx2", fullname = "items/ExpressionRecognition/sdx2", iconid = 4 ,type=ItemType.ExpressionRecognition},
+        new Item { name = "xiaobianzi_zh_fu", fullname = "items/ExpressionRecognition/xiaobianzi_zh_fu", iconid = 5 ,type=ItemType.ExpressionRecognition},
+        new Item { name = "xiaoxueshen_ztt_fu", fullname = "items/ExpressionRecognition/xiaoxueshen_ztt_fu", iconid = 6 ,type=ItemType.ExpressionRecognition},
     };
 
     //MusicFilter
     public static Item[] item_6 = {
-        new Item { name = "douyin_01", fullname = "items/MusicFilter/douyin_01", iconid = 0 ,type=6},
-        new Item { name = "douyin_02", fullname = "items/MusicFilter/douyin_02", iconid = 1 ,type=6},
+        new Item { name = "douyin_01", fullname = "items/MusicFilter/douyin_01", iconid = 0 ,type=ItemType.MusicFilter},
+        new Item { name = "douyin_02", fullname = "items/MusicFilter/douyin_02", iconid = 1 ,type=ItemType.MusicFilter},
     };
 
     //BackgroundSegmentation
     public static Item[] item_7 = {
-        new Item { name = "chiji_lm_fu", fullname = "items/BackgroundSegmentation/chiji_lm_fu", iconid = 0 ,type=7},
-        new Item { name = "gufeng_zh_fu", fullname = "items/BackgroundSegmentation/gufeng_zh_fu", iconid = 1 ,type=7},
-        new Item { name = "hez_ztt_fu", fullname = "items/BackgroundSegmentation/hez_ztt_fu", iconid = 2 ,type=7},
-        new Item { name = "ice_lm_fu", fullname = "items/BackgroundSegmentation/ice_lm_fu", iconid = 3 ,type=7},
-        new Item { name = "jingongmen_zh_fu", fullname = "items/BackgroundSegmentation/jingongmen_zh_fu", iconid = 4 ,type=7},
-        new Item { name = "men_ztt_fu", fullname = "items/BackgroundSegmentation/men_ztt_fu", iconid = 5 ,type=7},
-        new Item { name = "sea_lm_fu", fullname = "items/BackgroundSegmentation/sea_lm_fu", iconid = 6 ,type=7},
-        new Item { name = "xiandai_ztt_fu", fullname = "items/BackgroundSegmentation/xiandai_ztt_fu", iconid = 7 ,type=7},
+        new Item { name = "gufeng_zh_fu", fullname = "items/BackgroundSegmentation/gufeng_zh_fu", iconid = 0 ,type=ItemType.BackgroundSegmentation},
+        new Item { name = "hez_ztt_fu", fullname = "items/BackgroundSegmentation/hez_ztt_fu", iconid = 1 ,type=ItemType.BackgroundSegmentation},
+        new Item { name = "ice_lm_fu", fullname = "items/BackgroundSegmentation/ice_lm_fu", iconid = 2 ,type=ItemType.BackgroundSegmentation},
+        new Item { name = "sea_lm_fu", fullname = "items/BackgroundSegmentation/sea_lm_fu", iconid = 3 ,type=ItemType.BackgroundSegmentation},
+        new Item { name = "xiandai_ztt_fu", fullname = "items/BackgroundSegmentation/xiandai_ztt_fu", iconid = 4 ,type=ItemType.BackgroundSegmentation},
     };
 
     //GestureRecognition
     public static Item[] item_8 = {
-         new Item { name = "fu_lm_koreaheart", fullname = "items/GestureRecognition/fu_lm_koreaheart", iconid = 0 ,type=8},
-         new Item { name = "fu_zh_baoquan", fullname = "items/GestureRecognition/fu_zh_baoquan", iconid = 1 ,type=8},
-         new Item { name = "fu_zh_hezxiong", fullname = "items/GestureRecognition/fu_zh_hezxiong", iconid = 2 ,type=8},
-         new Item { name = "fu_ztt_live520", fullname = "items/GestureRecognition/fu_ztt_live520", iconid = 3 ,type=8},
-         new Item { name = "ssd_thread_cute", fullname = "items/GestureRecognition/ssd_thread_cute", iconid = 4 ,type=8},
-         new Item { name = "ssd_thread_six", fullname = "items/GestureRecognition/ssd_thread_six", iconid = 5 ,type=8},
-         new Item { name = "ssd_thread_thumb", fullname = "items/GestureRecognition/ssd_thread_thumb", iconid = 6 ,type=8},
+         new Item { name = "ctrl_flower", fullname = "items/GestureRecognition/ctrl_flower", iconid = 0 ,type=ItemType.GestureRecognition},
+         new Item { name = "ctrl_rain", fullname = "items/GestureRecognition/ctrl_rain", iconid = 1 ,type=ItemType.GestureRecognition},
+         new Item { name = "ctrl_snow", fullname = "items/GestureRecognition/ctrl_snow", iconid = 2 ,type=ItemType.GestureRecognition},
+         new Item { name = "ssd_thread_cute", fullname = "items/GestureRecognition/ssd_thread_cute", iconid = 3 ,type=ItemType.GestureRecognition},
+         new Item { name = "ssd_thread_korheart", fullname = "items/GestureRecognition/ssd_thread_korheart", iconid = 4 ,type=ItemType.GestureRecognition},
+         new Item { name = "ssd_thread_six", fullname = "items/GestureRecognition/ssd_thread_six", iconid = 5 ,type=ItemType.GestureRecognition},
+         new Item { name = "ssd_thread_thumb", fullname = "items/GestureRecognition/ssd_thread_thumb", iconid = 6 ,type=ItemType.GestureRecognition},
     };
 
     //MagicMirror
     public static Item[] item_9 = {
-        new Item { name = "facewarp2", fullname = "items/MagicMirror/facewarp2", iconid = 0 ,type=9},
-        new Item { name = "facewarp3", fullname = "items/MagicMirror/facewarp3", iconid = 1 ,type=9},
-        new Item { name = "facewarp4", fullname = "items/MagicMirror/facewarp4", iconid = 2 ,type=9},
-        new Item { name = "facewarp5", fullname = "items/MagicMirror/facewarp5", iconid = 3 ,type=9},
-        new Item { name = "facewarp6", fullname = "items/MagicMirror/facewarp6", iconid = 4 ,type=9},
+        new Item { name = "facewarp2", fullname = "items/MagicMirror/facewarp2", iconid = 0 ,type=ItemType.MagicMirror},
+        new Item { name = "facewarp3", fullname = "items/MagicMirror/facewarp3", iconid = 1 ,type=ItemType.MagicMirror},
+        new Item { name = "facewarp4", fullname = "items/MagicMirror/facewarp4", iconid = 2 ,type=ItemType.MagicMirror},
+        new Item { name = "facewarp5", fullname = "items/MagicMirror/facewarp5", iconid = 3 ,type=ItemType.MagicMirror},
+        new Item { name = "facewarp6", fullname = "items/MagicMirror/facewarp6", iconid = 4 ,type=ItemType.MagicMirror},
     };
 
     //PortraitLightEffect
     public static Item[] item_10 ={
-        new Item { name = "PortraitLighting_effect_0", fullname = "items/PortraitLightEffect/PortraitLighting_effect_0", iconid = 0 ,type=10},
-        new Item { name = "PortraitLighting_effect_1", fullname = "items/PortraitLightEffect/PortraitLighting_effect_1", iconid = 1 ,type=10},
-        new Item { name = "PortraitLighting_effect_2", fullname = "items/PortraitLightEffect/PortraitLighting_effect_2", iconid = 2 ,type=10},
-        new Item { name = "PortraitLighting_effect_3", fullname = "items/PortraitLightEffect/PortraitLighting_effect_3", iconid = 3 ,type=10},
-        new Item { name = "PortraitLighting_X_rim", fullname = "items/PortraitLightEffect/PortraitLighting_X_rim", iconid = 4 ,type=10},
-        new Item { name = "PortraitLighting_X_studio", fullname = "items/PortraitLightEffect/PortraitLighting_X_studio", iconid = 5 ,type=10},
+        new Item { name = "PortraitLighting_effect_0", fullname = "items/PortraitLightEffect/PortraitLighting_effect_0", iconid = 0 ,type=ItemType.PortraitLightEffect},
+        new Item { name = "PortraitLighting_effect_1", fullname = "items/PortraitLightEffect/PortraitLighting_effect_1", iconid = 1 ,type=ItemType.PortraitLightEffect},
+        new Item { name = "PortraitLighting_effect_2", fullname = "items/PortraitLightEffect/PortraitLighting_effect_2", iconid = 2 ,type=ItemType.PortraitLightEffect},
+        new Item { name = "PortraitLighting_effect_3", fullname = "items/PortraitLightEffect/PortraitLighting_effect_3", iconid = 3 ,type=ItemType.PortraitLightEffect},
+        new Item { name = "PortraitLighting_X_rim", fullname = "items/PortraitLightEffect/PortraitLighting_X_rim", iconid = 4 ,type=ItemType.PortraitLightEffect},
+        new Item { name = "PortraitLighting_X_studio", fullname = "items/PortraitLightEffect/PortraitLighting_X_studio", iconid = 5 ,type=ItemType.PortraitLightEffect},
     };
 
     //PortraitDrive
     public static Item[] item_11 ={
-        new Item { name = "picasso_e1", fullname = "items/PortraitDrive/picasso_e1", iconid = 0,type=11},
-        new Item { name = "picasso_e2", fullname = "items/PortraitDrive/picasso_e2", iconid = 1 ,type=11},
-        new Item { name = "picasso_e3", fullname = "items/PortraitDrive/picasso_e3", iconid = 2 ,type=11},
+        new Item { name = "picasso_e1", fullname = "items/PortraitDrive/picasso_e1", iconid = 0,type=ItemType.PortraitDrive},
+        new Item { name = "picasso_e2", fullname = "items/PortraitDrive/picasso_e2", iconid = 1 ,type=ItemType.PortraitDrive},
+        new Item { name = "picasso_e3", fullname = "items/PortraitDrive/picasso_e3", iconid = 2 ,type=ItemType.PortraitDrive},
     };
 
-    //Makeup lipstick
-    public static Item[] item_makeup_1 ={
-        new Item { name = "MU_Lipstick_01", fullname = "makeup/lipstick/MU_Lipstick_01", iconid = 0 ,type=12},
-        new Item { name = "MU_Lipstick_02", fullname = "makeup/lipstick/MU_Lipstick_02", iconid = 1 ,type=12},
-        new Item { name = "MU_Lipstick_03", fullname = "makeup/lipstick/MU_Lipstick_03", iconid = 2 ,type=12},
-        new Item { name = "MU_Lipstick_04", fullname = "makeup/lipstick/MU_Lipstick_04", iconid = 3 ,type=12},
-        new Item { name = "MU_Lipstick_05", fullname = "makeup/lipstick/MU_Lipstick_05", iconid = 4 ,type=12},
-        new Item { name = "MU_Lipstick_06", fullname = "makeup/lipstick/MU_Lipstick_06", iconid = 5 ,type=12},
-    };
-
-    //Makeup blusher
-    public static Item[] item_makeup_2 ={
-        new Item { name = "MU_Blush_01", fullname = "makeup/blusher/MU_Blush_01", iconid = 0 ,type=13},
-        new Item { name = "MU_Blush_02", fullname = "makeup/blusher/MU_Blush_02", iconid = 1 ,type=13},
-        new Item { name = "MU_Blush_03", fullname = "makeup/blusher/MU_Blush_03", iconid = 2 ,type=13},
-        new Item { name = "MU_Blush_04", fullname = "makeup/blusher/MU_Blush_04", iconid = 3 ,type=13},
-        new Item { name = "MU_Blush_05", fullname = "makeup/blusher/MU_Blush_05", iconid = 4 ,type=13},
-        new Item { name = "MU_Blush_06", fullname = "makeup/blusher/MU_Blush_06", iconid = 5 ,type=13},
-        new Item { name = "MU_Blush_07", fullname = "makeup/blusher/MU_Blush_07", iconid = 6 ,type=13},
-        new Item { name = "MU_Blush_08", fullname = "makeup/blusher/MU_Blush_08", iconid = 7 ,type=13},
-        new Item { name = "MU_Blush_09", fullname = "makeup/blusher/MU_Blush_09", iconid = 8 ,type=13},
-        new Item { name = "MU_Blush_10", fullname = "makeup/blusher/MU_Blush_10", iconid = 9 ,type=13},
-    };
-
-    //Makeup eyebrow
-    public static Item[] item_makeup_3 ={
-        new Item { name = "MU_Eyebrow_01", fullname = "makeup/eyebrow/MU_Eyebrow_01", iconid = 0 ,type=14},
-        new Item { name = "MU_Eyebrow_02", fullname = "makeup/eyebrow/MU_Eyebrow_02", iconid = 1 ,type=14},
-        new Item { name = "MU_Eyebrow_03", fullname = "makeup/eyebrow/MU_Eyebrow_03", iconid = 2 ,type=14},
-        new Item { name = "MU_Eyebrow_04", fullname = "makeup/eyebrow/MU_Eyebrow_04", iconid = 3 ,type=14},
-        new Item { name = "MU_Eyebrow_05", fullname = "makeup/eyebrow/MU_Eyebrow_05", iconid = 4 ,type=14},
-        new Item { name = "MU_Eyebrow_06", fullname = "makeup/eyebrow/MU_Eyebrow_06", iconid = 5 ,type=14},
-    };
-
-    //Makeup eyeshadow
-    public static Item[] item_makeup_4 ={
-        new Item { name = "MU_EyeShadow_01", fullname = "makeup/eyeshadow/MU_EyeShadow_01", iconid = 0 ,type=15},
-        new Item { name = "MU_EyeShadow_02", fullname = "makeup/eyeshadow/MU_EyeShadow_02", iconid = 1 ,type=15},
-        new Item { name = "MU_EyeShadow_03", fullname = "makeup/eyeshadow/MU_EyeShadow_03", iconid = 2 ,type=15},
-        new Item { name = "MU_EyeShadow_04", fullname = "makeup/eyeshadow/MU_EyeShadow_04", iconid = 3 ,type=15},
-        new Item { name = "MU_EyeShadow_05", fullname = "makeup/eyeshadow/MU_EyeShadow_05", iconid = 4 ,type=15},
-        new Item { name = "MU_EyeShadow_06", fullname = "makeup/eyeshadow/MU_EyeShadow_06", iconid = 5 ,type=15},
-    };
-
-    //Makeup eyeliner
-    public static Item[] item_makeup_5 ={
-        new Item { name = "MU_EyeLiner_01", fullname = "makeup/eyeliner/MU_EyeLiner_01", iconid = 0 ,type=16},
-        new Item { name = "MU_EyeLiner_02", fullname = "makeup/eyeliner/MU_EyeLiner_02", iconid = 1 ,type=16},
-        new Item { name = "MU_EyeLiner_03", fullname = "makeup/eyeliner/MU_EyeLiner_03", iconid = 2 ,type=16},
-        new Item { name = "MU_EyeLiner_04", fullname = "makeup/eyeliner/MU_EyeLiner_04", iconid = 3 ,type=16},
-        new Item { name = "MU_EyeLiner_05", fullname = "makeup/eyeliner/MU_EyeLiner_05", iconid = 4 ,type=16},
-        new Item { name = "MU_EyeLiner_06", fullname = "makeup/eyeliner/MU_EyeLiner_06", iconid = 5 ,type=16},
-    };
-
-    //Makeup eyelash
-    public static Item[] item_makeup_6 ={
-        new Item { name = "MU_Eyelash_01", fullname = "makeup/eyelash/MU_Eyelash_01", iconid = 0 ,type=17},
-        new Item { name = "MU_Eyelash_02", fullname = "makeup/eyelash/MU_Eyelash_02", iconid = 1 ,type=17},
-        new Item { name = "MU_Eyelash_03", fullname = "makeup/eyelash/MU_Eyelash_03", iconid = 2 ,type=17},
-        new Item { name = "MU_Eyelash_04", fullname = "makeup/eyelash/MU_Eyelash_04", iconid = 3 ,type=17},
-        new Item { name = "MU_Eyelash_05", fullname = "makeup/eyelash/MU_Eyelash_05", iconid = 4 ,type=17},
-        new Item { name = "MU_Eyelash_06", fullname = "makeup/eyelash/MU_Eyelash_06", iconid = 5 ,type=17},
-    };
-
-    //Makeup contactlens
-    public static Item[] item_makeup_7 ={
-        new Item { name = "MU_ContactLenses_01", fullname = "makeup/contactlens/MU_ContactLenses_01", iconid = 0 ,type=18},
-        new Item { name = "MU_ContactLenses_02", fullname = "makeup/contactlens/MU_ContactLenses_02", iconid = 1 ,type=18},
-        new Item { name = "MU_ContactLenses_03", fullname = "makeup/contactlens/MU_ContactLenses_03", iconid = 2 ,type=18},
-        new Item { name = "MU_ContactLenses_04", fullname = "makeup/contactlens/MU_ContactLenses_04", iconid = 3 ,type=18},
-        new Item { name = "MU_ContactLenses_05", fullname = "makeup/contactlens/MU_ContactLenses_05", iconid = 4 ,type=18},
-        new Item { name = "MU_ContactLenses_06", fullname = "makeup/contactlens/MU_ContactLenses_06", iconid = 5 ,type=18},
-        new Item { name = "MU_ContactLenses_07", fullname = "makeup/contactlens/MU_ContactLenses_07", iconid = 6 ,type=18},
-        new Item { name = "MU_ContactLenses_08", fullname = "makeup/contactlens/MU_ContactLenses_08", iconid = 7 ,type=18},
-        new Item { name = "MU_ContactLenses_09", fullname = "makeup/contactlens/MU_ContactLenses_09", iconid = 8 ,type=18},
-    };
 }
 
 public class Beauty
@@ -231,8 +174,48 @@ public class Beauty
     public int iconid_1 = -1;
 };
 
+public class Makeup
+{
+    public string name = "";
+    public float intensity = 1.0f;
+    public int iconid = -1;
+
+    public double[] Lipstick_color = new double[4] { 0, 0, 0, 0 };
+    public float Lipstick_intensity = 0;
+    public int Blush_id = -1;
+    public float Blush_intensity = 0;
+    public int Eyebrow_id = -1;
+    public float Eyebrow_intensity = 0;
+    public int Eyeshadow_id = -1;
+    public float Eyeshadow_intensity = 0;
+
+    public string filter_name = "";
+    public float filter_intensity = 0;
+}
+
+public enum BeautySkinType
+{
+    None = 0,
+    BeautySkin = 1,
+    BeautyShape,
+    Filter,
+    MakeupGroup,
+}
+
+public enum MakeupType
+{
+    Lipstick = 0,
+    Pupil = 1,
+    Eyeshadow,
+    Eyeliner,
+    Eyelash,
+    Eyebrow,
+    Blush,
+}
+
 public class BeautyConfig
 {
+    //全局开关 is_beauty_on: 1, 美颜道具开关 0关闭 1开启
     public static Beauty[] beautySkin_1 = {
         new Beauty { name = "精准美肤", paramword = "skin_detect", maxvalue=1, defaultvalue=1, disablevalue=0, iconid_0 = 0,iconid_1=1 },//0-1 int,d=0
         new Beauty { name = "清晰磨皮", paramword = "heavy_blur", maxvalue=1, defaultvalue=0, disablevalue=0, iconid_0 = 2,iconid_1=3 },//0-1 int,d=0 朦胧磨皮
@@ -254,20 +237,40 @@ public class BeautyConfig
     };
 
     public static Beauty[] beautySkin_3 = {
-        new Beauty { name = "原图", paramword = "origin", maxvalue=1, defaultvalue=0.5f, iconid_0 = 31},//0-1f
-        new Beauty { name = "自然", paramword = "ziran", maxvalue=1, defaultvalue=0.5f, iconid_0 = 26},
-        new Beauty { name = "淡雅", paramword = "danya", maxvalue=1, defaultvalue=0.5f, iconid_0 = 27},
-        new Beauty { name = "粉嫩", paramword = "fennen", maxvalue=1, defaultvalue=0.5f, iconid_0 = 28},
-        new Beauty { name = "清新", paramword = "qingxin", maxvalue=1, defaultvalue=0.5f, iconid_0 = 29},
-        new Beauty { name = "红润", paramword = "hongrun", maxvalue=1, defaultvalue=0.5f, iconid_0 = 30},
+        new Beauty { name = "原图", paramword = "origin", maxvalue=1, defaultvalue=0.5f, iconid_0 = 26},//0-1f
+        new Beauty { name = "白亮", paramword = "bailiang2", maxvalue=1, defaultvalue=0.5f, iconid_0 = 27},
+        new Beauty { name = "粉嫩", paramword = "fennen1", maxvalue=1, defaultvalue=0.5f, iconid_0 = 28},
+        new Beauty { name = "小清新", paramword = "xiaoqingxin6", maxvalue=1, defaultvalue=0.5f, iconid_0 = 29},
+        new Beauty { name = "冷色调", paramword = "lengsediao1", maxvalue=1, defaultvalue=0.5f, iconid_0 = 30},
+        new Beauty { name = "暖色调", paramword = "nuansediao1", maxvalue=1, defaultvalue=0.5f, iconid_0 = 31},
     };
 
-    public static Beauty[] beautySkin_4 = {
-        new Beauty { name = "Origin", paramword = "origin", maxvalue=1, defaultvalue=0.5f, iconid_0 = 31},//0-1f
-        new Beauty { name = "Delta", paramword = "delta", maxvalue=1, defaultvalue=0.5f, iconid_0 = 32},
-        new Beauty { name = "Electric", paramword = "electric", maxvalue=1, defaultvalue=0.5f, iconid_0 = 33},
-        new Beauty { name = "Slowlived", paramword = "slowlived", maxvalue=1, defaultvalue=0.5f, iconid_0 = 34},
-        new Beauty { name = "Tokyo", paramword = "tokyo", maxvalue=1, defaultvalue=0.5f, iconid_0 = 35},
-        new Beauty { name = "Warm", paramword = "warm", maxvalue=1, defaultvalue=0.5f, iconid_0 = 36},
+    public static Makeup[] makeupGroup_1 =
+    {
+        new Makeup { name="卸妆", intensity = 0.0f, iconid = 0, filter_name = "origin", filter_intensity = 1.0f},
+        new Makeup { name="桃花", intensity = 0.9f, iconid = 1,
+            Lipstick_color = new double[4] { 0.90,0.21,0.49,0.3 },Lipstick_intensity = 0.9f,
+            Blush_id = 0, Blush_intensity = 0.9f,
+            Eyebrow_id = 0, Eyebrow_intensity = 0.5f,
+            Eyeshadow_id = 0, Eyeshadow_intensity = 0.9f,
+            filter_name = "fennen3", filter_intensity = 1.0f},
+        new Makeup { name="西柚", intensity = 1.0f, iconid = 2,
+            Lipstick_color = new double[4] { 0.94,0.29,0.11,0.4 },Lipstick_intensity = 0.8f,
+            Blush_id = 22, Blush_intensity = 1.0f,
+            Eyebrow_id = 18, Eyebrow_intensity = 0.6f,
+            Eyeshadow_id = 20, Eyeshadow_intensity = 0.75f,
+            filter_name = "lengsediao4", filter_intensity = 0.7f},
+        new Makeup { name="清透", intensity = 0.9f, iconid = 3,
+            Lipstick_color = new double[4] { 0.89,0.59,0.58,0.50 },Lipstick_intensity = 0.8f,
+            Blush_id = 21, Blush_intensity = 0.9f,
+            Eyebrow_id = 17, Eyebrow_intensity = 0.45f,
+            Eyeshadow_id = 19, Eyeshadow_intensity = 0.65f,
+            filter_name = "xiaoqingxin1", filter_intensity = 0.8f},
+        new Makeup { name="男友", intensity = 1.0f, iconid = 4,
+            Lipstick_color = new double[4] { 0.88,0.55,0.51,0.70 },Lipstick_intensity = 1.0f,
+            Blush_id = 19, Blush_intensity = 0.8f,
+            Eyebrow_id = 15, Eyebrow_intensity = 0.65f,
+            Eyeshadow_id = 17, Eyeshadow_intensity = 0.9f,
+            filter_name = "xiaoqingxin3", filter_intensity = 0.9f},
     };
 }

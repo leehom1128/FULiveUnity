@@ -7,31 +7,30 @@ using NatCamU.Core;
 public class StdController : MonoBehaviour
 {
     public RenderToModel rtm;
+
     Quaternion m_rotation0;
     Vector3 m_position0;
 
     /////////////////////////////////////
     //unity blendshape
-    int blendShapeCount;
-    SkinnedMeshRenderer skinnedMeshRenderer;
+    public SkinnedMeshRenderer[] skinnedMeshRenderers;
     bool pauseUpdate = false;
 
     public int faceid = 0;
 
     //左右调换部分BlendShape数据,使其镜像
-    private int[] mirrorBlendShape = new int[46] {1,0, 3,2, 5,4, 7,6, 9,8,
+    private int[] mirrorBlendShape = new int[56] {1,0, 3,2, 5,4, 7,6, 9,8,
                                                    11,10, 13,12, 15,14, 16,
                                                    18,17, 19,
                                                    22,21,20,
                                                    24,23, 26,25, 28,27, 30,29, 32,31,
                                                    33,34,35,36,37,38,39,40,41,42,43, 45,44,
+                                                   46,49,48,47,52,51,50,55,54,53,
                                                  };
 
 
     void Awake()
     {
-        skinnedMeshRenderer = GetComponent<SkinnedMeshRenderer>();
-        blendShapeCount = skinnedMeshRenderer.sharedMesh.blendShapeCount;
         m_rotation0 = transform.localRotation;
         m_position0 = transform.localPosition;
     }
@@ -52,7 +51,7 @@ public class StdController : MonoBehaviour
         if (pauseUpdate)
             return;
         if (FaceunityWorker.instance == null || FaceunityWorker.instance.m_plugin_inited == false) { return; }
-        if (faceid >= FaceunityWorker.instance.m_need_blendshape_update)
+        if (faceid >= FaceunityWorker.instance.m_need_update_facenum)
         {
             return;
         }
@@ -78,12 +77,12 @@ public class StdController : MonoBehaviour
 #endif
         if (ifMirrored)
         {
-            if (blendShapeCount > 1)
+            float[] data = FaceunityWorker.instance.m_expression_with_tongue[faceid].m_data;
+            for (int j = 0; j < skinnedMeshRenderers.Length; j++)
             {
-                float[] data = FaceunityWorker.instance.m_expression[faceid].m_data;
-                for (int i = 0; i < blendShapeCount; i++)
+                for (int i = 0; i < skinnedMeshRenderers[j].sharedMesh.blendShapeCount; i++)
                 {
-                    skinnedMeshRenderer.SetBlendShapeWeight(mirrorBlendShape[i], data[i] * 100);
+                    skinnedMeshRenderers[j].SetBlendShapeWeight(mirrorBlendShape[i], data[i] * 100);
                 }
             }
             transform.localRotation = m_rotation0 * Quaternion.AngleAxis(getRotateEuler((int)RM[0], ifMirrored), Vector3.back) * new Quaternion(R[0], R[1], -R[2], -R[3]);
@@ -94,12 +93,12 @@ public class StdController : MonoBehaviour
         }
         else
         {
-            if (blendShapeCount > 1)
+            float[] data = FaceunityWorker.instance.m_expression_with_tongue[faceid].m_data;
+            for (int j = 0; j < skinnedMeshRenderers.Length; j++)
             {
-                float[] data = FaceunityWorker.instance.m_expression[faceid].m_data;
-                for (int i = 0; i < blendShapeCount; i++)
+                for (int i = 0; i < skinnedMeshRenderers[j].sharedMesh.blendShapeCount; i++)
                 {
-                    skinnedMeshRenderer.SetBlendShapeWeight(i, data[i] * 100);
+                    skinnedMeshRenderers[j].SetBlendShapeWeight(i, data[i] * 100);
                 }
             }
             transform.localRotation = m_rotation0 * Quaternion.AngleAxis(getRotateEuler((int)RM[0], ifMirrored), Vector3.back) * new Quaternion(R[0], -R[1], R[2], -R[3]);

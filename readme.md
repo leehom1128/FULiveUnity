@@ -3,19 +3,36 @@
 FULiveUnity是集成了Faceunity面部跟踪，智能美颜，贴纸道具功能的Unity工程示例。
 
 
-## Nama SDK v5.9.0 (2019.2.18)更新
+## SDK v6.0.0 更新
 
-SDK更新主要包含以下改动：
+**更新内容：**
 
-- 新增表情动图功能
-- 人脸检测跟踪优化，加强黑色人种检测，对眼镜反光更鲁棒等
-- 优化道具加载速度，需FUEditor5.9.0以上
+- 优化人脸检测，提高检测率，提高性能。
+- 新增质感美颜功能（注：道具支持SDK v6.0.0以上版本）。
+- 人脸融合(海报换脸)效果优化（注：道具支持 SDK v6.0.0以上版本）。
+- 背景分割分割精度优化（注：此版本背景分割、手势识别道具只支持 SDK v6.0.0以上版本）。
+- 舌头跟踪trackface逻辑支持，Getfaceinfo支持。
+- 新增Avatar捏脸功能，需FUEditor 6.0.0以上版本。
+- 美颜滤镜优化（注：原有滤镜整合，重命名归类及效果新增， 道具支持SDK v5.5.0以上版本）。
+- 修复mebedtls符号冲突问题。
+- 注：美发、Animoji道具支持FUEditor v5.6.0以上制作版本，其余道具在任意SDK皆可兼容
 
-本工程案例更新主要包含以下改动：
+**更新文档：**
+  - [美颜道具参数说明_完整版](docs/美颜道具参数说明_完整版.pdf)
+  - [美妆bundle参数说明](docs/美妆bundle参数说明.pdf)
+  - [质感美颜参数说明](docs/质感美颜参数说明.pdf)
+
+**本工程案例更新主要包含以下改动：**
+- 美颜道具部分接口已改变，请注意同步代码！
+- 舌头跟踪相关请查看本文档及代码注释！
+- anim_model.bytes以及ardata_ex.bytes已弃用，请删除相关数据及代码
+
+**编译注意项：**
 - iOS编译时请选择**9.0**以上系统版本。
-- license读取机制改变：请将license数据复制到场景中FaceunityWorker物体的Inspector面板的LICENSE输入框内。**每个场景都需要设置一遍。**
-- 添加支持**Mac**，为了插件的通用性，牺牲了一定的性能，性能损失程度取决于视频流分辨率，分辨率越高性能损失越大。仅Mac平台受此影响损失性能。
 - **因Github不支持上传100MB以上的文件，iOS的库经过压缩，使用时请自行解压！**
+- Unity工程导入可能会导致部分native库的平台信息丢失，如果运行或者编译时报错提示找不到库，请手动修改相应库的平台信息。本案例中的native库有:
+    - Assets\Plugins
+    - Assets\Examples\Common\NatCam\Core\Plugins
 
 ## 开发环境
 
@@ -25,9 +42,7 @@ SDK更新主要包含以下改动：
 
 ### Assets文件夹：
 
-
-
-* ***Examples*** 
+* ***Examples:*** 
 
   > 各种案例Demo，如果不需要可以直接删除。
   >
@@ -85,7 +100,7 @@ SDK更新主要包含以下改动：
   >
   > ​		 **|----ItemConfig.cs:** 道具的二进制文件和UI文件的路径等信息的配置文件。
 
-* ***Plugins*** 
+* ***Plugins:*** 
 
   >各平台的faceunity插件
   >
@@ -93,23 +108,19 @@ SDK更新主要包含以下改动：
   >
   >因Github不支持上传100MB以上的文件，iOS的库经过压缩，使用时请自行解压！
 
-
-
-* ***Script*** 
+* ***Script:*** 
 
   > 关键脚本文件
   >
   > FaceunityWorker.cs：负责初始化faceunity插件并引入C++接口，初始化完成后每帧更新人脸跟踪数据
 
-
-
-* ***StreamingAssets*** 
+* ***StreamingAssets:*** 
 
   > v3.bytes是SDK的数据文件，缺少该文件会导致初始化失败
   >
-  > anim_model.bytes是优化人脸跟踪表情数据的文件
+  > tongue.bytes是舌头跟踪必须的文件
   >
-  > ardata_ex.bytes是提供高精度AR功能的文件
+  > EnableTongueForUnity.bytes是某种情况下获取舌头跟踪数据需要加载的文件
 
 
 
@@ -134,10 +145,12 @@ SDK更新主要包含以下改动：
 FaceunityWorker会载入license数据和v3.bytes，并调用fu_Setup进行初始化。
 
 ```C#
-public static extern int fu_Setup(IntPtr databuf, IntPtr licbuf, int licbuf_sz);
+public static extern int fu_Setup(IntPtr v3buf, int v3buf_sz, IntPtr licbuf, int licbuf_sz);
 ```
 
-`databuf` v3.bytes中读取的二进制数据的指针。
+`v3buf` v3.bytes中读取的二进制数据的指针。
+
+`v3buf_sz` v3.bytes的长度。
 
 `licbuf` license.txt文件中读取的文本数据，用`,`分割，将分割后的数组数据转成sbyte格式。
 
@@ -160,7 +173,7 @@ public enum FURuningMode
     };
 ```
 
-fu_SetRuningMode可以设置本插件运行模式，针对需求设置运行模式可以大大提高效率。FU_Mode_RenderItems为默认运行模式，可以在FaceunityWorker.cs中自行更改，也可在运行时更改。
+fu_SetRuningMode可以设置本插件运行模式，针对需求设置运行模式可以大大提高效率。FU_Mode_RenderItems为默认运行模式，可以在FaceunityWorker.cs中自行更改初始值，也可在运行时更改。
 
 初始化完成会开启GL循环 [参考这里](https://docs.unity3d.com/Manual/NativePluginInterface.html) ，并根据标志位（EnableExpressionLoop）决定是否更新人脸跟踪数据。
 
@@ -228,22 +241,34 @@ public static extern int fu_GetFaceInfo(int face_id, IntPtr ret, int szret, [Mar
 并存入预先定义的地址，如位置：
 
 ```C#
-public CFaceUnityCoefficientSet m_translation = new CFaceUnityCoefficientSet("translation", 3);
+public List<CFaceUnityCoefficientSet> m_translation = new List<CFaceUnityCoefficientSet>();
 ```
 
 `CFaceUnityCoefficientSet` 这是一个自定义类，可以自动创建GCHandle并存储对应数据。
 
 **demoDataOut场景中：** 
 
-StdController在每帧通过FaceunityWorker中预存的地址获取旋转和表情数据，并根据镜像情况设置模型对应参数。其中表情数据是包含了46个blendshape值，和预先制作的带有46个blendshape的模型配合，使用SkinnedMeshRenderer.SetBlendShapeWeight设置。
+StdController在每帧通过FaceunityWorker中预存的地址获取旋转和表情数据，并根据镜像情况设置模型对应参数。其中表情数据是包含了56个blendshape值，和预先制作的带有56个blendshape的模型配合，使用SkinnedMeshRenderer.SetBlendShapeWeight设置。
 
 EyeController在每帧通过FaceunityWorker中预存的地址获取眼睛的旋转数据，并根据镜像情况设置眼睛旋转。
 
 点击UI上的TrackPositon可以开启/关闭位置跟踪，同时切换RuningMode。TrackPositon开启时设置运行模式为FU_Mode_RenderItems，同时渲染摄像机图像到UI上。关闭时设置运行模式为FU_Mode_TrackFace，同时关闭图像渲染以提高性能。
 
+FURuningMode为FU_Mode_RenderItems的时候，加载EnableTongueForUnity.bytes，才能开启舌头跟踪。
+
+FURuningMode为FU_Mode_TrackFace的时候，调用fu_SetTongueTracking(1)，才能开启舌头跟踪。注意，每次切换到FU_Mode_TrackFace之后都需要设置一次！！！
+
 **demoDataOut_Multiple场景中：** 
 
 demoDataOut场景AR模式（开启TrackPositon）的多人版本，在场景中Faceunity Worker物体的Inspector中设置MAXFACE可以修改最多同时跟踪的人脸数量。
+
+**关于舌头跟踪：**
+
+1.必须加载tongue.bytes
+
+2.Texout场景中加载带舌头功能的道具，比如青蛙，即可展现出舌头跟踪效果。
+
+3.在Dataout场景中，FURuningMode为FU_Mode_RenderItems的时候，加载EnableTongueForUnity.bytes，才能开启舌头跟踪。FURuningMode为FU_Mode_TrackFace的时候，调用fu_SetTongueTracking(1)，才能开启舌头跟踪。注意，每次切换到FU_Mode_TrackFace之后都需要设置一次！！！
 
 
 
@@ -331,12 +356,32 @@ public void UnLoadAllItems();
 RenderSimple里的函数：
 
 ```c#
-public void UpdateData(IntPtr ptr,int texid,int w,int h);
+public void UpdateData(IntPtr ptr,int texid,int w,int h, UpdateDataMode mode)
 ```
 
 这个函数展示了如何输入图像数据进本插件，以及怎样从插件中取出渲染完毕的数据。
 
 如果想快速接入你自己的图像数据，请参考本例。
+
+```
+    public enum UpdateDataMode
+    {
+        NV21,
+        Dual,
+        Image,
+        ImageTexId
+    }
+```
+
+以上四种UpdateDataMode为本SDK输入图像数据的四种格式。
+
+`NV21` NV21格式的buffer数组，通常在安卓设备上，通过原生相机插件使用
+
+`Dual`  同时输入NV21格式的buffer数组和纹理ID，通常在安卓设备上，通过原生相机插件使用，效率最高
+
+`Image` RGBA格式的buffer数组，通用性最强，各平台均可使用
+
+`ImageTexId` GL纹理ID，某些特殊GL环境下无法使用，但是一定程度上性能高于Image
 
 
 

@@ -49,6 +49,7 @@ public class RenderToTexture : MonoBehaviour
     {
         public string name;
         public int id;
+        public Item item;
     };
     private slot_item[] slot_items;
 
@@ -94,7 +95,7 @@ public class RenderToTexture : MonoBehaviour
         RenderTexture.ReleaseTemporary(bufferdst);
         RenderTexture.active = currentActiveRT;
 
-        Debug.Log("AdjustTex");
+        //Debug.Log("AdjustTex");
 
         return tex_new;
     }
@@ -231,7 +232,6 @@ public class RenderToTexture : MonoBehaviour
         }
     }
 
-    //nama插件使用gles2.0，不支持glGetTexImage，因此只能用ReadPixels来读取数据
     public Texture2D CaptureCamera(Camera[] cameras, Rect rect)
     {
         // 创建一个RenderTexture对象  
@@ -291,6 +291,7 @@ public class RenderToTexture : MonoBehaviour
             {
                 slot_items[i].id = 0;
                 slot_items[i].name = "";
+                slot_items[i].item = Item.Empty;
             }
         }
     }
@@ -401,6 +402,7 @@ public class RenderToTexture : MonoBehaviour
                 itemid_tosdk[slotid] = itemid;
                 slot_items[slotid].id = itemid;
                 slot_items[slotid].name = item.name;
+                slot_items[slotid].item = item;
 
                 FaceunityWorker.fu_setItemIds(p_itemsid, SLOTLENGTH, IntPtr.Zero);
                 Debug.Log("载入Item：" + item.name + " @slotid=" + slotid);
@@ -412,10 +414,12 @@ public class RenderToTexture : MonoBehaviour
                 itemid_tosdk[slotid] = slot_items[tempslot].id;
                 slot_items[slotid].id = slot_items[tempslot].id;
                 slot_items[slotid].name = slot_items[tempslot].name;
+                slot_items[slotid].item = slot_items[tempslot].item;
 
                 itemid_tosdk[tempslot] = 0;
                 slot_items[tempslot].id = 0;
                 slot_items[tempslot].name = "";
+                slot_items[tempslot].item = Item.Empty;
 
                 FaceunityWorker.fu_setItemIds(p_itemsid, SLOTLENGTH, IntPtr.Zero);
                 Debug.Log("移动Item：" + item.name + " from tempslot=" + tempslot + " to slotid="+ slotid);
@@ -494,7 +498,7 @@ public class RenderToTexture : MonoBehaviour
         for (int i = 0; i < SLOTLENGTH; i++)
         {
             itemid_tosdk[i] = 0;
-            slot_items[i] = new slot_item { name = "", id = 0 };
+            slot_items[i] = new slot_item { name = "", id = 0, item = Item.Empty };
         }
     }
 
@@ -606,6 +610,7 @@ public class RenderToTexture : MonoBehaviour
         int itemid = slot_items[slotid].id;
         if (itemid <= 0)
             return;
+        var item = slot_items[slotid].item;
         FaceunityWorker.fu_ItemSetParamd(itemid, "camera_change", 1.0);
         bool ifMirrored = NatCam.Camera.Facing == Facing.Front;
 #if (UNITY_ANDROID) && (!UNITY_EDITOR)
@@ -630,7 +635,36 @@ public class RenderToTexture : MonoBehaviour
 #if (UNITY_IOS) && (!UNITY_EDITOR)
         FaceunityWorker.fu_SetDefaultRotationMode(2);
         ifMirrored=false;
+        if (item.name.CompareTo(ItemConfig.item_8[0].name)==0 || item.name.CompareTo(ItemConfig.item_8[1].name) == 0 || item.name.CompareTo(ItemConfig.item_8[2].name) == 0)
+        {
+            FaceunityWorker.fu_ItemSetParamd(itemid, "rotMode", 2);
+        }
+        else if (item.type == ItemType.GestureRecognition)
+        {
+            FaceunityWorker.fu_ItemSetParamd(itemid, "loc_x_flip", 1.0);
+        }
 #endif
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+        if (item.name.CompareTo(ItemConfig.item_8[0].name) == 0 || item.name.CompareTo(ItemConfig.item_8[1].name) == 0 || item.name.CompareTo(ItemConfig.item_8[2].name) == 0)
+        {
+            FaceunityWorker.fu_ItemSetParamd(itemid, "rotMode", 2);
+        }
+        else if (item.type == ItemType.GestureRecognition)
+        {
+            FaceunityWorker.fu_ItemSetParamd(itemid, "loc_x_flip", 1.0);
+        }
+#endif
+#if UNITY_STANDALONE_OSX || UNITY_EDITOR_OSX
+        if (item.name.CompareTo(ItemConfig.item_8[0].name) == 0 || item.name.CompareTo(ItemConfig.item_8[1].name) == 0 || item.name.CompareTo(ItemConfig.item_8[2].name) == 0)
+        {
+            FaceunityWorker.fu_ItemSetParamd(itemid, "rotMode", 2);
+        }
+        else if (item.type == ItemType.GestureRecognition)
+        {
+            FaceunityWorker.fu_ItemSetParamd(itemid, "loc_x_flip", 1.0);
+        }
+#endif
+
         int param = ifMirrored ? 1 : 0;
 
         //is3DFlipH 参数是用于对3D道具的顶点镜像

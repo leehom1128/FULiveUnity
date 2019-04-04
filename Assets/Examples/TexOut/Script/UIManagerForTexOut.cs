@@ -47,18 +47,6 @@ public class UIManagerForTexOut : MonoBehaviour
     public GameObject Item_UIExample;
     public GameObject Item_Disable;
 
-    public Button Btn_TakePic_mini_3;   //美妆相关UI
-    public GameObject MakeupSelecter;
-    public GameObject[] MakeupSelecterOptions;
-    public GameObject MakeupContent;
-    public GameObject[] MakeupContentPanels;
-    public Slider Makeup_Slider;
-    public RectTransform MakeupOptionContentTrans;
-    public GameObject Makeup_UIExample;
-    public GameObject Makeup_Disable;
-
-    public Texture2D makeuptesttex0;
-
     Coroutine musiccor = null;
     AudioSource audios;
 
@@ -66,71 +54,36 @@ public class UIManagerForTexOut : MonoBehaviour
     Color normalColor = Color.white;
 
     Dictionary<Beauty, GameObject> BeautyGOs = new Dictionary<Beauty, GameObject>();
+    Dictionary<Makeup, GameObject> MakeupGOs = new Dictionary<Makeup, GameObject>();
     GameObject currentSelected;
+    string currentSelectedMakeupName = BeautyConfig.makeupGroup_1[0].name;
+    float currentMakeupfilterV = 0;
     string BeautySkinItemName;
+    string MakeupItemName;
 
-    enum BeautySkinType
-    {
-        None = 0,
-        BeautySkin = 1,
-        BeautyShape,
-        BeautyFilter,
-        Filter,
-    }
     BeautySkinType currentBeautySkinType = BeautySkinType.None;
 
-
-    enum ItemType
-    {
-        None = -1,
-        Beauty = 0,
-        Animoji = 1,
-        ItemSticker,
-        ARMask,
-        ChangeFace,
-        ExpressionRecognition,
-        MusicFilter,
-        BackgroundSegmentation,
-        GestureRecognition,
-        MagicMirror,
-        PortraitLightEffect,
-        PortraitDrive,
-        MakeUp,
-    }
-    ItemType currentItemType = ItemType.None;
-
-    enum MakeupType
-    {
-        None = -1,
-        Lipstick = 0,
-        Blusher = 1,
-        EyeBrow,
-        EyeShadow,
-        EyeLiner,
-        EyeLash,
-        ContactLens,
-    }
-    MakeupType currentMakeupType = MakeupType.None;
+    ItemType currentItemType = ItemType.Undefine;
 
     private static int[] permissions_code = {
-            0x1,                    //美颜
-            0x10,                   //Animoji
-            0x2 | 0x4,              //道具贴纸
-            0x20 | 0x40,            //AR面具
-            0x80,                   //换脸
-            0x800,                  //表情识别
-            0x20000,                //音乐滤镜
-            0x100,                  //背景分割
-            0x200,                  //手势识别
-            0x10000,                //哈哈镜
-            0x4000,                 //人像光效
-            0x8000,                 //人像驱动
-            0x80000,                //美妆
-            0x40000,                //情绪识别
-            0x100000,               //美发
-            0x200000,               //动漫滤镜
-            0x400000,               //手势跟踪
-            0x800000,               //海报换脸
+            0x1,                    //0     //美颜
+            0x10,                   //1     //Animoji
+            0x2 | 0x4,              //2     //道具贴纸
+            0x20 | 0x40,            //3     //AR面具
+            0x80,                   //4     //换脸
+            0x800,                  //5     //表情识别
+            0x20000,                //6     //音乐滤镜
+            0x100,                  //7     //背景分割
+            0x200,                  //8     //手势识别
+            0x10000,                //9     //哈哈镜
+            0x4000,                 //10    //人像光效
+            0x8000,                 //11    //人像驱动
+            0x80000,                //12    //美妆
+            0x40000,                //13    //情绪识别
+            0x100000,               //14    //美发
+            0x200000,               //15    //动漫滤镜
+            0x400000,               //16    //手势跟踪
+            0x800000,               //17    //海报换脸
     };
     private static bool[] permissions;
     Sprites uisprites;
@@ -141,13 +94,6 @@ public class UIManagerForTexOut : MonoBehaviour
         Item = 1,
         CommonFilter,
         Makeup,
-        EyeShadow,
-        EyeLiner,
-        EyeLash,
-        ContactLens,
-        EyeBrow,
-        Lipstick,
-        Blusher,
     };
 
     void Awake()
@@ -165,7 +111,6 @@ public class UIManagerForTexOut : MonoBehaviour
         Canvas_BackUI.SetActive(true);
         CloseBeautySkinUI();
         CloseItemUI();
-        CloseMakeUpUI();
     }
 
     void InitApplication(object source, EventArgs e)
@@ -208,26 +153,6 @@ public class UIManagerForTexOut : MonoBehaviour
         }
         if (permissions[0])
         {
-            //动漫滤镜
-            //yield return rtt.LoadItem(ItemConfig.commonFilter[0], (int)SlotForItems.CommonFilter);
-            //rtt.SetItemParamd((int)SlotForItems.CommonFilter, "style", 0);
-
-            //新版美妆
-            //yield return rtt.LoadItem(ItemConfig.makeup[0], (int)SlotForItems.Makeup);
-            //rtt.SetItemParamd((int)SlotForItems.Makeup, "is_makeup_on", 1);
-            //rtt.SetItemParamd((int)SlotForItems.Makeup, "makeup_intensity", 1);
-            //rtt.SetItemParamdv((int)SlotForItems.Makeup, "makeup_lip_color", new double[4] { 1, 0, 0, 1 });
-
-            //var newtex = rtt.AdjustTex(makeuptesttex0, 0, 0, 1);   //纹理需要在Y轴镜像一下
-            //var webtexdata = newtex.GetPixels32();
-            //var tex_handle = GCHandle.Alloc(webtexdata, GCHandleType.Pinned);
-            //var p_tex_ptr = tex_handle.AddrOfPinnedObject();
-            //rtt.CreateTexForItem((int)SlotForItems.Makeup, "tex_blusher", p_tex_ptr, newtex.width, newtex.height);
-            //tex_handle.Free();
-
-            //rtt.SetItemParamd((int)SlotForItems.Makeup, "makeup_intensity_eye", 1);
-            //rtt.SetItemParamd((int)SlotForItems.Makeup, "makeup_lip_mask", 1);
-
             //美颜
             yield return rtt.LoadItem(ItemConfig.beautySkin[0], (int)SlotForItems.Beauty);
             BeautySkinItemName = ItemConfig.beautySkin[0].name;
@@ -239,6 +164,18 @@ public class UIManagerForTexOut : MonoBehaviour
             {
                 rtt.SetItemParamd(BeautySkinItemName, BeautyConfig.beautySkin_2[i].paramword, BeautyConfig.beautySkin_2[i].defaultvalue);
             }
+        }
+        if (permissions[12])
+        {
+            //新版美妆
+            //yield return rtt.LoadItem(ItemConfig.makeup[0], (int)SlotForItems.Makeup);
+            MakeupItemName = ItemConfig.makeup[0].name;
+        }
+        if (permissions[15])
+        {
+            //动漫滤镜
+            //yield return rtt.LoadItem(ItemConfig.commonFilter[0], (int)SlotForItems.CommonFilter);
+            //rtt.SetItemParamd((int)SlotForItems.CommonFilter, "style", 0);
         }
         RegisterUIFunc();
     }
@@ -268,36 +205,34 @@ public class UIManagerForTexOut : MonoBehaviour
             }
             Canvas_TopUI.SetActive(true);
             //unload除了美颜以外所有道具
-            for (int i=1; i<RenderToTexture.SLOTLENGTH; i++)
+            for (int i = 0; i < RenderToTexture.SLOTLENGTH; i++)
+            {
+                if (i == (int)SlotForItems.Beauty)
+                    continue;
                 rtt.UnLoadItem(i);
+            }
             CloseBeautySkinUI();
             CloseItemUI();
-            CloseMakeUpUI();
         });
         Btn_Cancel.onClick.AddListener(OnCancelTakePicture);
         Btn_SavePic.onClick.AddListener(OnSavePicture);
         Btn_TakePic_mini_1.onClick.AddListener(TakePicture);
         Btn_TakePic_mini_2.onClick.AddListener(TakePicture);
-        Btn_TakePic_mini_3.onClick.AddListener(TakePicture);
 
         for (int i=0;i< ItemSelecters.Length;i++)
         {
             if (ItemSelecters[i].activeSelf)
                 ItemSelecters[i].GetComponent<AddClickEvent>().AddListener(delegate (GameObject go)
                 {
-                    int id = int.Parse(go.name);
-                    if (id == 0)
+                    if (go.name.CompareTo(ItemType.Beauty.ToString())==0)
                     {
+                        //新版美妆
+                        StartCoroutine(rtt.LoadItem(ItemConfig.makeup[0], (int)SlotForItems.Makeup));
                         OpenBeautySkinUI(BeautySkinType.None);
-                    }
-                    else if (id == 12)
-                    {
-                        MakeupSelecter.GetComponent<ScrollRect>().content.localPosition = Vector3.zero;
-                        OpenMakeUpUI(MakeupType.None);
                     }
                     else
                     {
-                        OpenItemsUI((ItemType)id);
+                        OpenItemsUI(go.name);
                     }
                     Canvas_TopUI.SetActive(false);
                 });
@@ -309,26 +244,12 @@ public class UIManagerForTexOut : MonoBehaviour
                 CloseAllBeautySkinContent();
                 BeautySkinContentPanels[3].SetActive(true);
             }
-            else if (currentItemType == ItemType.MakeUp)
-            {
-                CloseAllMakeUpContentUI();
-                MakeupContentPanels[1].SetActive(true);
-                MakeupContentPanels[1].GetComponent<RectTransform>().anchoredPosition = new Vector2(0,-193.7f);
-            }
         });
 
         BeautySkinSelecterOptions[0].GetComponent<AddClickEvent>().AddListener(delegate { OpenBeautySkinUI(BeautySkinType.BeautySkin); });
         BeautySkinSelecterOptions[1].GetComponent<AddClickEvent>().AddListener(delegate { OpenBeautySkinUI(BeautySkinType.BeautyShape); });
-        BeautySkinSelecterOptions[2].GetComponent<AddClickEvent>().AddListener(delegate { OpenBeautySkinUI(BeautySkinType.BeautyFilter); });
-        BeautySkinSelecterOptions[3].GetComponent<AddClickEvent>().AddListener(delegate { OpenBeautySkinUI(BeautySkinType.Filter); });
-
-        MakeupSelecterOptions[0].GetComponent<AddClickEvent>().AddListener(delegate { OpenMakeUpUI(MakeupType.Lipstick); });
-        MakeupSelecterOptions[1].GetComponent<AddClickEvent>().AddListener(delegate { OpenMakeUpUI(MakeupType.Blusher); });
-        MakeupSelecterOptions[2].GetComponent<AddClickEvent>().AddListener(delegate { OpenMakeUpUI(MakeupType.EyeBrow); });
-        MakeupSelecterOptions[3].GetComponent<AddClickEvent>().AddListener(delegate { OpenMakeUpUI(MakeupType.EyeShadow); });
-        MakeupSelecterOptions[4].GetComponent<AddClickEvent>().AddListener(delegate { OpenMakeUpUI(MakeupType.EyeLiner); });
-        MakeupSelecterOptions[5].GetComponent<AddClickEvent>().AddListener(delegate { OpenMakeUpUI(MakeupType.EyeLash); });
-        MakeupSelecterOptions[6].GetComponent<AddClickEvent>().AddListener(delegate { OpenMakeUpUI(MakeupType.ContactLens); });
+        BeautySkinSelecterOptions[2].GetComponent<AddClickEvent>().AddListener(delegate { OpenBeautySkinUI(BeautySkinType.Filter); });
+        BeautySkinSelecterOptions[3].GetComponent<AddClickEvent>().AddListener(delegate { OpenBeautySkinUI(BeautySkinType.MakeupGroup); });
     }
 
     void UnRegisterUIFunc()
@@ -339,7 +260,6 @@ public class UIManagerForTexOut : MonoBehaviour
         Btn_SavePic.onClick.RemoveAllListeners();
         Btn_TakePic_mini_1.onClick.RemoveAllListeners();
         Btn_TakePic_mini_2.onClick.RemoveAllListeners();
-        Btn_TakePic_mini_3.onClick.RemoveAllListeners();
         for (int i = 0; i < ItemSelecters.Length; i++)
         {
             ItemSelecters[i].GetComponent<AddClickEvent>().RemoveAllListener();
@@ -350,14 +270,6 @@ public class UIManagerForTexOut : MonoBehaviour
         BeautySkinSelecterOptions[1].GetComponent<AddClickEvent>().RemoveAllListener();
         BeautySkinSelecterOptions[2].GetComponent<AddClickEvent>().RemoveAllListener();
         BeautySkinSelecterOptions[3].GetComponent<AddClickEvent>().RemoveAllListener();
-
-        MakeupSelecterOptions[0].GetComponent<AddClickEvent>().RemoveAllListener();
-        MakeupSelecterOptions[1].GetComponent<AddClickEvent>().RemoveAllListener();
-        MakeupSelecterOptions[2].GetComponent<AddClickEvent>().RemoveAllListener();
-        MakeupSelecterOptions[3].GetComponent<AddClickEvent>().RemoveAllListener();
-        MakeupSelecterOptions[4].GetComponent<AddClickEvent>().RemoveAllListener();
-        MakeupSelecterOptions[5].GetComponent<AddClickEvent>().RemoveAllListener();
-        MakeupSelecterOptions[6].GetComponent<AddClickEvent>().RemoveAllListener();
     }
 
     void SwitchPicGos(bool ifenable)
@@ -591,7 +503,7 @@ public class UIManagerForTexOut : MonoBehaviour
             BeautySkinContentPanels[2].SetActive(true);
             BeautySkinContentPanels[4].SetActive(true);
         }
-        else if (type == BeautySkinType.BeautyFilter)
+        else if (type == BeautySkinType.Filter)
         {
             BeautySkinSelecterOptions[2].GetComponent<Text>().color = highlightColor;
             string currentfiltername = rtt.GetItemParams(BeautySkinItemName, "filter_name");
@@ -618,31 +530,43 @@ public class UIManagerForTexOut : MonoBehaviour
             BeautySkinContentPanels[2].SetActive(false);
             BeautySkinContentPanels[4].SetActive(true);
         }
-        else if (type == BeautySkinType.Filter)
+        else if (type == BeautySkinType.MakeupGroup)
         {
             BeautySkinSelecterOptions[3].GetComponent<Text>().color = highlightColor;
-            string currentfiltername = rtt.GetItemParams(BeautySkinItemName, "filter_name");
-            foreach (var bi in BeautyConfig.beautySkin_4)
+            
+            foreach (var mg in BeautyConfig.makeupGroup_1)
             {
-                GameObject go = AddBeautyFilterOptions(bi);
-                if (string.Compare(bi.paramword, currentfiltername, true) == 0)
+                GameObject go = AddMakeupOptions(mg);
+                if (string.Compare(mg.name, currentSelectedMakeupName, true) == 0)
                 {
-                    currentSelected = go;
-                    go.transform.Find("Image_bg").gameObject.SetActive(true);
+                    //currentSelected = go;
+                    //go.transform.Find("Image_bg").gameObject.SetActive(true);
+                    go.GetComponent<AddClickEvent>().onClick(go);
                 }
             }
-
-            BeautySkin_Slider.onValueChanged.RemoveAllListeners();
-            BeautySkin_Slider.minValue = 0;
-            BeautySkin_Slider.maxValue = 1;
-            BeautySkin_Slider.value = (float)rtt.GetItemParamd(BeautySkinItemName, "filter_level");
-            BeautySkin_Slider.onValueChanged.AddListener(delegate
+            if (string.Compare(BeautyConfig.makeupGroup_1[0].name, currentSelectedMakeupName, true) != 0)
             {
-                rtt.SetItemParamd(BeautySkinItemName, "filter_level", BeautySkin_Slider.value);
-            });
+                BeautySkin_Slider.onValueChanged.RemoveAllListeners();
+                BeautySkin_Slider.minValue = 0;
+                BeautySkin_Slider.maxValue = 1;
+                BeautySkin_Slider.value = (float)rtt.GetItemParamd(MakeupItemName, "makeup_intensity");
+                BeautySkin_Slider.onValueChanged.AddListener(delegate
+                {
+                    rtt.SetItemParamd(MakeupItemName, "makeup_intensity", BeautySkin_Slider.value);
+                    float v = BeautySkin_Slider.value * currentMakeupfilterV;
+                    v = v > 1 ? 1 : v;
+                    v = v < 0 ? 0 : v;
+                    rtt.SetItemParamd(BeautySkinItemName, "filter_level", v);
+                });
+                BeautySkinContentPanels[1].SetActive(true);
+            }
+            else
+            {
+                BeautySkin_Slider.onValueChanged.RemoveAllListeners();
+                BeautySkinContentPanels[1].SetActive(false);
+            }
 
             panel.SetActive(true);
-            BeautySkinContentPanels[1].SetActive(true);
             BeautySkinContentPanels[2].SetActive(false);
             BeautySkinContentPanels[4].SetActive(true);
         }
@@ -719,7 +643,7 @@ public class UIManagerForTexOut : MonoBehaviour
         option.transform.localPosition = Vector3.zero;
         option.name = beautyitem.name;
         option.GetComponentInChildren<Text>().text = beautyitem.name;
-        option.GetComponentInChildren<Image>().sprite = uisprites.GetSprite(0, beautyitem.iconid_0);
+        option.GetComponentInChildren<Image>().sprite = uisprites.GetSprite(ItemType.Beauty, beautyitem.iconid_0);
 
         if (BeautyGOs.ContainsKey(beautyitem))
             BeautyGOs.Remove(beautyitem);
@@ -738,6 +662,95 @@ public class UIManagerForTexOut : MonoBehaviour
             rtt.SetItemParams(BeautySkinItemName, "filter_name", beautyitem.paramword);
         });
         return option;
+    }
+
+    GameObject AddMakeupOptions(Makeup makeupitem)
+    {
+        GameObject option = Instantiate(BeautyFilter_UIExample);
+        option.transform.SetParent(BeautyOptionContentTrans, false);
+        option.transform.localScale = Vector3.one;
+        option.transform.localPosition = Vector3.zero;
+        option.name = makeupitem.name;
+        option.GetComponentInChildren<Text>().text = makeupitem.name;
+        option.GetComponentInChildren<Image>().sprite = uisprites.GetSprite(ItemType.Makeup, makeupitem.iconid);
+
+        if (MakeupGOs.ContainsKey(makeupitem))
+            MakeupGOs.Remove(makeupitem);
+        MakeupGOs.Add(makeupitem, option);
+        option.GetComponent<AddClickEvent>().AddListener(delegate (GameObject go)
+        {
+            if (go != currentSelected)
+            {
+                currentSelected = go;
+                foreach (var bgo in MakeupGOs)
+                {
+                    bgo.Value.transform.Find("Image_bg").gameObject.SetActive(false);
+                }
+                go.transform.Find("Image_bg").gameObject.SetActive(true);
+            }
+            currentSelectedMakeupName = makeupitem.name;
+            currentMakeupfilterV = makeupitem.filter_intensity / makeupitem.intensity;
+
+            if (makeupitem.intensity <= 0)
+            {
+                rtt.SetItemParamd((int)SlotForItems.Makeup, "is_makeup_on", 0);
+            }
+            else
+            {
+                rtt.SetItemParamd((int)SlotForItems.Makeup, "is_makeup_on", 1);
+                rtt.SetItemParamd((int)SlotForItems.Makeup, "makeup_intensity", makeupitem.intensity);
+                
+                rtt.SetItemParamdv((int)SlotForItems.Makeup, "makeup_lip_color", makeupitem.Lipstick_color);
+                rtt.SetItemParamd((int)SlotForItems.Makeup, "makeup_intensity_lip", makeupitem.Lipstick_intensity);
+                rtt.SetItemParamd((int)SlotForItems.Makeup, "makeup_lip_mask", 1.0);
+
+                CreateTexForItem(uisprites.GetTexture(MakeupType.Blush, makeupitem.Blush_id), "tex_blusher");
+                rtt.SetItemParamd((int)SlotForItems.Makeup, "makeup_intensity_blusher", makeupitem.Blush_intensity);
+
+                CreateTexForItem(uisprites.GetTexture(MakeupType.Eyebrow, makeupitem.Eyebrow_id), "tex_brow");
+                rtt.SetItemParamd((int)SlotForItems.Makeup, "makeup_intensity_eyeBrow", makeupitem.Eyebrow_intensity);
+
+                CreateTexForItem(uisprites.GetTexture(MakeupType.Eyeshadow, makeupitem.Eyeshadow_id), "tex_eye");
+                rtt.SetItemParamd((int)SlotForItems.Makeup, "makeup_intensity_eye", makeupitem.Eyeshadow_intensity);
+
+                rtt.SetItemParams(BeautySkinItemName, "filter_name", makeupitem.filter_name);
+                rtt.SetItemParamd(BeautySkinItemName, "filter_level", makeupitem.filter_intensity);
+            }
+
+            if (string.Compare(BeautyConfig.makeupGroup_1[0].name, makeupitem.name, true) != 0)
+            {
+                BeautySkin_Slider.onValueChanged.RemoveAllListeners();
+                BeautySkin_Slider.minValue = 0;
+                BeautySkin_Slider.maxValue = 1;
+                BeautySkin_Slider.value = (float)rtt.GetItemParamd(MakeupItemName, "makeup_intensity");
+                BeautySkin_Slider.onValueChanged.AddListener(delegate
+                {
+                    rtt.SetItemParamd(MakeupItemName, "makeup_intensity", BeautySkin_Slider.value);
+                    float v = BeautySkin_Slider.value * currentMakeupfilterV;
+                    v = v > 1 ? 1 : v;
+                    v = v < 0 ? 0 : v;
+                    rtt.SetItemParamd(BeautySkinItemName, "filter_level", v);
+                });
+                BeautySkinContentPanels[1].SetActive(true);
+            }
+            else
+            {
+                BeautySkin_Slider.onValueChanged.RemoveAllListeners();
+                BeautySkinContentPanels[1].SetActive(false);
+            }
+
+        });
+        return option;
+    }
+
+    void CreateTexForItem(Texture2D tex , string name)
+    {
+        var newtex = rtt.AdjustTex(tex, 0, 0, 1);   //纹理需要在Y轴镜像一下
+        var webtexdata = newtex.GetPixels32();
+        var tex_handle = GCHandle.Alloc(webtexdata, GCHandleType.Pinned);
+        var p_tex_ptr = tex_handle.AddrOfPinnedObject();
+        rtt.CreateTexForItem((int)SlotForItems.Makeup, name, p_tex_ptr, newtex.width, newtex.height);
+        tex_handle.Free();
     }
 
     void SwitchBeautyOptionUIState(Beauty bi, GameObject go)
@@ -762,6 +775,7 @@ public class UIManagerForTexOut : MonoBehaviour
             Destroy(childTr.gameObject);
         }
         BeautyGOs.Clear();
+        MakeupGOs.Clear();
     }
 
     void UnSelectAllBeautySkinOptions()
@@ -793,6 +807,32 @@ public class UIManagerForTexOut : MonoBehaviour
     #endregion
 
     #region ItemsUI
+
+    void OpenItemsUI(string it)
+    {
+        if (it.CompareTo(ItemType.Animoji.ToString()) == 0)
+            OpenItemsUI(ItemType.Animoji);
+        else if (it.CompareTo(ItemType.ItemSticker.ToString()) == 0)
+            OpenItemsUI(ItemType.ItemSticker);
+        else if (it.CompareTo(ItemType.ARMask.ToString()) == 0)
+            OpenItemsUI(ItemType.ARMask);
+        else if (it.CompareTo(ItemType.ChangeFace.ToString()) == 0)
+            OpenItemsUI(ItemType.ChangeFace);
+        else if (it.CompareTo(ItemType.ExpressionRecognition.ToString()) == 0)
+            OpenItemsUI(ItemType.ExpressionRecognition);
+        else if (it.CompareTo(ItemType.MusicFilter.ToString()) == 0)
+            OpenItemsUI(ItemType.MusicFilter);
+        else if (it.CompareTo(ItemType.BackgroundSegmentation.ToString()) == 0)
+            OpenItemsUI(ItemType.BackgroundSegmentation);
+        else if (it.CompareTo(ItemType.GestureRecognition.ToString()) == 0)
+            OpenItemsUI(ItemType.GestureRecognition);
+        else if (it.CompareTo(ItemType.MagicMirror.ToString()) == 0)
+            OpenItemsUI(ItemType.MagicMirror);
+        else if (it.CompareTo(ItemType.PortraitLightEffect.ToString()) == 0)
+            OpenItemsUI(ItemType.PortraitLightEffect);
+        else if (it.CompareTo(ItemType.PortraitDrive.ToString()) == 0)
+            OpenItemsUI(ItemType.PortraitDrive);
+    }
 
     void OpenItemsUI(ItemType it)
     {
@@ -950,11 +990,11 @@ public class UIManagerForTexOut : MonoBehaviour
 
     void OnItemLoaded(Item item)
     {
-        if (item.type == 1)    //animoji
+        if (item.type == ItemType.Animoji)
         {
             rtt.SetItemParamd(item.name, "{\"thing\":\"<global>\",\"param\":\"follow\"}", 1);
         }
-        else if (item.type == 6)    //MusicFilter
+        else if (item.type == ItemType.MusicFilter)
         {
             musiccor = StartCoroutine(PlayMusic(item.name));
         }
@@ -966,162 +1006,6 @@ public class UIManagerForTexOut : MonoBehaviour
     }
     #endregion
 
-    #region MakeUp(deprecated!)
-    void OpenMakeUpUI(MakeupType type)
-    {
-        return;
-        currentItemType = ItemType.MakeUp;
-        currentMakeupType = type;
-        MakeupOptionContentTrans.localPosition = Vector3.zero;
-        ClearMakeUpOptions();
-        CloseAllMakeUpContentUI();
-        MakeupContentPanels[1].SetActive(true);
-        switch (type)
-        {
-            case MakeupType.Lipstick:
-                AddMakeUpOptions(ItemConfig.item_makeup_1, (int)SlotForItems.Lipstick);
-                break;
-            case MakeupType.Blusher:
-                AddMakeUpOptions(ItemConfig.item_makeup_2, (int)SlotForItems.Blusher);
-                break;
-            case MakeupType.EyeBrow:
-                AddMakeUpOptions(ItemConfig.item_makeup_3, (int)SlotForItems.EyeBrow);
-                break;
-            case MakeupType.EyeShadow:
-                AddMakeUpOptions(ItemConfig.item_makeup_4, (int)SlotForItems.EyeShadow);
-                break;
-            case MakeupType.EyeLiner:
-                AddMakeUpOptions(ItemConfig.item_makeup_5, (int)SlotForItems.EyeLiner);
-                break;
-            case MakeupType.EyeLash:
-                AddMakeUpOptions(ItemConfig.item_makeup_6, (int)SlotForItems.EyeLash);
-                break;
-            case MakeupType.ContactLens:
-                AddMakeUpOptions(ItemConfig.item_makeup_7, (int)SlotForItems.ContactLens);
-                break;
-            case MakeupType.None:
-                for (int i = 0; i < MakeupSelecterOptions.Length; i++)
-                {
-                    MakeupSelecterOptions[i].GetComponent<Text>().color = normalColor;
-                }
-                break;
-            default:
-                break;
-        }
-        MakeupContent.SetActive(true);
-        MakeupSelecter.SetActive(true);
-    }
-
-    void AddMakeUpOptions(Item[] items, int slotid)
-    {
-        for(int i=0;i< MakeupSelecterOptions.Length; i++)
-        {
-            if (i==(int)currentMakeupType)
-                MakeupSelecterOptions[i].GetComponent<Text>().color = highlightColor;
-            else
-                MakeupSelecterOptions[i].GetComponent<Text>().color = normalColor;
-        }
-
-        Makeup_Disable.GetComponent<AddClickEvent>().AddListener(delegate (GameObject go)
-        {
-            if (go != currentSelected)
-            {
-                currentSelected = go;
-                UnSelectAllMakeUpOptions();
-                go.transform.Find("Image").GetComponent<Image>().color = highlightColor;
-                rtt.UnLoadItem(slotid);
-                MakeupContentPanels[2].SetActive(false);
-            }
-        });
-
-        Makeup_Slider.onValueChanged.AddListener(delegate
-        {
-            rtt.SetItemParamd(slotid, "makeup_intensity", Makeup_Slider.value);
-        });
-        if (rtt.GetItemNamebySlotID(slotid).Length > 0)
-        {
-            Makeup_Slider.value = (float)rtt.GetItemParamd(slotid, "makeup_intensity");
-            MakeupContentPanels[2].SetActive(true);
-        }
-        else
-            MakeupContentPanels[2].SetActive(false);
-
-        string currentitemname = rtt.GetItemNamebySlotID(slotid);
-        if(currentitemname.Length>0)
-            Makeup_Disable.transform.Find("Image").GetComponent<Image>().color = normalColor;
-        else
-            Makeup_Disable.transform.Find("Image").GetComponent<Image>().color = highlightColor;
-        for (int i = 0; i < items.Length; i++)
-        {
-            var go = AddMakeUpOption(items[i], slotid);
-            if(string.Equals(currentitemname,items[i].name))
-                go.transform.Find("Image_bg").gameObject.SetActive(true);
-        }
-        MakeupContentPanels[1].GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 125.5f);
-        MakeupContentPanels[0].SetActive(true);
-    }
-
-    GameObject AddMakeUpOption(Item item, int slotid)
-    {
-        GameObject option = Instantiate(Makeup_UIExample);
-        option.transform.SetParent(MakeupOptionContentTrans, false);
-        option.transform.localScale = Vector3.one;
-        option.transform.localPosition = Vector3.zero;
-        option.name = item.name;
-        option.GetComponentInChildren<Image>().sprite = uisprites.GetSprite(item.type, item.iconid);
-
-        option.GetComponent<AddClickEvent>().AddListener(delegate (GameObject go)
-        {
-            if (go != currentSelected)
-            {
-                currentSelected = go;
-                UnSelectAllMakeUpOptions();
-                go.transform.Find("Image_bg").gameObject.SetActive(true);
-                StartCoroutine(rtt.LoadItem(item, slotid,new RenderToTexture.LoadItemCallback(OnMakeUpLoaded)));
-            }
-        });
-        return option;
-    }
-
-    void OnMakeUpLoaded(Item item)
-    {
-        Makeup_Slider.value = (float)rtt.GetItemParamd(item.name, "makeup_intensity");
-        MakeupContentPanels[2].SetActive(true);
-    }
-
-    void UnSelectAllMakeUpOptions()
-    {
-        Makeup_Disable.transform.Find("Image").GetComponent<Image>().color = normalColor;
-        foreach (Transform childTr in MakeupOptionContentTrans)
-        {
-            childTr.Find("Image_bg").gameObject.SetActive(false);
-        }
-    }
-
-    void ClearMakeUpOptions()
-    {
-        foreach (Transform childTr in MakeupOptionContentTrans)
-        {
-            childTr.GetComponent<AddClickEvent>().RemoveAllListener();
-            Destroy(childTr.gameObject);
-        }
-    }
-
-    void CloseAllMakeUpContentUI()
-    {
-        MakeupContentPanels[0].SetActive(false);
-        MakeupContentPanels[1].SetActive(false);
-        MakeupContentPanels[2].SetActive(false);
-        Makeup_Disable.GetComponent<AddClickEvent>().RemoveAllListener();
-        MakeupContentPanels[2].GetComponentInChildren<Slider>().onValueChanged.RemoveAllListeners();
-    }
-
-    void CloseMakeUpUI()
-    {
-        MakeupSelecter.SetActive(false);
-        MakeupContent.SetActive(false);
-    }
-    #endregion
     void OnApplicationQuit()
     {
         UnRegisterUIFunc();

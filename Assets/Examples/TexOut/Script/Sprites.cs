@@ -1,65 +1,102 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+
+
+//public enum ItemType
+//{
+//    Undefine = -1,
+//    Beauty = 0,
+//    CommonFilter,
+//    Makeup,
+//    Animoji,
+//    ItemSticker,
+//    ARMask,
+//    ChangeFace,
+//    ExpressionRecognition,
+//    MusicFilter,
+//    BackgroundSegmentation,
+//    GestureRecognition,
+//    MagicMirror,
+//    PortraitLightEffect,
+//    PortraitDrive,
+//    //...更多类型道具请咨询技术支持
+//}
 
 public class Sprites : MonoBehaviour {
 
-    public Sprite[] spritelist_0;
-    public Sprite[] spritelist_1;
-    public Sprite[] spritelist_2;
-    public Sprite[] spritelist_3;
-    public Sprite[] spritelist_4;
-    public Sprite[] spritelist_5;
-    public Sprite[] spritelist_6;
-    public Sprite[] spritelist_7;
-    public Sprite[] spritelist_8;
-    public Sprite[] spritelist_9;
-    public Sprite[] spritelist_10;
-    public Sprite[] spritelist_11;
+    public Sprite[] Beauty;
+    public Sprite[] CommonFilter;
+    public Sprite[] Makeup;
+    public Sprite[] Animoji;
+    public Sprite[] ItemSticker;
+    public Sprite[] ARMask;
+    public Sprite[] ChangeFace;
+    public Sprite[] ExpressionRecognition;
+    public Sprite[] MusicFilter;
+    public Sprite[] BackgroundSegmentation;
+    public Sprite[] GestureRecognition;
+    public Sprite[] MagicMirror;
+    public Sprite[] PortraitLightEffect;
+    public Sprite[] PortraitDrive;
 
-    public Sprite[] spritelist_12;  //makeup
-    public Sprite[] spritelist_13;
-    public Sprite[] spritelist_14;
-    public Sprite[] spritelist_15;
-    public Sprite[] spritelist_16;
-    public Sprite[] spritelist_17;
-    public Sprite[] spritelist_18;
+    Dictionary<ItemType,Sprite[]> spritelist = new Dictionary<ItemType,Sprite[]>();
 
-    Sprite[][] spritelist;
+    public Texture2D[] MakeupBlush;
+    public Texture2D[] MakeupEyebrow;
+    public Texture2D[] MakeupEyeshadow;
+    Dictionary<MakeupType, Texture2D[]> texlist = new Dictionary<MakeupType, Texture2D[]>();
 
     private void Awake()
     {
-        spritelist = new Sprite[19][];
-        spritelist[0] = spritelist_0;
-        spritelist[1] = spritelist_1;
-        spritelist[2] = spritelist_2;
-        spritelist[3] = spritelist_3;
-        spritelist[4] = spritelist_4;
-        spritelist[5] = spritelist_5;
-        spritelist[6] = spritelist_6;
-        spritelist[7] = spritelist_7;
-        spritelist[8] = spritelist_8;
-        spritelist[9] = spritelist_9;
-        spritelist[10] = spritelist_10;
-        spritelist[11] = spritelist_11;
-        spritelist[12] = spritelist_12;
-        spritelist[13] = spritelist_13;
-        spritelist[14] = spritelist_14;
-        spritelist[15] = spritelist_15;
-        spritelist[16] = spritelist_16;
-        spritelist[17] = spritelist_17;
-        spritelist[18] = spritelist_18;
-    } 
+        spritelist.Clear();
 
-    public Sprite GetSprite(int type,int id)
+        spritelist.Add(ItemType.Beauty, Beauty);
+        spritelist.Add(ItemType.CommonFilter, CommonFilter);
+        spritelist.Add(ItemType.Makeup, Makeup);
+        spritelist.Add(ItemType.Animoji, Animoji);
+        spritelist.Add(ItemType.ItemSticker, ItemSticker);
+        spritelist.Add(ItemType.ARMask, ARMask);
+        spritelist.Add(ItemType.ChangeFace, ChangeFace);
+        spritelist.Add(ItemType.ExpressionRecognition, ExpressionRecognition);
+        spritelist.Add(ItemType.MusicFilter, MusicFilter);
+        spritelist.Add(ItemType.BackgroundSegmentation, BackgroundSegmentation);
+        spritelist.Add(ItemType.GestureRecognition, GestureRecognition);
+        spritelist.Add(ItemType.MagicMirror, MagicMirror);
+        spritelist.Add(ItemType.PortraitLightEffect, PortraitLightEffect);
+        spritelist.Add(ItemType.PortraitDrive, PortraitDrive);
+
+        texlist.Add(MakeupType.Blush, MakeupBlush);
+        texlist.Add(MakeupType.Eyebrow, MakeupEyebrow);
+        texlist.Add(MakeupType.Eyeshadow, MakeupEyeshadow);
+    }
+
+    public Sprite GetSprite(ItemType type,int id)
     {
-        if (type >= 0 && type < spritelist.GetLength(0))
+        if (spritelist.ContainsKey(type))
         {
-            if (id >= 0 && id < spritelist[type].Length)
-                return spritelist[type][id];
+            var sprites = spritelist[type];
+            if (id >= 0 && id < sprites.Length)
+                return sprites[id];
             else
                 return null;
         }
         else
             return null;
     }
+
+    public Texture2D GetTexture(MakeupType type, int id)
+    {
+        if (texlist.ContainsKey(type))
+        {
+            var tex = texlist[type];
+            if (id >= 0 && id < tex.Length)
+                return tex[id];
+            else
+                return null;
+        }
+        else
+            return null;
+    }
+
 }
