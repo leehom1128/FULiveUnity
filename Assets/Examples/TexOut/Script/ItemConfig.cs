@@ -26,13 +26,15 @@ public struct Item
     public string name;
     public string fullname; //路径
     public int iconid;
+    public string tip;
     public ItemType type;
 
-    Item(string _name = "", string _fullname = "", int _iconid = -1, ItemType _type = ItemType.Undefine)
+    Item(string _name = "", string _fullname = "", int _iconid = -1, string _tip = "", ItemType _type = ItemType.Undefine)
     {
         name = _name;
         fullname = _fullname;
         iconid = _iconid;
+        tip = _tip;
         type = _type;
     }
 
@@ -98,13 +100,13 @@ public class ItemConfig
 
     //ExpressionRecognition
     public static Item[] item_5 = {
-        new Item { name = "future_warrior", fullname = "items/ExpressionRecognition/future_warrior", iconid = 0 ,type=ItemType.ExpressionRecognition},
-        new Item { name = "jet_mask", fullname = "items/ExpressionRecognition/jet_mask", iconid = 1 ,type=ItemType.ExpressionRecognition},
-        new Item { name = "luhantongkuan_ztt_fu", fullname = "items/ExpressionRecognition/luhantongkuan_ztt_fu", iconid = 2 ,type=ItemType.ExpressionRecognition},
-        new Item { name = "qingqing_ztt_fu", fullname = "items/ExpressionRecognition/qingqing_ztt_fu", iconid = 3 ,type=ItemType.ExpressionRecognition},
-        new Item { name = "sdx2", fullname = "items/ExpressionRecognition/sdx2", iconid = 4 ,type=ItemType.ExpressionRecognition},
-        new Item { name = "xiaobianzi_zh_fu", fullname = "items/ExpressionRecognition/xiaobianzi_zh_fu", iconid = 5 ,type=ItemType.ExpressionRecognition},
-        new Item { name = "xiaoxueshen_ztt_fu", fullname = "items/ExpressionRecognition/xiaoxueshen_ztt_fu", iconid = 6 ,type=ItemType.ExpressionRecognition},
+        new Item { name = "future_warrior", fullname = "items/ExpressionRecognition/future_warrior", iconid = 0 ,type=ItemType.ExpressionRecognition,tip ="张嘴试试"},
+        new Item { name = "jet_mask", fullname = "items/ExpressionRecognition/jet_mask", iconid = 1 ,type=ItemType.ExpressionRecognition,tip ="鼓腮帮子"},
+        new Item { name = "luhantongkuan_ztt_fu", fullname = "items/ExpressionRecognition/luhantongkuan_ztt_fu", iconid = 2 ,type=ItemType.ExpressionRecognition,tip ="眨一眨眼"},
+        new Item { name = "qingqing_ztt_fu", fullname = "items/ExpressionRecognition/qingqing_ztt_fu", iconid = 3 ,type=ItemType.ExpressionRecognition,tip ="嘟嘴试试"},
+        new Item { name = "sdx2", fullname = "items/ExpressionRecognition/sdx2", iconid = 4 ,type=ItemType.ExpressionRecognition,tip ="皱眉试试"},
+        new Item { name = "xiaobianzi_zh_fu", fullname = "items/ExpressionRecognition/xiaobianzi_zh_fu", iconid = 5 ,type=ItemType.ExpressionRecognition,tip ="微笑触发"},
+        new Item { name = "xiaoxueshen_ztt_fu", fullname = "items/ExpressionRecognition/xiaoxueshen_ztt_fu", iconid = 6 ,type=ItemType.ExpressionRecognition,tip ="吹气触发"},
     };
 
     //MusicFilter
@@ -120,17 +122,18 @@ public class ItemConfig
         new Item { name = "ice_lm_fu", fullname = "items/BackgroundSegmentation/ice_lm_fu", iconid = 2 ,type=ItemType.BackgroundSegmentation},
         new Item { name = "sea_lm_fu", fullname = "items/BackgroundSegmentation/sea_lm_fu", iconid = 3 ,type=ItemType.BackgroundSegmentation},
         new Item { name = "xiandai_ztt_fu", fullname = "items/BackgroundSegmentation/xiandai_ztt_fu", iconid = 4 ,type=ItemType.BackgroundSegmentation},
+        new Item { name = "bgs", fullname = "items/BackgroundSegmentation/bgs", iconid = 5 ,type=ItemType.BackgroundSegmentation},
     };
 
     //GestureRecognition
     public static Item[] item_8 = {
-         new Item { name = "ctrl_flower", fullname = "items/GestureRecognition/ctrl_flower", iconid = 0 ,type=ItemType.GestureRecognition},
-         new Item { name = "ctrl_rain", fullname = "items/GestureRecognition/ctrl_rain", iconid = 1 ,type=ItemType.GestureRecognition},
-         new Item { name = "ctrl_snow", fullname = "items/GestureRecognition/ctrl_snow", iconid = 2 ,type=ItemType.GestureRecognition},
-         new Item { name = "ssd_thread_cute", fullname = "items/GestureRecognition/ssd_thread_cute", iconid = 3 ,type=ItemType.GestureRecognition},
-         new Item { name = "ssd_thread_korheart", fullname = "items/GestureRecognition/ssd_thread_korheart", iconid = 4 ,type=ItemType.GestureRecognition},
-         new Item { name = "ssd_thread_six", fullname = "items/GestureRecognition/ssd_thread_six", iconid = 5 ,type=ItemType.GestureRecognition},
-         new Item { name = "ssd_thread_thumb", fullname = "items/GestureRecognition/ssd_thread_thumb", iconid = 6 ,type=ItemType.GestureRecognition},
+         new Item { name = "ctrl_flower", fullname = "items/GestureRecognition/ctrl_flower", iconid = 0 ,type=ItemType.GestureRecognition,tip ="推出手掌"},
+         new Item { name = "ctrl_rain", fullname = "items/GestureRecognition/ctrl_rain", iconid = 1 ,type=ItemType.GestureRecognition,tip ="推出手掌"},
+         new Item { name = "ctrl_snow", fullname = "items/GestureRecognition/ctrl_snow", iconid = 2 ,type=ItemType.GestureRecognition,tip ="推出手掌"},
+         new Item { name = "ssd_thread_cute", fullname = "items/GestureRecognition/ssd_thread_cute", iconid = 3 ,type=ItemType.GestureRecognition,tip ="双拳靠近脸颊卖萌"},
+         new Item { name = "ssd_thread_korheart", fullname = "items/GestureRecognition/ssd_thread_korheart", iconid = 4 ,type=ItemType.GestureRecognition,tip ="单手手指比心"},
+         new Item { name = "ssd_thread_six", fullname = "items/GestureRecognition/ssd_thread_six", iconid = 5 ,type=ItemType.GestureRecognition,tip ="比个六"},
+         new Item { name = "ssd_thread_thumb", fullname = "items/GestureRecognition/ssd_thread_thumb", iconid = 6 ,type=ItemType.GestureRecognition,tip ="竖个拇指"},
     };
 
     //MagicMirror

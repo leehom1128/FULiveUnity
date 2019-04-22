@@ -46,6 +46,7 @@ public class UIManagerForTexOut : MonoBehaviour
     public RectTransform ItemOptionContentTrans;
     public GameObject Item_UIExample;
     public GameObject Item_Disable;
+    public Text Item_Tip;
 
     Coroutine musiccor = null;
     AudioSource audios;
@@ -904,6 +905,7 @@ public class UIManagerForTexOut : MonoBehaviour
                     audios.Stop();
                 }
                 rtt.UnLoadItem((int)SlotForItems.Item);
+                Item_Tip.text = "";
             }
         });
 
@@ -998,6 +1000,7 @@ public class UIManagerForTexOut : MonoBehaviour
         {
             musiccor = StartCoroutine(PlayMusic(item.name));
         }
+        Item_Tip.text = item.tip;
     }
 
     void CloseItemUI()
