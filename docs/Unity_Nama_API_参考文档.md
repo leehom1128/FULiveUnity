@@ -1,14 +1,20 @@
 # Unity Nama C# API 参考文档
 级别：Public 
-更新日期：2019-05-05
+更新日期：2019-05-27
+SDK版本: 6.1.0
 
 ------
 ### 最新更新内容：
 
-2019-04-28 v6.0.0：
+2019-05-27 v6.1.0:
 
-1. 新增fuSetFaceDetParam函数，用于设置人脸检测参数。
-2. 更新了fuSetup函数
+1. 新增fu_SetupLocal函数，支持离线鉴权。
+2. 新增fu_DestroyLibData函数，支持tracker内存释放。
+
+2019-04-28 v6.0.0:
+
+1. 新增fu_SetFaceDetParam函数，用于设置人脸检测参数。
+2. 更新了fu_Setup函数。
 
 ------
 ### 目录：
@@ -57,6 +63,66 @@ __返回值:__
 __备注:__
 
 这个接口会**延迟**生效。
+
+---
+
+##### fu_SetupLocal 函数
+
+功能和fu_Setup类似，但是用于离线鉴权。
+
+这个接口的原理是，首次鉴权时输入一个设备独有的原始签名bundle，这次鉴权要求有网络连接，签名完毕可以通过fu_GetOfflineBundle获取签名后的bundle，如果签名成功，则后续鉴权只需要使用这个bundle代替原始离线bundle，输入fu_SetupLocal即可实现离线鉴权。
+
+更详细的的信息请咨询技术支持。
+
+```c#
+public static extern int fu_SetupLocal(IntPtr v3buf, int v3buf_sz, IntPtr licbuf, int licbuf_sz, IntPtr offline_bundle_ptr, int offline_bundle_sz);
+```
+
+__参数:__
+
+*v3buf*: v3.bytes中读取的二进制数据的指针
+
+*v3buf_sz*:  v3.bytes的长度
+
+*licbuf*：证书的文本数据，用`,`分割，将分割后的数组数据转成sbyte格式
+
+*licbuf_sz[in]*：sbyte数组长度
+
+offline_bundle_ptr：原始离线bundle的指针
+
+offline_bundle_sz：原始离线bundle的长度
+
+__返回值:__
+
+无
+
+__备注:__
+
+这个接口会**延迟**生效。
+
+---
+
+##### fu_GetOfflineBundle 函数
+
+返回签名完毕的离线bundle（不一定签名成功）。
+
+```c#
+public static extern int fu_GetOfflineBundle(ref IntPtr offline_bundle_ptr, IntPtr offline_bundle_sz);
+```
+
+__参数:__
+
+*offline_bundle_ptr*: 离线bundle的指针
+
+*offline_bundle_sz*:  离线bundle的长度
+
+__返回值:__
+
+无
+
+__备注:__
+
+这个接口会**立即**生效。
 
 ------
 
@@ -502,7 +568,27 @@ __备注:__
 
 ---
 
+##### fu_DestroyLibData 函数
 
+特殊函数，当不再需要Nama SDK时，可以释放由 ```fu_Setup```初始化所分配的人脸跟踪模块的内存，约30M左右。调用后，人脸跟踪以及道具绘制功能将失效，相关函数将失败。如需使用，需要重新调用 ```fu_Setup```进行初始化。
+
+```c#
+ public static extern void fu_DestroyLibData();
+```
+
+__参数:__
+
+无
+
+__返回值:__
+
+无
+
+__备注:__
+
+这个接口会**立即**生效。
+
+------
 
 #### 2.3 加载销毁道具
 

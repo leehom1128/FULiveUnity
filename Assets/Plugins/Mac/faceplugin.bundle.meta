@@ -1,17 +1,12 @@
 fileFormatVersion: 2
 guid: d88e98cd32f8e254d9bed0c284f57d29
 folderAsset: yes
-timeCreated: 1537156519
-licenseType: Pro
 PluginImporter:
   serializedVersion: 1
   iconMap: {}
   executionOrder: {}
   isPreloaded: 0
   platformData:
-    Any:
-      enabled: 0
-      settings: {}
     Editor:
       enabled: 1
       settings:
@@ -24,6 +19,9 @@ PluginImporter:
       settings: {}
     OSXUniversal:
       enabled: 1
+      settings: {}
+    first:
+      enabled: 0
       settings: {}
   userData: 
   assetBundleName: 

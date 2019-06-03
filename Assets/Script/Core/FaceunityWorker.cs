@@ -112,6 +112,45 @@ public class FaceunityWorker : MonoBehaviour
 #endif
     public static extern int fu_Setup(IntPtr v3buf, int v3buf_sz, IntPtr licbuf, int licbuf_sz);
 
+
+    /**
+    \brief offline authentication
+	    Initialize and authenticate your SDK instance to the FaceUnity server, must be called exactly once before all other functions.
+	    The buffers should NEVER be freed while the other functions are still being called.
+	    You can call this function multiple times to "switch pointers".
+    \param v3buf should point to contents of the "v3.bin" we provide
+    \param v3buf_sz should point to num-of-bytes of the "v3.bin" we provide
+    \param licbuf is the pointer to the authentication data pack we provide. You must avoid storing the data in a file.
+	    Normally you can just `#include "authpack.h"` and put `g_auth_package` here.
+    \param licbuf_sz is the authentication data size, we use plain int to avoid cross-language compilation issues.
+	    Normally you can just `#include "authpack.h"` and put `sizeof(g_auth_package)` here.
+    \param offline_bundle_ptr is the pointer to offline bundle from FaceUnity server
+    \param offline_bundle_sz is size of offline bundle
+    \return non-zero for success, zero for failure
+    */
+#if UNITY_IOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+#else
+    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
+#endif
+    public static extern int fu_SetupLocal(IntPtr v3buf, int v3buf_sz, IntPtr licbuf, int licbuf_sz, IntPtr offline_bundle_ptr, int offline_bundle_sz);
+
+
+    /**
+    \brief 鉴权真正运行完毕后调用这个接口得到对应结果
+         fu_SetupLocal并不是运行完就立即执行鉴权的，要等GL.IssuePluginEvent(fu_GetRenderEventFunc(), 1);注册后在GL线程真正执行相应代码
+         具体跟离线鉴权相关的信息请询问技术支持
+    \param 通过这个指针保存返回的签名完毕的离线bundle，后续用着bundle即可不联网鉴权
+    \param 离线bundle长度
+    \return 0为鉴权失败，1为成功
+    */
+#if UNITY_IOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+#else
+    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
+#endif
+    public static extern int fu_GetOfflineBundle(ref IntPtr offline_bundle_ptr, IntPtr offline_bundle_sz);
+
 #if UNITY_IOS && !UNITY_EDITOR
     [DllImport("__Internal")]
 #else
@@ -183,6 +222,16 @@ public class FaceunityWorker : MonoBehaviour
     [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
 #endif
     public static extern void fu_DestroyAllItems();
+
+    /**
+\brief Destroy all internal data, resources, threads, etc.
+*/
+#if UNITY_IOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+#else
+    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
+#endif
+    public static extern void fu_DestroyLibData();
 
     /**
 	\brief Render a list of items on top of a GLES texture or a memory buffer.
@@ -421,8 +470,8 @@ public class FaceunityWorker : MonoBehaviour
     public static extern void fu_SetQualityTradeoff(float num);
 
     /**
-\brief Get SDK version string
-\return SDK version string in const char*
+\brief Get Nama version string
+\return Nama version string in const char*
 */
 #if UNITY_IOS && !UNITY_EDITOR
     [DllImport("__Internal")]
@@ -430,6 +479,17 @@ public class FaceunityWorker : MonoBehaviour
     [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
 #endif
     public static extern IntPtr fu_GetVersion(); // Marshal.PtrToStringAnsi(fu_GetVersion());
+
+    /**
+\brief Get Faceplugin version string
+\return Faceplugin version string in const char*
+*/
+#if UNITY_IOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+#else
+    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
+#endif
+    public static extern IntPtr fu_GetFacepluginVersion(); // Marshal.PtrToStringAnsi(fu_GetFacepluginVersion());
 
     /**
 \brief Get system error, which causes system shutting down
@@ -738,6 +798,14 @@ public class FaceunityWorker : MonoBehaviour
     [HideInInspector]
     public bool m_plugin_inited = false;
 
+    public enum SETUPMODE
+    {
+        Normal,
+        Local,
+    }
+
+    public SETUPMODE SetupMode = SETUPMODE.Normal;
+
     public int MAXFACE = 1;
     public bool EnableExpressionLoop = true;
     int MaxExpression = 0;
@@ -773,8 +841,7 @@ public class FaceunityWorker : MonoBehaviour
     bool isfirstLoop = true;
     GCHandle m_licdata_handle;
     GCHandle m_v3data_handle;
-    GCHandle ardata_exdata_handle;
-    GCHandle anim_model_handle;
+    GCHandle m_offlinebundle_handle;
     GCHandle tongue_handle;
 
     ///////////////////////////////
@@ -875,7 +942,72 @@ public class FaceunityWorker : MonoBehaviour
                             m_v3data_handle = GCHandle.Alloc(m_v3data_bytes, GCHandleType.Pinned); //pinned avoid GC
                             IntPtr v3ptr = m_v3data_handle.AddrOfPinnedObject(); //pinned addr
 
-                            fu_Setup(v3ptr, m_v3data_bytes.Length, licptr, sbytes.Length); //要查看license是否有效请打开插件log（fu_EnableLog(true);）
+                            if (SetupMode == SETUPMODE.Normal)
+                            {
+                                fu_Setup(v3ptr, m_v3data_bytes.Length, licptr, sbytes.Length); //要查看license是否有效请打开插件log（fu_EnableLog(true);）
+                            }
+                            else if (SetupMode == SETUPMODE.Local)
+                            {
+                                byte[] offlinebundledata_bytes = null;
+                                bool loaclAuthMode = true;
+                                
+                                string offlinebundle_path = Application.persistentDataPath + "/Bundles/"; //这个路径可能无法读取，请自行指定可以读写的路径！
+                                string offlinebundle_name = "license_signed.bytes";
+
+                                string offlinebundle_signed = "file://" + offlinebundle_path + offlinebundle_name;
+
+                                WWW offlinebundledata_signed = new WWW(offlinebundle_signed);
+                                yield return offlinebundledata_signed;
+
+                                if (offlinebundledata_signed.bytes == null || offlinebundledata_signed.bytes.Length == 0)
+                                {
+                                    string offlinebundle_unsigned = Util.GetStreamingAssetsPath() + "/faceunity/license_unsigned.bytes";
+                                    WWW offlinebundledata_unsigned = new WWW(offlinebundle_unsigned);
+                                    yield return offlinebundledata_unsigned;
+                                    offlinebundledata_bytes = offlinebundledata_unsigned.bytes;
+                                    loaclAuthMode = false;
+                                }
+                                else
+                                {
+                                    offlinebundledata_bytes = offlinebundledata_signed.bytes;
+                                }
+
+                                if (m_offlinebundle_handle.IsAllocated)
+                                    m_offlinebundle_handle.Free();
+                                m_offlinebundle_handle = GCHandle.Alloc(offlinebundledata_bytes, GCHandleType.Pinned);
+                                IntPtr fptrset = m_offlinebundle_handle.AddrOfPinnedObject();
+
+                                fu_SetupLocal(v3ptr, m_v3data_bytes.Length, licptr, sbytes.Length, fptrset, offlinebundledata_bytes.Length);
+
+                                GL.IssuePluginEvent(fu_GetRenderEventFunc(), 1);
+
+                                while (jc_part_inited() == 0)
+                                {
+                                    yield return Util._endOfFrame;
+                                }
+                                int message = fu_GetSystemError();
+                                Debug.LogFormat("Init Message:{0},{1},loaclAuthMode=={2}", message, Marshal.PtrToStringAnsi(fu_GetSystemErrorString(message)), loaclAuthMode);
+
+                                IntPtr fptr = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(byte)));
+                                IntPtr iptr = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(int)));
+
+                                int isAuthed = fu_GetOfflineBundle(ref fptr, iptr);
+
+                                if (isAuthed == 0)
+                                {
+                                    Debug.LogError("Auth Faild!");
+                                    yield break;
+                                }
+
+                                if (!loaclAuthMode)
+                                {
+                                    int arrSize = Marshal.ReadInt32(iptr);
+                                    byte[] fpa = new byte[arrSize];
+                                    Marshal.Copy(fptr, fpa, 0, fpa.Length);
+                                    //不能释放fptr和iptr，由Nama自行管理，否则会崩溃
+                                    Util.SaveBytesFile(fpa, offlinebundle_path, offlinebundle_name);
+                                }
+                            }
 
                             m_plugin_inited = true;
                         }
@@ -908,19 +1040,21 @@ public class FaceunityWorker : MonoBehaviour
                     if (OnInitOK != null)
                         OnInitOK(this, null);//触发初始化完成事件
 
-                    //Debug.Log("错误：" + fu_GetSystemError() +","+ Marshal.PtrToStringAnsi(fu_GetSystemErrorString(fu_GetSystemError())));
-                    Debug.Log("SDK Version:" + Marshal.PtrToStringAnsi(fu_GetVersion()));
+                    //Debug.Log("错误:" + fu_GetSystemError() +","+ Marshal.PtrToStringAnsi(fu_GetSystemErrorString(fu_GetSystemError())));
+                    Debug.Log("Nama Version:" + Marshal.PtrToStringAnsi(fu_GetVersion()));
+                    Debug.Log("Faceplugin Version:" + Marshal.PtrToStringAnsi(fu_GetFacepluginVersion()));
 
-                    yield return StartCoroutine("CallPluginAtEndOfFrames");
+                    StartCoroutine("CallPluginAtEndOfFrames");
                 }
             }
         }
         else
         {
             Debug.LogError("please check your Graphics API,this plugin only supports OpenGL!");
-            yield return null;
+            yield break;
         }
     }
+
     private IEnumerator CallPluginAtEndOfFrames()
     {
         while (true)
@@ -936,10 +1070,8 @@ public class FaceunityWorker : MonoBehaviour
                     m_licdata_handle.Free();
                 if (m_v3data_handle.IsAllocated)
                     m_v3data_handle.Free();
-                if (ardata_exdata_handle.IsAllocated)
-                    ardata_exdata_handle.Free();
-                if (anim_model_handle.IsAllocated)
-                    anim_model_handle.Free();
+                if (m_offlinebundle_handle.IsAllocated)
+                    m_offlinebundle_handle.Free();
                 if (tongue_handle.IsAllocated)
                     tongue_handle.Free();
             }
@@ -993,10 +1125,8 @@ public class FaceunityWorker : MonoBehaviour
             m_licdata_handle.Free();
         if (m_v3data_handle.IsAllocated)
             m_v3data_handle.Free();
-        if (ardata_exdata_handle.IsAllocated)
-            ardata_exdata_handle.Free();
-        if (anim_model_handle.IsAllocated)
-            anim_model_handle.Free();
+        if (m_offlinebundle_handle.IsAllocated)
+            m_offlinebundle_handle.Free();
         if (tongue_handle.IsAllocated)
             tongue_handle.Free();
         if (m_plugin_inited == true)

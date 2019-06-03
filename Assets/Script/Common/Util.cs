@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.IO;
 
 public class Util
 {
@@ -45,4 +46,16 @@ public class Util
 
     public static WaitForEndOfFrame _endOfFrame = new WaitForEndOfFrame();
     public static WaitForFixedUpdate _fixedupdate = new WaitForFixedUpdate();
+
+    public static string SaveBytesFile(byte[] data, string path, string nameWithExtension)
+    {
+        if (Directory.Exists(path) == false)
+        {
+            Directory.CreateDirectory(path);
+        }
+        string fullfilename = path + nameWithExtension;
+        File.WriteAllBytes(fullfilename, data);
+        Debug.Log("保存了一个文件:" + fullfilename);
+        return fullfilename;
+    }
 }

@@ -122,7 +122,6 @@ public class ItemConfig
         new Item { name = "ice_lm_fu", fullname = "items/BackgroundSegmentation/ice_lm_fu", iconid = 2 ,type=ItemType.BackgroundSegmentation},
         new Item { name = "sea_lm_fu", fullname = "items/BackgroundSegmentation/sea_lm_fu", iconid = 3 ,type=ItemType.BackgroundSegmentation},
         new Item { name = "xiandai_ztt_fu", fullname = "items/BackgroundSegmentation/xiandai_ztt_fu", iconid = 4 ,type=ItemType.BackgroundSegmentation},
-        new Item { name = "bgs", fullname = "items/BackgroundSegmentation/bgs", iconid = 5 ,type=ItemType.BackgroundSegmentation},
     };
 
     //GestureRecognition

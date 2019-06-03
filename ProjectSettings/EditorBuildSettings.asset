@@ -13,5 +13,3 @@ EditorBuildSettings:
     path: Assets/Examples/DataOut/Scene/demoDataOut.unity
   - enabled: 0
     path: Assets/Examples/DataOut/Scene/demoDataOut_Multiple.unity
-  - enabled: 0
-    path: Assets/Examples/DataOut/Scene/demoLive2D.unity

@@ -349,6 +349,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_plugin_inited: 0
+  SetupMode: 0
   MAXFACE: 1
   EnableExpressionLoop: 0
   LICENSE: 
@@ -635,7 +636,6 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 65c64979177482b458f23946d89df772, type: 3}
   - {fileID: 21300000, guid: 1754864d2ab7df64a9f4ba0e15caa1d2, type: 3}
   - {fileID: 21300000, guid: 50c2062fa988bc04f86aa616b67ba043, type: 3}
-  - {fileID: 21300000, guid: d255e8593aa469e41838ffffd2129b11, type: 3}
   GestureRecognition:
   - {fileID: 21300000, guid: bc12542cce262f741b61a0b100462bfc, type: 3}
   - {fileID: 21300000, guid: 60159010c63d1b64a84fc267581ab1d6, type: 3}
