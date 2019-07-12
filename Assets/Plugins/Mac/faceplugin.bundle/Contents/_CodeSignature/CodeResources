@@ -10,7 +10,7 @@
 		<dict>
 			<key>cdhash</key>
 			<data>
-			nwGRF+CkZSsqcxBnGkX2XgAucLk=
+			KA8eKWoVtA2e1cia/p74dgFCRbA=
 			</data>
 			<key>requirement</key>
 			<string>identifier "dde_core" and anchor apple generic and certificate leaf[subject.CN] = "Mac Developer: Hao Qin (4BFVKDFJMK)" and certificate 1[field.1.2.840.113635.100.6.2.1] /* exists */</string>
@@ -19,7 +19,7 @@
 		<dict>
 			<key>cdhash</key>
 			<data>
-			oum97aYV6M8Q7HukBzScTbunBFo=
+			EwUnl5E/YXiRa8bKiBWcd6BHhRU=
 			</data>
 			<key>requirement</key>
 			<string>identifier faceplugin and anchor apple generic and certificate leaf[subject.CN] = "Mac Developer: Hao Qin (4BFVKDFJMK)" and certificate 1[field.1.2.840.113635.100.6.2.1] /* exists */</string>
@@ -37,7 +37,7 @@
 		<dict>
 			<key>cdhash</key>
 			<data>
-			+ZWzStV6dCNvfdF6kS6C4IcFiUM=
+			gOBv6jFuuvNuRK84YkWaAvsGr0o=
 			</data>
 			<key>requirement</key>
 			<string>identifier nama and anchor apple generic and certificate leaf[subject.CN] = "Mac Developer: Hao Qin (4BFVKDFJMK)" and certificate 1[field.1.2.840.113635.100.6.2.1] /* exists */</string>

@@ -31,6 +31,7 @@ public class RenderSimple : MonoBehaviour {
 
     //渲染显示UI
     public RawImage RawImg_BackGroud;
+    public Texture2D InputTex;
 
 
     public void SwitchCamera()
@@ -103,6 +104,11 @@ public class RenderSimple : MonoBehaviour {
 
     void Update()
     {
+        if (InputTex != null)
+        {
+            UpdateData(IntPtr.Zero, (int)InputTex.GetNativeTexturePtr(), InputTex.width, InputTex.height, UpdateDataMode.ImageTexId);
+            return;
+        }
 		
         if (wtex != null && wtex.isPlaying)
         {

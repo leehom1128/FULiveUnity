@@ -117,11 +117,11 @@ public class ItemConfig
 
     //BackgroundSegmentation
     public static Item[] item_7 = {
-        new Item { name = "gufeng_zh_fu", fullname = "items/BackgroundSegmentation/gufeng_zh_fu", iconid = 0 ,type=ItemType.BackgroundSegmentation},
         new Item { name = "hez_ztt_fu", fullname = "items/BackgroundSegmentation/hez_ztt_fu", iconid = 1 ,type=ItemType.BackgroundSegmentation},
-        new Item { name = "ice_lm_fu", fullname = "items/BackgroundSegmentation/ice_lm_fu", iconid = 2 ,type=ItemType.BackgroundSegmentation},
-        new Item { name = "sea_lm_fu", fullname = "items/BackgroundSegmentation/sea_lm_fu", iconid = 3 ,type=ItemType.BackgroundSegmentation},
+        new Item { name = "gufeng_zh_fu", fullname = "items/BackgroundSegmentation/gufeng_zh_fu", iconid = 0 ,type=ItemType.BackgroundSegmentation},
         new Item { name = "xiandai_ztt_fu", fullname = "items/BackgroundSegmentation/xiandai_ztt_fu", iconid = 4 ,type=ItemType.BackgroundSegmentation},
+        new Item { name = "sea_lm_fu", fullname = "items/BackgroundSegmentation/sea_lm_fu", iconid = 3 ,type=ItemType.BackgroundSegmentation},
+        new Item { name = "ice_lm_fu", fullname = "items/BackgroundSegmentation/ice_lm_fu", iconid = 2 ,type=ItemType.BackgroundSegmentation},
     };
 
     //GestureRecognition
