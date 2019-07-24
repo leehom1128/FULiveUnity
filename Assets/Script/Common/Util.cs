@@ -47,6 +47,13 @@ public class Util
     public static WaitForEndOfFrame _endOfFrame = new WaitForEndOfFrame();
     public static WaitForFixedUpdate _fixedupdate = new WaitForFixedUpdate();
 
+    /**
+\brief 把一个bytes数组保存成一个文件
+\param data 要保存的bytes数组
+\param path 保存路径
+\param nameWithExtension 文件名加后缀名，如：example.bytes
+\return 保存的文件全称
+    */
     public static string SaveBytesFile(byte[] data, string path, string nameWithExtension)
     {
         if (Directory.Exists(path) == false)

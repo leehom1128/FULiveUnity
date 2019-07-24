@@ -23,6 +23,8 @@ using System.Collections.Generic;
 //    //...更多类型道具请咨询技术支持
 //}
 
+//Texout场景所需的UI合集，配合ItemConfig使用，这个组件只是为了方便，不具备任何实际编程价值，请谨慎参考
+
 public class Sprites : MonoBehaviour {
 
     public Sprite[] Beauty;
@@ -71,6 +73,8 @@ public class Sprites : MonoBehaviour {
         texlist.Add(MakeupType.Eyeshadow, MakeupEyeshadow);
     }
 
+
+    /**\brief 获取Sprite\param type 道具类型\param id 道具ID\return Sprite    */
     public Sprite GetSprite(ItemType type,int id)
     {
         if (spritelist.ContainsKey(type))
@@ -85,6 +89,7 @@ public class Sprites : MonoBehaviour {
             return null;
     }
 
+    /**\brief 获取Texture2D，主要是给美妆用\param type 美妆类型\param id 美妆ID\return Texture2D*/
     public Texture2D GetTexture(MakeupType type, int id)
     {
         if (texlist.ContainsKey(type))

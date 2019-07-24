@@ -20,37 +20,39 @@ public class RenderToModel : MonoBehaviour
     public Switch verbose;
 
 #if UNITY_EDITOR || UNITY_STANDALONE
+    //以下参数仅在PC或MAC上生效，因为这两个平台上NatCam实际上调用的是Unity自带的WebCam,无法在底层直接向SDK输入数据，因此需要在这里输入数据
+
     //byte[] img_bytes;
-    Color32[] webtexdata;
-    GCHandle img_handle;
-    IntPtr p_img_ptr;
+    Color32[] webtexdata;   //用于保存每帧从相机类获取的数据
+    GCHandle img_handle;    //webtexdata的GCHandle
+    IntPtr p_img_ptr;   //webtexdata的指针
 
     //SDK返回(OUTPUT)
-    private int m_fu_texid = 0;
-    private Texture2D m_rendered_tex;
+    private int m_fu_texid = 0; //SDK返回的纹理ID
+    private Texture2D m_rendered_tex;   //用SDK返回的纹理ID新建的纹理
 
     //标记参数
-    private bool m_tex_created;
+    private bool m_tex_created; //m_rendered_tex是否已被创建，这个不需要每帧创建，纹理ID不变就不要重新创建
 #endif
 
     //渲染显示UI
-    public RawImage RawImg_BackGroud;
-    private Quaternion baseRotation;
-    public Camera camera3d;
-    private float dde_focallength = 0;
-    private Coroutine fovcor = null;
-    public bool ifTrackPos = false;
+    public RawImage RawImg_BackGroud;   //用来显示相机结果的UI控件
+    private Quaternion baseRotation;    //RawImg_BackGroud的初始旋转
+    public Camera camera3d; //渲染3D物体的相机
+    private float dde_focallength = 0;  //SDK跟踪时算出来的焦距，需要和Unity的camera3d同步，从而实现真人和3D物体的位移旋转统一
+    private Coroutine fovcor = null;    //同步焦距用的协程，因为实际计算中可能没法第一时间拿到跟踪焦距
+    public bool ifTrackPos = false;     //是否跟踪人脸位置，选择true时只跟踪人脸旋转
 
     public Text txt;
-    public delegate void OnSwitchCamera(bool isSwitching);
+    public delegate void OnSwitchCamera(bool isSwitching);  //相机切换委托
     public event OnSwitchCamera onSwitchCamera;
 
-    const int SLOTLENGTH = 1;
+    const int SLOTLENGTH = 1;   //这四个参数的作用请看RenderToTexture，主要是为了满足不同SDK模式下的舌头的跟踪，详细信息请看文档
     int[] itemid_tosdk;
     GCHandle itemid_handle;
     IntPtr p_itemsid;
 
-
+    //相机开始运行的回调
     public void OnStart()
     {
 #if !(UNITY_EDITOR || UNITY_STANDALONE)
@@ -76,7 +78,7 @@ public class RenderToModel : MonoBehaviour
             onSwitchCamera(false);
     }
 
-
+    //延迟调整相机UI比例旋转，在有些设备上无法第一时间调整
     public IEnumerator delaySet()
     {
         SelfAdjusSize();
@@ -95,7 +97,7 @@ public class RenderToModel : MonoBehaviour
 #endif
     }
 
-
+    //重置相机UI
     public void ReSetBackGroud()
     {
         if (RawImg_BackGroud != null)
@@ -106,6 +108,7 @@ public class RenderToModel : MonoBehaviour
         }
     }
 
+    //根据SDK实时跟踪给出的焦距调整Unity内部渲染3D物体的相机的焦距（其实是FOV），可能无法在切换摄像机后第一时间调整好，所以需要不停跑直到完成
     IEnumerator SetFOV()
     {
         if(FaceunityWorker.fu_IsTracking() <= 0)
@@ -158,6 +161,7 @@ public class RenderToModel : MonoBehaviour
         fovcor = null;
     }
 
+    //重置渲染相机的FOV
     public void ResetFOV()
     {
         dde_focallength = 0;
@@ -166,6 +170,7 @@ public class RenderToModel : MonoBehaviour
         Debug.Log("ReSetFOV");
     }
 
+    //切换相机
     public void SwitchCamera(int newCamera = -1)
     {
         FaceunityWorker.fu_OnCameraChange();
@@ -185,6 +190,7 @@ public class RenderToModel : MonoBehaviour
         NatCam.Camera = (DeviceCamera)newCamera;
     }
 
+    //根据运行环境调整相机UI的缩放旋转，这段简单的代码无法覆盖所有情况
     public void SelfAdjusSize()
     {
         Vector2 targetResolution = RawImg_BackGroud.canvas.GetComponent<CanvasScaler>().referenceResolution;
@@ -288,6 +294,7 @@ public class RenderToModel : MonoBehaviour
         StartCoroutine("InitCamera");
     }
 
+    //当前环境是PC或者MAC的时候，在这里向SDK输入数据并获取SDK输出的纹理
     void Update()
     {
 #if UNITY_EDITOR || UNITY_STANDALONE
@@ -356,6 +363,7 @@ public class RenderToModel : MonoBehaviour
         }
     }
 
+    //加载道具。用于舌头跟踪，详见文档
     public IEnumerator LoadItem(string path, int slotid = 0)
     {
         Debug.Log("LoadItem:" + path);
@@ -374,6 +382,7 @@ public class RenderToModel : MonoBehaviour
         FaceunityWorker.fu_setItemIds(p_itemsid, SLOTLENGTH, IntPtr.Zero);
     }
 
+    //卸载道具。用于舌头跟踪，详见文档
     public bool UnLoadItem(int slotid = 0)
     {
         if (slotid >= 0 && slotid < SLOTLENGTH)
@@ -397,6 +406,7 @@ public class RenderToModel : MonoBehaviour
         UnLoadItem();
     }
 
+    //UI上显示当前相机方向
     void OnGUI()
     {
         if (NatCam.Camera != null && !ifTrackPos)

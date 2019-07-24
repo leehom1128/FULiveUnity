@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 
+//给所在物体添加Click事件
 public class AddClickEvent : MonoBehaviour,IPointerClickHandler
 {
     public delegate void GoDelegate(GameObject go);

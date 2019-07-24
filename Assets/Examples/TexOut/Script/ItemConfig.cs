@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 
+//道具种类
 public enum ItemType
 {
     Undefine = -1,
@@ -21,13 +22,15 @@ public enum ItemType
     //...更多类型道具请咨询技术支持
 }
 
+//这个struct只是为了方便Texout场景的搭建，建议谨慎参考
+//这个struct关联了一个道具的各种数据，包括名字，相对加载路径，UI的ID，道具提示信息，道具的种类
 public struct Item
 {
-    public string name;
-    public string fullname; //路径
-    public int iconid;
-    public string tip;
-    public ItemType type;
+    public string name;//名字
+    public string fullname; //相对加载路径
+    public int iconid; //UI的ID
+    public string tip;//道具提示信息
+    public ItemType type;//道具的种类
 
     Item(string _name = "", string _fullname = "", int _iconid = -1, string _tip = "", ItemType _type = ItemType.Undefine)
     {
@@ -163,38 +166,43 @@ public class ItemConfig
 
 }
 
+
+//这个类只是为了方便Texout场景的搭建，建议谨慎参考
+//这个类关联了一个美颜参数
 public class Beauty
 {
-    public float currentvalue = 0;
+    public float currentvalue = 0;  //当前值
 
-    public string name = "";
-    public string paramword = "";
-    public float maxvalue = 1;
-    public float defaultvalue = 0;
-    public float disablevalue = 0;
-    public int iconid_0 = -1;
-    public int iconid_1 = -1;
+    public string name = "";    //参数名字
+    public string paramword = "";   //setparam接口所需的关键词
+    public float maxvalue = 1;  //最大值
+    public float defaultvalue = 0;  //默认值
+    public float disablevalue = 0;  //关闭值，用于UI关闭
+    public int iconid_0 = -1;   //未选中UI的ID
+    public int iconid_1 = -1;   //选中UI的ID
 };
 
+//这个类关联了一个质感美颜参数（美妆加美颜）
 public class Makeup
 {
-    public string name = "";
-    public float intensity = 1.0f;
-    public int iconid = -1;
+    public string name = "";    //参数名字
+    public float intensity = 1.0f;  //整体强度0~1
+    public int iconid = -1; //UI的ID
 
-    public double[] Lipstick_color = new double[4] { 0, 0, 0, 0 };
-    public float Lipstick_intensity = 0;
-    public int Blush_id = -1;
-    public float Blush_intensity = 0;
-    public int Eyebrow_id = -1;
-    public float Eyebrow_intensity = 0;
-    public int Eyeshadow_id = -1;
-    public float Eyeshadow_intensity = 0;
+    public double[] Lipstick_color = new double[4] { 0, 0, 0, 0 };  //口红颜色
+    public float Lipstick_intensity = 0;    //口红强度
+    public int Blush_id = -1;   //腮红类型ID（腮红本质是一张图）
+    public float Blush_intensity = 0;   //腮红强度
+    public int Eyebrow_id = -1; //眉毛类型ID
+    public float Eyebrow_intensity = 0; //眉毛强度
+    public int Eyeshadow_id = -1;   //眼影类型ID
+    public float Eyeshadow_intensity = 0;   //眼影强度
 
-    public string filter_name = "";
-    public float filter_intensity = 0;
+    public string filter_name = ""; //滤镜名字
+    public float filter_intensity = 0;  //滤镜强度
 }
 
+//美颜类型，在这个场景里质感美颜是美颜的一个子集，实际产品划分上美妆和美颜是平级的
 public enum BeautySkinType
 {
     None = 0,
@@ -204,6 +212,7 @@ public enum BeautySkinType
     MakeupGroup,
 }
 
+//美妆类型
 public enum MakeupType
 {
     Lipstick = 0,

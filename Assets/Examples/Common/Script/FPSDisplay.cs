@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
  
+//显示当前帧数
 public class FPSDisplay : MonoBehaviour
 {
 	float deltaTime = 0.0f;

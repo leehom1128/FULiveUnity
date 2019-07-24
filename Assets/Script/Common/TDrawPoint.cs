@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//这个组件用来画出人脸跟踪点，但是限制很多，仅用于测试
 public class TDrawPoint : MonoBehaviour
 {
     Material markmat;
@@ -14,6 +15,7 @@ public class TDrawPoint : MonoBehaviour
             shader = { hideFlags = HideFlags.HideAndDontSave }
         };
     }
+    //Recognized为FaceunityWorker.m_landmarks[i].m_data
     public void rendmark(float[] Recognized)
     {
         if (!markmat)
@@ -41,6 +43,7 @@ public class TDrawPoint : MonoBehaviour
         GL.End();
     }
 
+    //最好视频能全屏显示，否则很有可能对不上点
     private void DrawOnePoint(float x, float y)
     {
         GL.Vertex(new Vector3(1-x / 1280, y / 960, 0));     //1280为视频宽度，960为高度，1- 为镜像

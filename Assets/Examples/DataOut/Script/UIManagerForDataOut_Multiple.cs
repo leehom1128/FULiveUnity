@@ -47,7 +47,9 @@ public class UIManagerForDataOut_Multiple : MonoBehaviour {
         else
             Image_FaceDetect.SetActive(true);
 
-        for(int i=0;i< stcs.Length;i++)
+        //trueid与faceid之分：faceid为0~currentMaxface，不会区分不同人脸，而trueid为真正的人脸ID，会区分不同人脸
+        //通过faceid获取trueid
+        for (int i=0;i< stcs.Length;i++)
         {
             marks[i] = false;
         }

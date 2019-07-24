@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 
 public class UIManagerForTexOut : MonoBehaviour
 {
-
+    //这个组件是Texout场景的UI控制器
     RenderToTexture rtt;
 
     public GameObject Canvas_BackUI; //后景UI，包括rtt.RawImg_BackGroud
@@ -65,7 +65,8 @@ public class UIManagerForTexOut : MonoBehaviour
     BeautySkinType currentBeautySkinType = BeautySkinType.None;
 
     ItemType currentItemType = ItemType.Undefine;
-
+    //权限码
+    //fu_GetModuleCode返回的值是以下code的集合，与一下就能知道是否有相应权限
     private static int[] permissions_code = {
             0x1,                    //0     //美颜
             0x10,                   //1     //Animoji
@@ -131,6 +132,8 @@ public class UIManagerForTexOut : MonoBehaviour
             Image_FaceDetect.SetActive(true);
     }
 
+    //获取License授权信息，这里只是根据SDK用License初始化后的结果，来控制不同类型道具的UI的开启关闭，具体权限分类请咨询技术支持
+    //顺便根据授权信息初始化相关道具
     IEnumerator Authentication()
     {
         while (FaceunityWorker.jc_part_inited() == 0)

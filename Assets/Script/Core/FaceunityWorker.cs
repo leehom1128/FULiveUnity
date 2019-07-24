@@ -8,107 +8,130 @@ using System.Collections.Generic;
 
 public class FaceunityWorker : MonoBehaviour
 {
+    //封装好的用于获取当前跟踪信息的类
     public class CFaceUnityCoefficientSet
     {
-        public float[] m_data;
-        public int[] m_data_int;
-        public GCHandle m_handle;
-        public IntPtr m_addr;
-        public string m_name;
-        public int m_addr_size;
-        public int m_faceId = 0;
+        public float[] m_data;  //跟踪数据，float类型，一旦实例化就不要改变
+        public int[] m_data_int;    //跟踪数据，int类型，一旦实例化就不要改变
+        public GCHandle m_handle;   //跟踪数据句柄，通过这个类向SDK内部传输指针
+        public IntPtr m_addr;   //跟踪数据的指针
+        public string m_name;   //跟踪数据的名字，SDK通过这个来判断返回哪种数据
+        public int m_addr_size; //跟踪数据的长度，可变
+        public int m_faceId = 0;    //跟踪的人脸ID
         public int m_datatype = 0;  //0为float，1为int
 
-        public CFaceUnityCoefficientSet(string s, int num, int faceId = 0,int datatype=0)
-        {
-            m_name = s;
-            m_addr_size = num;
-            m_faceId = faceId;
-            m_datatype = datatype;
+        /**
+   \brief 构造函数
+   \param name 跟踪数据的名字，SDK通过这个来判断返回哪种数据
+   \param size 跟踪数据的长度
+   \param faceId 跟踪的人脸ID，默认值为0，第一个值为
+   \param datatype 跟踪数据类型，有些为int有些为float，请参照相关文档设置，否则会出错，默认值为float
+   \return 类实例
+            */
+        public CFaceUnityCoefficientSet(string name, int size, int faceId = 0,int datatype=0)
+       {
+           m_name = name;
+           m_addr_size = size;
+           m_faceId = faceId;
+           m_datatype = datatype;
 
-            if (m_datatype == 0)
-            {
-                m_data = new float[m_addr_size];
-                m_handle = GCHandle.Alloc(m_data, GCHandleType.Pinned);
-                m_addr = m_handle.AddrOfPinnedObject();
-            }
-            else if (m_datatype == 1)
-            {
-                m_data_int = new int[m_addr_size];
-                m_handle = GCHandle.Alloc(m_data_int, GCHandleType.Pinned);
-                m_addr = m_handle.AddrOfPinnedObject();
-            }
-            else
-            {
-                Debug.LogError("CFaceUnityCoefficientSet Error! Unknown datatype");
-                return;
-            }
-        }
+           if (m_datatype == 0)
+           {
+               m_data = new float[m_addr_size];
+               m_handle = GCHandle.Alloc(m_data, GCHandleType.Pinned);
+               m_addr = m_handle.AddrOfPinnedObject();
+           }
+           else if (m_datatype == 1)
+           {
+               m_data_int = new int[m_addr_size];
+               m_handle = GCHandle.Alloc(m_data_int, GCHandleType.Pinned);
+               m_addr = m_handle.AddrOfPinnedObject();
+           }
+           else
+           {
+               Debug.LogError("CFaceUnityCoefficientSet Error! Unknown datatype");
+               return;
+           }
+       }
+        /**
+\brief 析构函数，GCHandle钉住的变量需要手动解除GC限制
+\return 无
+    */
         ~CFaceUnityCoefficientSet()
-        {
-            if (m_handle != null && m_handle.IsAllocated)
-            {
-                m_handle.Free();
-                m_data = default(float[]);
-                m_data_int = default(int[]);
-            }
-        }
+       {
+           if (m_handle != null && m_handle.IsAllocated)
+           {
+               m_handle.Free();
+               m_data = default(float[]);
+               m_data_int = default(int[]);
+           }
+       }
+        /**
+\brief 需要逐帧，逐个跟踪信息调用，从而更新对应的数据
+\return 无
+    */
         public void Update()
-        {
-            fu_GetFaceInfo(m_faceId, m_addr, m_addr_size, m_name);
-        }
-
+       {
+           fu_GetFaceInfo(m_faceId, m_addr, m_addr_size, m_name);
+       }
+        /**
+\brief 如果数据长度发生变化，需要调用一下这个函数
+\param num 跟踪数据的长度
+\return 无
+    */
         public void Update(int num)
-        {
-            if(num!= m_addr_size)
-            {
-                if (m_handle != null && m_handle.IsAllocated)
-                {
-                    m_handle.Free();
-                }
-                m_addr_size = num;
-                if (m_datatype == 0)
-                {
-                    m_data = new float[m_addr_size];
-                    m_handle = GCHandle.Alloc(m_data, GCHandleType.Pinned);
-                    m_addr = m_handle.AddrOfPinnedObject();
-                }
-                else if (m_datatype == 1)
-                {
-                    m_data_int = new int[m_addr_size];
-                    m_handle = GCHandle.Alloc(m_data_int, GCHandleType.Pinned);
-                    m_addr = m_handle.AddrOfPinnedObject();
-                }
-                else
-                    return;
-            }
-            Update();
-        }
-    }
+       {
+           if(num!= m_addr_size)
+           {
+               if (m_handle != null && m_handle.IsAllocated)
+               {
+                   m_handle.Free();
+               }
+               m_addr_size = num;
+               if (m_datatype == 0)
+               {
+                   m_data = new float[m_addr_size];
+                   m_handle = GCHandle.Alloc(m_data, GCHandleType.Pinned);
+                   m_addr = m_handle.AddrOfPinnedObject();
+               }
+               else if (m_datatype == 1)
+               {
+                   m_data_int = new int[m_addr_size];
+                   m_handle = GCHandle.Alloc(m_data_int, GCHandleType.Pinned);
+                   m_addr = m_handle.AddrOfPinnedObject();
+               }
+               else
+                   return;
+           }
+           Update();
+       }
+   }
 
-    // Unity editor doesn't unload dlls after 'preview'
+   // Unity editor doesn't unload dlls after 'preview'
 
-    #region DllImport
+   #region DllImport
 
-    /////////////////////////////////////
-    //native interfaces
+   /////////////////////////////////////
+   //native interfaces
 
-    /**
-	\brief Initialize and authenticate your SDK instance to the FaceUnity server, must be called exactly once before all other functions.
-		The buffers should NEVER be freed while the other functions are still being called.
-		You can call this function multiple times to "switch pointers".
-	\param v3buf should point to contents of the "v3.bin" we provide
-    \param v3buf_sz should point to num-of-bytes of the "v3.bin" we provide
-	\param licbuf is the pointer to the authentication data pack we provide. You must avoid storing the data in a file.
-		Normally you can just `#include "authpack.h"` and put `g_auth_package` here.
-	\param licbuf_sz is the authenticafu_Cleartion data size, we use plain int to avoid cross-language compilation issues.
-		Normally you can just `#include "authpack.h"` and put `sizeof(g_auth_package)` here.
-	\return non-zero for success, zero for failure
-	*/
+        //详细的接口描述请查看API文档！！！
+
+   /**
+   \brief Initialize and authenticate your SDK instance to the FaceUnity server, must be called exactly once before all other functions.
+       The buffers should NEVER be freed while the other functions are still being called.
+       You can call this function multiple times to "switch pointers".
+   \param v3buf should point to contents of the "v3.bin" we provide
+   \param v3buf_sz should point to num-of-bytes of the "v3.bin" we provide
+   \param licbuf is the pointer to the authentication data pack we provide. You must avoid storing the data in a file.
+       Normally you can just `#include "authpack.h"` and put `g_auth_package` here.
+   \param licbuf_sz is the authenticafu_Cleartion data size, we use plain int to avoid cross-language compilation issues.
+       Normally you can just `#include "authpack.h"` and put `sizeof(g_auth_package)` here.
+   \return non-zero for success, zero for failure
+   */
 #if UNITY_IOS && !UNITY_EDITOR
     [DllImport("__Internal")]
 #else
-    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
 #endif
     public static extern int fu_Setup(IntPtr v3buf, int v3buf_sz, IntPtr licbuf, int licbuf_sz);
 
@@ -845,6 +868,11 @@ public class FaceunityWorker : MonoBehaviour
     GCHandle tongue_handle;
 
     ///////////////////////////////
+    /**
+\brief 初始化所有跟踪信息
+\param maxface 最多几张脸
+\return 无
+        */
     void InitCFaceUnityCoefficientSet(int maxface)
     {
         if (MaxExpression < maxface)
@@ -886,7 +914,10 @@ public class FaceunityWorker : MonoBehaviour
         MaxExpression = maxface;
     }
 
-    //working methods
+    /**
+\brief 初始化SDK并设置部分参数，同时开启驱动SDK渲染的GL循环协程
+\return 无
+    */
     IEnumerator Start()
     {
         if (EnvironmentCheck())
@@ -1055,6 +1086,11 @@ public class FaceunityWorker : MonoBehaviour
         }
     }
 
+
+
+
+
+    /**\brief SDK渲染的GL循环协程，每一帧的末尾，调用GL.IssuePluginEvent使Unity执行SDK内部的渲染代码，同时获取并保存跟踪信息\return 无    */
     private IEnumerator CallPluginAtEndOfFrames()
     {
         while (true)
@@ -1114,11 +1150,21 @@ public class FaceunityWorker : MonoBehaviour
         }
     }
 
+
+
+
+
+    /**\brief 用来注册SDK的LOG回调，SDK中间层可以用这个来在Unity内部打log\param message 要打的log\return 无    */
     private static void DebugMethod(string message)
     {
         Debug.Log("From Dll: " + message);
     }
 
+
+
+
+
+    /**\brief 应用退出是清理相关GCHandle和SDK相关数据\return 无*/
     private void OnApplicationQuit()
     {
         if (m_licdata_handle.IsAllocated)
@@ -1134,6 +1180,10 @@ public class FaceunityWorker : MonoBehaviour
         ClearImages();
     }
 
+
+
+
+    /**\brief 检测当前渲染环境是否符合要求，本SDK仅支持在OpenGL下运行\return true为检测通过，false为不通过*/
     bool EnvironmentCheck()
     {
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN

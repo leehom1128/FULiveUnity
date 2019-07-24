@@ -12,28 +12,29 @@ public class RenderSimple : MonoBehaviour {
     public int cameraHeight=720;
     public int cameraFrameRate=30;
 
-    WebCamTexture wtex;
+    WebCamTexture wtex; //Unity的外部相机类
     //byte[] img_bytes;
-    Color32[] webtexdata;
-    GCHandle img_handle;
-    IntPtr p_img_ptr;
+    Color32[] webtexdata;   //用于保存每帧从相机类获取的数据
+    GCHandle img_handle;    //webtexdata的GCHandle
+    IntPtr p_img_ptr;   //webtexdata的指针
 
-    byte[] img_nv21;
-    GCHandle img_nv21_handle;
-    IntPtr p_img_nv21_ptr;
+    byte[] img_nv21;    //NV21格式的buffer的数组
+    GCHandle img_nv21_handle;   //img_nv21的GCHandle
+    IntPtr p_img_nv21_ptr;  //img_nv21的指针
 
     //SDK返回(OUTPUT)
-    int m_fu_texid = 0;
-    Texture2D m_rendered_tex;
+    int m_fu_texid = 0; //SDK返回的纹理ID
+    Texture2D m_rendered_tex;   //用SDK返回的纹理ID新建的纹理
 
     //标记参数
-    bool m_tex_created;
+    bool m_tex_created; //m_rendered_tex是否已被创建，这个不需要每帧创建，纹理ID不变就不要重新创建
 
     //渲染显示UI
-    public RawImage RawImg_BackGroud;
-    public Texture2D InputTex;
+    public RawImage RawImg_BackGroud;   //用来显示相机结果的UI控件
+    public Texture2D InputTex;  //通过纹理来往SDK内部传输数据
 
 
+    //切换相机
     public void SwitchCamera()
     {
         foreach (WebCamDevice device in WebCamTexture.devices)
@@ -82,16 +83,19 @@ public class RenderSimple : MonoBehaviour {
         p_img_nv21_ptr = img_nv21_handle.AddrOfPinnedObject();
     }
 
+    //当SDK初始化完毕后执行事件，即初始化相机
     void Awake()
     {
         FaceunityWorker.OnInitOK += InitApplication;
     }
 
+    //初始化相机
     void InitApplication(object source, EventArgs e)
     {
         StartCoroutine(InitCamera());
     }
 
+    //四种数据输入格式，详见文档
     public enum UpdateDataMode
     {
         NV21,
@@ -182,7 +186,12 @@ public class RenderSimple : MonoBehaviour {
         }
     }
 
-    //输入数据接口案例
+
+
+
+
+
+    /**\brief 往SDK输入数据并根据返回的纹理ID新建一个纹理，绑定在UI上，这个返回不是即时的，首次输入数据后真正执行是在GL.IssuePluginEvent执行的时候，因此纹理ID会在下一帧返回\param ptr 输入数据buffer的指针\param texid 输入数据的纹理ID\param w 该帧图片的宽\param h 该帧图片的高\param mode 四种数据输入格式，详见文档\return 无    */
     public void UpdateData(IntPtr ptr,int texid,int w,int h, UpdateDataMode mode)
     {
         if (mode == UpdateDataMode.NV21)
@@ -211,7 +220,7 @@ public class RenderSimple : MonoBehaviour {
         }
     }
 
-    // untested function
+    // untested function，将ARGB转化成NV21，仅用来测试
     // byte[] yuv = new byte[inputWidth * inputHeight * 3 / 2];
     //    encodeYUV420SP(yuv, argb, inputWidth, inputHeight);
     void encodeYUV420SP(byte[] yuv420sp, int[] argb, int width, int height)

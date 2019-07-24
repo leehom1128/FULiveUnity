@@ -21,40 +21,47 @@ public class RenderToTexture : MonoBehaviour
     public Switch verbose;
 
     //Camera_TO_SDK
+    /*这个数组存着需要渲染的道具的ID，ID是加载（fu_CreateItemFromPackage）完道具后调用fu_getItemIdxFromPackage返回的值（大于0的整数），这个数组的长度没有被限制，但是
+     * 由于机器性能限制，一般不会超过10个。这个数组的值可以轮空，如[1,4,0,3,0,2],这里0即没有道具，SDK内部会自动理解成按照[1,4,3,2]的顺序渲染道具，因此为了业务逻辑上的方便
+     * 可以在此主动声明第N个位置用于某一类道具，如第0位只用于美颜，第1位只用于美妆，第2位只用于滤镜等等。这些位置被称为slot。
+     * */
     int[] itemid_tosdk;
-    GCHandle itemid_handle;
-    IntPtr p_itemsid;
+    GCHandle itemid_handle; //itemid_tosdk的GCHandle
+    IntPtr p_itemsid;   //itemid_tosdk的指针
 
-#if UNITY_EDITOR||UNITY_STANDALONE
-    //byte[] img_bytes;
-    Color32[] webtexdata;
-    GCHandle img_handle;
-    IntPtr p_img_ptr;
-
-    //SDK返回(OUTPUT)
-    private int m_fu_texid = 0;
-    private Texture2D m_rendered_tex;
-
-    //标记参数
-    private bool m_tex_created;
-#endif
-    private bool LoadingItem = false;
-
-    //渲染显示UI
-    public RawImage RawImg_BackGroud;
-    private Quaternion baseRotation;
-
-    public const int SLOTLENGTH = 10;
+    public const int SLOTLENGTH = 10;      //最大slot长度
     private struct slot_item
     {
         public string name;
         public int id;
         public Item item;
     };
-    private slot_item[] slot_items;
+    private slot_item[] slot_items; //关联起item和slotid的一个数组，长度为SLOTLENGTH
 
-    public Shader bgShader;
-    private Material bgMaterial;
+#if UNITY_EDITOR||UNITY_STANDALONE
+    //以下参数仅在PC或MAC上生效，因为这两个平台上NatCam实际上调用的是Unity自带的WebCam,无法在底层直接向SDK输入数据，因此需要在这里输入数据
+
+    //byte[] img_bytes;
+    Color32[] webtexdata;   //用于保存每帧从相机类获取的数据
+    GCHandle img_handle;    //webtexdata的GCHandle
+    IntPtr p_img_ptr;    //webtexdata的指针
+
+    //SDK返回(OUTPUT)
+    private int m_fu_texid = 0;      //SDK返回的纹理ID
+    private Texture2D m_rendered_tex;   //用SDK返回的纹理ID新建的纹理
+
+    //标记参数
+    private bool m_tex_created; //m_rendered_tex是否已被创建，这个不需要每帧创建，纹理ID不变就不要重新创建
+#endif
+    private bool LoadingItem = false;   //是否正在加载道具，道具的加载是一个协程，不是瞬间完成的，因此为了防止调用混乱，用这个变量主动控制
+
+    //渲染显示UI
+    public RawImage RawImg_BackGroud;   //用来显示相机结果的UI控件
+    private Quaternion baseRotation;    //RawImg_BackGroud的初始旋转
+
+
+    public Shader bgShader; //可以用来控制纹理的旋转和镜像
+    private Material bgMaterial;//bgShader对应的材质
     public Material bgMat
     {
         get
@@ -68,6 +75,7 @@ public class RenderToTexture : MonoBehaviour
         }
     }
 
+    /**\brief 调整输入的纹理的旋转和镜像，用以下三个参数可以表达一个纹理任意方向的旋转和镜像的结果（2^3=8种）\param tex_origin 原始的纹理\param SwichXY  是否调换纹理的UV的X轴和Y轴，即沿着对角线翻转\param flipx    是否翻转X轴\param flipy    是否翻转Y轴\return 计算好的纹理    */
     public Texture2D AdjustTex(Texture2D tex_origin,int SwichXY, int flipx, int flipy)
     {
         int w = 0;
@@ -100,7 +108,7 @@ public class RenderToTexture : MonoBehaviour
         return tex_new;
     }
 
-
+    //初始化相机后，执行这个回调，用于调整相机UI的旋转镜像缩放
     public void OnStart()
     {
 #if !(UNITY_EDITOR || UNITY_STANDALONE)
@@ -119,6 +127,7 @@ public class RenderToTexture : MonoBehaviour
         //SetItemMirror();
     }
 
+    //切换相机，newCamera为相机ID
     public void SwitchCamera(int newCamera = -1)
     {
         FaceunityWorker.fu_OnCameraChange();
@@ -131,6 +140,7 @@ public class RenderToTexture : MonoBehaviour
         StartCoroutine(delaySetItemMirror());
     }
 
+    //延迟设置道具的镜像参数，因为相机切换不是瞬间完成的
     IEnumerator delaySetItemMirror()
     {
         yield return Util._endOfFrame;
@@ -140,6 +150,7 @@ public class RenderToTexture : MonoBehaviour
         }
     }
 
+    //根据运行环境调整相机UI的旋转镜像缩放，这段简单的代码无法覆盖所有情况
     public void SelfAdjusSize()
     {
         Vector2 targetResolution = RawImg_BackGroud.canvas.GetComponent<CanvasScaler>().referenceResolution;
@@ -190,7 +201,7 @@ public class RenderToTexture : MonoBehaviour
 #endif
     }
 
-    // 初始化摄像头 
+    // 初始化相机
     public IEnumerator InitCamera()
     {
         yield return Application.RequestUserAuthorization(UserAuthorization.WebCam);
@@ -232,6 +243,7 @@ public class RenderToTexture : MonoBehaviour
         }
     }
 
+    /**\brief 截图\param cameras 要参与截图的unity相机\param rect  要截图的范围，一般是全屏\return 计算好的纹理    */
     public Texture2D CaptureCamera(Camera[] cameras, Rect rect)
     {
         // 创建一个RenderTexture对象  
@@ -259,7 +271,7 @@ public class RenderToTexture : MonoBehaviour
         return screenShot;
     }
 
-    //仅仅保存图片，并不通知图库刷新，因此请用文件浏览器在对应路径打开图片
+    //仅仅保存图片成png到固定路径，并不通知图库刷新，因此请用文件浏览器在对应路径打开图片
     public void SaveTex2D(Texture2D tex)
     {
         byte[] bytes = tex.EncodeToPNG();
@@ -277,6 +289,7 @@ public class RenderToTexture : MonoBehaviour
         FaceunityWorker.OnInitOK += InitApplication;
     }
 
+    //初始化slot信息
     void Start()
     {
         if (itemid_tosdk == null)
@@ -296,13 +309,14 @@ public class RenderToTexture : MonoBehaviour
         }
     }
 
+    //SDK初始化完成后会执行这个回调，记录相机UI原始旋转信息，开启相机初始化协程
     void InitApplication(object source, EventArgs e)
     {
-        //Debug.Log("版本："+ Marshal.PtrToStringAnsi(FaceunityWorker.fu_GetVersion()));
         baseRotation = RawImg_BackGroud.rectTransform.rotation;
         StartCoroutine("InitCamera");
     }
 
+    //当前环境是PC或者MAC的时候，在这里向SDK输入数据并获取SDK输出的纹理
     void Update()
     {
 #if UNITY_EDITOR || UNITY_STANDALONE
@@ -377,7 +391,9 @@ public class RenderToTexture : MonoBehaviour
         }
     }
 
+    //加载道具完毕的委托
     public delegate void LoadItemCallback(Item item);
+    /**\brief 封装过的加载道具用的接口，配合slot的概念和item这个struct控制多个不同类型的道具的加载卸载\param item 要加载的道具的item，封装过的道具信息集合，方便业务逻辑，详见itemconfig\param slotid  道具要加载的位置（slot），默认值为0，即slot数组的第0位\param cb  加载道具完毕后会自动执行的回调，可以为空\return 无*/
     public IEnumerator LoadItem(Item item, int slotid = 0, LoadItemCallback cb=null)
     {
         if (LoadingItem == false && item.fullname != null && item.fullname.Length != 0 && slotid >= 0 && slotid < SLOTLENGTH)
@@ -438,6 +454,7 @@ public class RenderToTexture : MonoBehaviour
         }
     }
 
+    //输入道具名字返回道具ID
     public int GetItemIDbyName(string name)
     {
         for(int i=0;i< SLOTLENGTH; i++)
@@ -448,6 +465,7 @@ public class RenderToTexture : MonoBehaviour
         return 0;
     }
 
+    //输入slotid返回道具名字
     public string GetItemNamebySlotID(int slotid)
     {
         if (slotid >= 0 && slotid < SLOTLENGTH)
@@ -457,6 +475,7 @@ public class RenderToTexture : MonoBehaviour
         return "";
     }
 
+    //输入道具名字返回道具在slot数组第几个（即slotid）
     public int GetSlotIDbyName(string name)
     {
         for (int i = 0; i < SLOTLENGTH; i++)
@@ -467,11 +486,13 @@ public class RenderToTexture : MonoBehaviour
         return -1;
     }
 
+    //输入道具名字卸载道具
     public bool UnLoadItem(string itemname)
     {
         return UnLoadItem(GetSlotIDbyName(itemname));
     }
 
+    //输入slotid卸载在该位置的道具
     public bool UnLoadItem(int slotid)
     {
         if (slotid >= 0 && slotid< SLOTLENGTH)
@@ -490,6 +511,7 @@ public class RenderToTexture : MonoBehaviour
         return false;
     }
 
+    //卸载所有道具
     public void UnLoadAllItems()
     {
         Debug.Log("UnLoadAllItems");
@@ -502,11 +524,13 @@ public class RenderToTexture : MonoBehaviour
         }
     }
 
+    /**\brief 输入一张图片给道具当成纹理用\param itemname 道具的名字\param paramdname  关联图片的关键词\param value  图片的buffer的指针\param width  图片宽\param height  图片高\return 无*/
     public void CreateTexForItem(string itemname, string paramdname, IntPtr value, int width, int height)
     {
         CreateTexForItem(GetSlotIDbyName(itemname), paramdname, value, width, height);
     }
 
+    /**\brief 输入一张图片给道具当成纹理用\param slotid 道具在slot数组中的index\param paramdname  关联图片的关键词\param value  图片的buffer的指针\param width  图片宽\param height  图片高\return 无*/
     public void CreateTexForItem(int slotid, string paramdname, IntPtr value,int width,int height)
     {
         if (slotid >= 0 && slotid < SLOTLENGTH)
@@ -515,11 +539,13 @@ public class RenderToTexture : MonoBehaviour
         }
     }
 
+    /**\brief 删除关联道具的纹理\param itemname 道具的名字\param paramdname  关联图片的关键词\return 无*/
     public void DeleteTexForItem(string itemname, string paramdname)
     {
         DeleteTexForItem(GetSlotIDbyName(itemname), paramdname);
     }
 
+    /**\brief 删除关联道具的纹理\param slotid 道具在slot数组中的index\param paramdname  关联图片的关键词\return 无*/
     public void DeleteTexForItem(int slotid, string paramdname)
     {
         if (slotid >= 0 && slotid < SLOTLENGTH)
@@ -528,11 +554,13 @@ public class RenderToTexture : MonoBehaviour
         }
     }
 
+    /**\brief 给道具设置一个数组\param itemname 道具的名字\param paramdname  关联数组的关键词\param value  要设置的数组\return 无*/
     public void SetItemParamdv(string itemname, string paramdname, double[] value)
     {
         SetItemParamdv(GetSlotIDbyName(itemname), paramdname, value);
     }
 
+    /**\brief 给道具设置一个数组\param slotid 道具在slot数组中的index\param paramdname  关联数组的关键词\param value  要设置的数组\return 无*/
     public void SetItemParamdv(int slotid, string paramdname, double[] value)
     {
         if (slotid >= 0 && slotid < SLOTLENGTH && value!=null && value.Length>0)
@@ -544,11 +572,13 @@ public class RenderToTexture : MonoBehaviour
         }
     }
 
+    /**\brief 给道具设置一个double参数\param itemname 道具的名字\param paramdname  关联参数的关键词\param value  要设置的参数\return 无*/
     public void SetItemParamd(string itemname, string paramdname, double value)
     {
         SetItemParamd(GetSlotIDbyName(itemname), paramdname, value);
     }
 
+    /**\brief 给道具设置一个double参数\param slotid 道具在slot数组中的index\param paramdname  关联参数的关键词\param value  要设置的参数\return 无*/
     public void SetItemParamd(int slotid, string paramdname, double value)
     {
         if (slotid >= 0 && slotid< SLOTLENGTH)
@@ -557,12 +587,15 @@ public class RenderToTexture : MonoBehaviour
         }
     }
 
+
+    /**\brief 获取道具中的某个double参数值\param itemname 道具的名字\param paramdname  关联参数的关键词\return double参数值*/
     public double GetItemParamd(string itemname, string paramdname)
     {
 
         return GetItemParamd(GetSlotIDbyName(itemname), paramdname);
     }
 
+    /**\brief 获取道具中的某个double参数值\param slotid 道具在slot数组中的index\param paramdname  关联参数的关键词\return double参数值*/
     public double GetItemParamd(int slotid, string paramdname)
     {
         if (slotid >= 0 && slotid < SLOTLENGTH)
@@ -572,11 +605,13 @@ public class RenderToTexture : MonoBehaviour
         return 0;
     }
 
+    /**\brief 给道具设置一个string参数\param itemname 道具的名字\param paramdname  关联参数的关键词\param value  要设置的参数\return 无*/
     public void SetItemParams(string itemname, string paramdname, string value)
     {
         SetItemParams(GetSlotIDbyName(itemname), paramdname, value);
     }
 
+    /**\brief 给道具设置一个string参数\param slotid 道具在slot数组中的index\param paramdname  关联参数的关键词\param value  要设置的参数\return 无*/
     public void SetItemParams(int slotid, string paramdname, string value)
     {
         if (slotid >= 0 && slotid < SLOTLENGTH)
@@ -585,11 +620,13 @@ public class RenderToTexture : MonoBehaviour
         }
     }
 
+    /**\brief 获取道具中的某个string参数值\param itemname 道具的名字\param paramdname  关联参数的关键词\return string参数值*/
     public string GetItemParams(string itemname, string paramdname)
     {
         return GetItemParams(GetSlotIDbyName(itemname),paramdname);
     }
 
+    /**\brief 获取道具中的某个string参数值\param slotid 道具在slot数组中的index\param paramdname  关联参数的关键词\return string参数值*/
     public string GetItemParams(int slotid, string paramdname)
     {
         if (slotid >= 0 && slotid < SLOTLENGTH)
@@ -601,6 +638,7 @@ public class RenderToTexture : MonoBehaviour
         return "";
     }
 
+    /**\brief 给指定slotid位置的道具设置镜像参数，详见文档\param slotid 道具在slot数组中的index\return 无*/
     public void SetItemMirror(int slotid)
     {
         if (slotid < 0 || slotid >= SLOTLENGTH)
