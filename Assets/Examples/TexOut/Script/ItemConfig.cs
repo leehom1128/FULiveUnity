@@ -22,6 +22,14 @@ public enum ItemType
     //...更多类型道具请咨询技术支持
 }
 
+public enum FUAI_CAMERA_VIEW
+{
+    ROT_0 = 0,
+    ROT_90 = 1,
+    ROT_180 = 2,
+    ROT_270 = 3,
+}
+
 //这个struct只是为了方便Texout场景的搭建，建议谨慎参考
 //这个struct关联了一个道具的各种数据，包括名字，相对加载路径，UI的ID，道具提示信息，道具的种类
 public struct Item
@@ -57,10 +65,12 @@ public class ItemConfig
 
     public static Item[] makeup ={
         new Item { name = "face_makeup", fullname = "face_makeup", iconid = -1 ,type=ItemType.Makeup},
+        new Item { name = "new_face_tracker_normal", fullname = "new_face_tracker_normal", iconid = -1 ,type=ItemType.Makeup},
     };
 
     //Animoji
     public static Item[] item_1 = {
+        new Item { name = "qgirl_Animoji", fullname = "items/Animoji/qgirl_Animoji", iconid = 7 ,type=ItemType.Animoji},
         new Item { name = "frog_Animoji", fullname = "items/Animoji/frog_Animoji", iconid = 2 ,type=ItemType.Animoji},
         new Item { name = "huangya_Animoji", fullname = "items/Animoji/huangya_Animoji", iconid = 5 ,type=ItemType.Animoji},
         new Item { name = "hetun_Animoji", fullname = "items/Animoji/hetun_Animoji", iconid = 4 ,type=ItemType.Animoji},
@@ -229,7 +239,7 @@ public class BeautyConfig
     //全局开关 is_beauty_on: 1, 美颜道具开关 0关闭 1开启
     public static Beauty[] beautySkin_1 = {
         new Beauty { name = "精准美肤", paramword = "skin_detect", maxvalue=1, defaultvalue=1, disablevalue=0, iconid_0 = 0,iconid_1=1 },//0-1 int,d=0
-        new Beauty { name = "清晰磨皮", paramword = "heavy_blur", maxvalue=1, defaultvalue=0, disablevalue=0, iconid_0 = 2,iconid_1=3 },//0-1 int,d=0 朦胧磨皮
+        new Beauty { name = "清晰磨皮", paramword = "blur_type", maxvalue=2, defaultvalue=0, disablevalue=0, iconid_0 = 2,iconid_1=3 },//0-2 int,d=0 朦胧磨皮,d=1 重度磨皮,d=2 精细磨皮
         new Beauty { name = "磨皮", paramword = "blur_level", maxvalue=6, defaultvalue=6, disablevalue=0, iconid_0 = 2,iconid_1=3 },//0-6 int,
         new Beauty { name = "美白", paramword = "color_level", maxvalue=1, defaultvalue=0.5f, disablevalue=0, iconid_0 = 4,iconid_1=5 },//0-1f
         new Beauty { name = "红润", paramword = "red_level", maxvalue=1, defaultvalue=0.5f, disablevalue=0, iconid_0 = 6,iconid_1=7 },//0-1f
@@ -267,19 +277,19 @@ public class BeautyConfig
             filter_name = "fennen3", filter_intensity = 1.0f},
         new Makeup { name="西柚", intensity = 1.0f, iconid = 2,
             Lipstick_color = new double[4] { 0.94,0.29,0.11,0.4 },Lipstick_intensity = 0.8f,
-            Blush_id = 22, Blush_intensity = 1.0f,
+            Blush_id = 1, Blush_intensity = 1.0f,
             Eyebrow_id = 18, Eyebrow_intensity = 0.6f,
             Eyeshadow_id = 20, Eyeshadow_intensity = 0.75f,
             filter_name = "lengsediao4", filter_intensity = 0.7f},
         new Makeup { name="清透", intensity = 0.9f, iconid = 3,
             Lipstick_color = new double[4] { 0.89,0.59,0.58,0.50 },Lipstick_intensity = 0.8f,
-            Blush_id = 21, Blush_intensity = 0.9f,
+            Blush_id = 2, Blush_intensity = 0.9f,
             Eyebrow_id = 17, Eyebrow_intensity = 0.45f,
             Eyeshadow_id = 19, Eyeshadow_intensity = 0.65f,
             filter_name = "xiaoqingxin1", filter_intensity = 0.8f},
         new Makeup { name="男友", intensity = 1.0f, iconid = 4,
             Lipstick_color = new double[4] { 0.88,0.55,0.51,0.70 },Lipstick_intensity = 1.0f,
-            Blush_id = 19, Blush_intensity = 0.8f,
+            Blush_id = 3, Blush_intensity = 0.8f,
             Eyebrow_id = 15, Eyebrow_intensity = 0.65f,
             Eyeshadow_id = 17, Eyeshadow_intensity = 0.9f,
             filter_name = "xiaoqingxin3", filter_intensity = 0.9f},

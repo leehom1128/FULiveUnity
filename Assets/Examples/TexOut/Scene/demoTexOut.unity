@@ -597,6 +597,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: d044549ba690d9b42b4f5d7e1d89e24d, type: 3}
   - {fileID: 21300000, guid: 6e9f876af8b23834da0237341d209d38, type: 3}
   - {fileID: 21300000, guid: 911faf1ccf6ff7d4cbccd563d34881ad, type: 3}
+  - {fileID: 21300000, guid: 71f3693b4db216d4780097fd2fb1973c, type: 3}
   ItemSticker:
   - {fileID: 21300000, guid: 8144171c2c93792428622895ece3a106, type: 3}
   - {fileID: 21300000, guid: a07059f19b4f8fa4ebfe1eb59b8de0f9, type: 3}
@@ -656,30 +657,11 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 33f8a4d267a942b469da489a9a4cad36, type: 3}
   - {fileID: 21300000, guid: 501dd916eeb7ceb43b7a6a358a1c3fe2, type: 3}
   MakeupBlush:
-  - {fileID: 2800000, guid: 1c6da124f4ee5bc498822ffcde727f81, type: 3}
-  - {fileID: 2800000, guid: 85135af0ef016d444954dd579726c3d5, type: 3}
-  - {fileID: 2800000, guid: 604564c4b7381584f8aec8f9d0ce0e15, type: 3}
-  - {fileID: 2800000, guid: 34375a7233f43ab47b65d3bb870d330b, type: 3}
-  - {fileID: 2800000, guid: 3d11b33644b242d48ab73cf89b751d36, type: 3}
-  - {fileID: 2800000, guid: b5fd958a3f2e9654c862fa149003ab2f, type: 3}
-  - {fileID: 2800000, guid: 95485338426c9db4aadfb35821c5ed73, type: 3}
-  - {fileID: 2800000, guid: 2f34158e062aa6743b79e86da4d5d014, type: 3}
-  - {fileID: 2800000, guid: a569b9b50e03240479050b028c461c9b, type: 3}
-  - {fileID: 2800000, guid: 4bfddc08d41af3646a41cb4b18633941, type: 3}
-  - {fileID: 2800000, guid: ed5b5834963727845af3a50592c7d8c6, type: 3}
-  - {fileID: 2800000, guid: 28340109ca9018447a1fe2d052277fcd, type: 3}
-  - {fileID: 2800000, guid: 5c22be580b251904298da065723f8f92, type: 3}
-  - {fileID: 2800000, guid: 0fdf15a1ae9f5fd4496f2a7f1a71c151, type: 3}
-  - {fileID: 2800000, guid: c2e62fb6850ff90499b1162264fdb367, type: 3}
-  - {fileID: 2800000, guid: 066752b1dca49a447848d9ce01f71551, type: 3}
-  - {fileID: 2800000, guid: 92523bdca84d1a14e952fca8c943c32c, type: 3}
-  - {fileID: 2800000, guid: 262dc29218beec04daffcdf4ea08a594, type: 3}
-  - {fileID: 2800000, guid: 078e0dca66c6fd845bd9b1ec14f4bb8e, type: 3}
-  - {fileID: 2800000, guid: 841a2d092d6d1d942a87cf3c77ef1c72, type: 3}
-  - {fileID: 2800000, guid: 520af664307749a4293a0d157b9eb139, type: 3}
-  - {fileID: 2800000, guid: 272a3ad7638d275438890c0a4809ab0e, type: 3}
-  - {fileID: 2800000, guid: 7ce497669788ef746bef268f76997965, type: 3}
-  - {fileID: 2800000, guid: 13f69102cc693d64d9493f298c198328, type: 3}
+  - {fileID: 2800000, guid: bee27d1fee8148f4182d91d3b656d6ee, type: 3}
+  - {fileID: 2800000, guid: 6c8cf3501e85ede419535d71fc7542d5, type: 3}
+  - {fileID: 2800000, guid: 153ba6a204a6cc84986c9368355b3725, type: 3}
+  - {fileID: 2800000, guid: 89810d9115c208b4099c6091d2fb7179, type: 3}
+  - {fileID: 2800000, guid: e618b1fe7571b1e4285bff882b77e2e3, type: 3}
   MakeupEyebrow:
   - {fileID: 2800000, guid: 2c3e06585a3aa334f8ba73be9f60ef85, type: 3}
   - {fileID: 2800000, guid: 08803c5eb9c7f4a499f36e922c2f617a, type: 3}

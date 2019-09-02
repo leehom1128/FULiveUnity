@@ -96,6 +96,7 @@ public class UIManagerForTexOut : MonoBehaviour
         Item = 1,
         CommonFilter,
         Makeup,
+        MakeupAssist,
     };
 
     void Awake()
@@ -184,6 +185,13 @@ public class UIManagerForTexOut : MonoBehaviour
         RegisterUIFunc();
     }
 
+    IEnumerator LoadMakeupBundle()
+    {
+        //这个库需要调整需要跟踪的方向，详见RenderToTexture的SetItemMirror
+        yield return rtt.LoadItem(ItemConfig.makeup[1], (int)SlotForItems.MakeupAssist);
+
+        yield return rtt.LoadItem(ItemConfig.makeup[0], (int)SlotForItems.Makeup);
+    }
 
 
     void SetItemTypeEnable(int i,bool ifenable)
@@ -231,7 +239,7 @@ public class UIManagerForTexOut : MonoBehaviour
                     if (go.name.CompareTo(ItemType.Beauty.ToString())==0)
                     {
                         //新版美妆
-                        StartCoroutine(rtt.LoadItem(ItemConfig.makeup[0], (int)SlotForItems.Makeup));
+                        StartCoroutine(LoadMakeupBundle());
                         OpenBeautySkinUI(BeautySkinType.None);
                     }
                     else
@@ -302,7 +310,7 @@ public class UIManagerForTexOut : MonoBehaviour
         OnCancelTakePicture();
     }
 
-    #region BeautySkinUI
+#region BeautySkinUI
 
     void OpenBeautySkinUI(BeautySkinType type)
     {
@@ -369,28 +377,38 @@ public class UIManagerForTexOut : MonoBehaviour
                 }
                 else
                 {
-                    bi1.currentvalue = bi1.currentvalue == bi1.disablevalue ? bi1.maxvalue : bi1.disablevalue;
-                    if (bi1.currentvalue == bi1.maxvalue)
-                    {
-                        go.GetComponentInChildren<Text>().text = "朦胧磨皮";
-                    }
-                    else
+                    bi1.currentvalue++;
+                    bi1.currentvalue = bi1.currentvalue % (bi1.maxvalue + 1); //0~2 循环
+                    //bi1.currentvalue = bi1.currentvalue == bi1.disablevalue ? bi1.maxvalue : bi1.disablevalue;
+                    if (bi1.currentvalue == 0)
                     {
                         go.GetComponentInChildren<Text>().text = "清晰磨皮";
+                    }
+                    else if (bi1.currentvalue == 1)
+                    {
+                        go.GetComponentInChildren<Text>().text = "重度磨皮";
+                    }
+                    else if(bi1.currentvalue == 2)
+                    {
+                        go.GetComponentInChildren<Text>().text = "精细磨皮";
                     }
                     rtt.SetItemParamd(BeautySkinItemName, BeautyConfig.beautySkin_1[1].paramword, bi1.currentvalue);
                 }
             });
-            if (BeautyConfig.beautySkin_1[1].currentvalue == BeautyConfig.beautySkin_1[1].maxvalue)
-            {
-                bgo1.GetComponentInChildren<Text>().text = "朦胧磨皮";
-            }
-            else
+            if (BeautyConfig.beautySkin_1[1].currentvalue == 0)
             {
                 bgo1.GetComponentInChildren<Text>().text = "清晰磨皮";
             }
+            else if (BeautyConfig.beautySkin_1[1].currentvalue == 1)
+            {
+                bgo1.GetComponentInChildren<Text>().text = "重度磨皮";
+            }
+            else if (BeautyConfig.beautySkin_1[1].currentvalue == 2)
+            {
+                bgo1.GetComponentInChildren<Text>().text = "精细磨皮";
+            }
 
-            for (int i = 3; i < BeautyConfig.beautySkin_1.Length; i++)
+                for (int i = 3; i < BeautyConfig.beautySkin_1.Length; i++)
             {
                 AddBeautySkinOptions(i, BeautyConfig.beautySkin_1[i]).GetComponent<AddClickEvent>().AddListener(delegate (GameObject go)
                  {
@@ -808,9 +826,9 @@ public class UIManagerForTexOut : MonoBehaviour
         BeautySkinContent.SetActive(false);
         BeautySkinSelecter.SetActive(false);
     }
-    #endregion
+#endregion
 
-    #region ItemsUI
+#region ItemsUI
 
     void OpenItemsUI(string it)
     {
@@ -1010,7 +1028,7 @@ public class UIManagerForTexOut : MonoBehaviour
     {
         Item_Content.SetActive(false);
     }
-    #endregion
+#endregion
 
     void OnApplicationQuit()
     {

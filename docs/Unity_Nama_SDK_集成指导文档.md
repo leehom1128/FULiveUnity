@@ -1,29 +1,16 @@
 # Unity Nama SDK 集成指导文档  
 级别：Public
-更新日期：2019-06-27
+更新日期：2019-08-14
 
 ------
 ## 最新更新内容：
 
-2019-06-27 v6.2.0：
+2019-08-14 v6.3.0：
 
-- 优化人脸检测，提高正脸大角度检测率。
+- 优化人脸美妆功能，提高性能，降低功耗。
+- 新增fuSetFaceTrackParam接口，用于设置人脸表情跟踪参数。 
 
-- 优化背景分割，提高边缘稳定性。
-
-- 优化手势识别，提供15种手势；手势模型支持独立运行，见FUCreator文档。
-
-- 优化人脸美妆，提高准确度，支持更丰富的效果。
-
-- 修复多人脸舌头跟踪相互影响问题。 
-
-- 修复avatar模式下fxaa抗锯齿失效问题。
-
-- 废弃高精度模型 armesh_ex.bundle，以及对应的接口 fuLoadExtendedARData。
-
-- 废弃人脸表情动画模型 anim_model.bundle, 以及对应的接口 fuLoadAnimModel。
-
-  注：废弃的数据以及接口，可能引起编译不通过，移除代码即可。
+- 新增人脸美颜精细磨皮效果。
 
 ------
 ## 目录：
@@ -379,7 +366,6 @@ eye_bright   取值范围 0.0-1.0,0.0为无效果，1.0为最大效果，默认�
 
 ```
 tooth_whiten   取值范围 0.0-1.0,0.0为无效果，1.0为最大效果，默认值1.0
-
 ```
 
 注意：美牙为高级美颜功能，需要相应证书权限才能使用
@@ -543,9 +529,10 @@ yield return rtt.LoadItem(ItemConfig.item_11[0], (int)SlotForItems.Item);
 
 ### 4.13 质感美颜
 
-这个选项本质不是某类道具，而是美颜和美妆的组合，其中美颜部分请参考上述内容，美妆部分请参考[美妆道具功能文档](美妆道具功能文档.md)。
+这个选项本质不是某类道具，而是美颜和美妆的组合，其中美颜部分请参考上述内容，美妆部分请参考[美妆道具功能文档](美妆道具功能文档.md)。美妆道具依赖一个独立的bundle（MakeupAssist）这个bundle要一起加载。
 
 ```c#
+yield return rtt.LoadItem(ItemConfig.makeup[1], (int)SlotForItems.MakeupAssist);
 yield return rtt.LoadItem(ItemConfig.makeup[0], (int)SlotForItems.Makeup);
 ```
 

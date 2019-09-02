@@ -1,10 +1,13 @@
 # Unity Nama C# API 参考文档
 级别：Public 
-更新日期：2019-06-27
-SDK版本: 6.2.0
+更新日期：2019-08-14
 
 ------
 ### 最新更新内容：
+
+2019-08-14 v6.3.0:
+
+1. 新增fuSetFaceTrackParam函数，用于设置人脸跟踪参数。
 
 2019-06-27 v6.2.0:
 
@@ -463,7 +466,7 @@ __备注:__
 
 ```
 - 设置 `name == "use_new_cnn_detection"` ，且 `pvalue == 1` 则使用默认的CNN-Based人脸检测算法，否则 `pvalue == 0`则使用传统人脸检测算法。默认开启该模式。
-- 设置 `name == "other_face_detection_frame_step"` ，如果当前状态已经检测到一张人脸后，可以通过设置该参数，每隔`step`帧再进行其他人脸检测，有助于提高性能，设置过大会导致延迟感明显,默认值10。。
+- 设置 `name == "other_face_detection_frame_step"` ，如果当前状态已经检测到一张人脸后，可以通过设置该参数，每隔`step`帧再进行其他人脸检测，有助于提高性能，设置过大会导致延迟感明显。
 
 如果`name == "use_new_cnn_detection"` ，且 `pvalue == 1` 已经开启：
 - `name == "use_cross_frame_speedup"`，`pvalue==1`表示，开启交叉帧执行推理，每帧执行半个网络，下帧执行下半个网格，可提高性能。默认 `pvalue==0`关闭。
@@ -478,6 +481,7 @@ __备注:__
 - `name == "size_max"`，最大人脸大小，多少像素。 默认最大，参考640x480分辨率。
 - `name == "min_neighbors"`，内部参数, 默认 3.f
 - `name == "min_required_variance"`， 内部参数, 默认 15.f
+- `name == "is_mono"`，设置输入源是否是单目相机。
 ```
 
 ```c#
@@ -495,7 +499,32 @@ __返回值:__
 
 __备注:__
 
-这个接口会**延迟**生效。
+这个接口会**立即**生效。
+
+------
+
+##### fu_SetFaceTrackParam函数
+
+```
+- 设置 `name == "mouth_expression_more_flexible"` ，`pvalue = [0,1]`，默认 `pvalue = 0` ，从0到1，数值越大，嘴部表情越灵活。  
+```
+
+```c#
+ public static extern int fu_SetFaceTrackParam([MarshalAs(UnmanagedType.LPStr)]string name, IntPtr value);
+```
+
+__参数:__
+
+*name*: 参数名
+*value*: 参数指针
+
+__返回值:__
+
+无
+
+__备注:__
+
+这个接口会**立即**生效。
 
 ---
 

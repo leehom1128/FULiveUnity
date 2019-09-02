@@ -713,6 +713,26 @@ public class RenderToTexture : MonoBehaviour
         FaceunityWorker.fu_ItemSetParamd(itemid, "isFlipTrack", param);
         //isFlipLight 参数是用于对道具内部的灯光的镜像
         FaceunityWorker.fu_ItemSetParamd(itemid, "isFlipLight", param);
+
+        //这里的设置是为了new_face_tracker_normal这个新跟踪库，这个跟踪库一次只会跟踪一个方向，因此需要主动调整跟踪的方向（绕垂直于手机屏幕的轴旋转0，90，180，270度）
+#if UNITY_EDITOR || UNITY_STANDALONE
+        if (item.name.CompareTo(ItemConfig.makeup[1].name) == 0)
+            FaceunityWorker.fu_ItemSetParamd(itemid, "orientation", (float)FUAI_CAMERA_VIEW.ROT_180);
+#endif
+#if !UNITY_EDITOR && UNITY_ANDROID
+        if (item.name.CompareTo(ItemConfig.makeup[1].name) == 0)
+        {
+            if (ifMirrored)
+                FaceunityWorker.fu_ItemSetParamd(itemid, "orientation", (float)FUAI_CAMERA_VIEW.ROT_270);
+            else
+                FaceunityWorker.fu_ItemSetParamd(itemid, "orientation", (float)FUAI_CAMERA_VIEW.ROT_90);
+        }
+#endif
+#if !UNITY_EDITOR && UNITY_IOS
+        if (item.name.CompareTo(ItemConfig.makeup[1].name) == 0)
+            FaceunityWorker.fu_ItemSetParamd(itemid, "orientation", (float)FUAI_CAMERA_VIEW.ROT_180);
+#endif
+
     }
 
     private void OnApplicationQuit()
