@@ -145,7 +145,6 @@ public class ItemConfig
          new Item { name = "ssd_thread_cute", fullname = "items/GestureRecognition/ssd_thread_cute", iconid = 3 ,type=ItemType.GestureRecognition,tip ="双拳靠近脸颊卖萌"},
          new Item { name = "ssd_thread_korheart", fullname = "items/GestureRecognition/ssd_thread_korheart", iconid = 4 ,type=ItemType.GestureRecognition,tip ="单手手指比心"},
          new Item { name = "ssd_thread_six", fullname = "items/GestureRecognition/ssd_thread_six", iconid = 5 ,type=ItemType.GestureRecognition,tip ="比个六"},
-         new Item { name = "ssd_thread_thumb", fullname = "items/GestureRecognition/ssd_thread_thumb", iconid = 6 ,type=ItemType.GestureRecognition,tip ="竖个拇指"},
     };
 
     //MagicMirror

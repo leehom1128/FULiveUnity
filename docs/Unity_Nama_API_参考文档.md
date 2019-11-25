@@ -1,27 +1,33 @@
 # Unity Nama C# API 参考文档
-级别：Public 
-更新日期：2019-08-14
+级别：Public
+更新日期：2019-09-25 
+SDK版本: 6.4.0 
 
 ------
-### 最新更新内容：
+
+## 最新更新内容：
+
+2019-09-25 v6.4.0:
+
+- v6.4.0 接口无变动。
 
 2019-08-14 v6.3.0:
 
-1. 新增fuSetFaceTrackParam函数，用于设置人脸跟踪参数。
+- 新增fuSetFaceTrackParam函数，用于设置人脸跟踪参数。
 
 2019-06-27 v6.2.0:
 
-1. fu_SetFaceDetParam函数增加可设置参数。
+- fu_SetFaceDetParam函数增加可设置参数。
 
 2019-05-27 v6.1.0:
 
-1. 新增fu_SetupLocal函数，支持离线鉴权。
-2. 新增fu_DestroyLibData函数，支持tracker内存释放。
+- 新增fu_SetupLocal函数，支持离线鉴权。
+- 新增fu_DestroyLibData函数，支持tracker内存释放。
 
 2019-04-28 v6.0.0:
 
-1. 新增fu_SetFaceDetParam函数，用于设置人脸检测参数。
-2. 更新了fu_Setup函数。
+- 新增fu_SetFaceDetParam函数，用于设置人脸检测参数。
+- 更新了fu_Setup函数。
 
 ------
 ### 目录：
