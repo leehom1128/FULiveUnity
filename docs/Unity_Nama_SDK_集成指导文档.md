@@ -1,10 +1,41 @@
 # Unity Nama SDK 集成指导文档  
 级别：Public
-更新日期：2019-09-25 
-SDK版本: 6.4.0 
+更新日期：2020-01-19 
+SDK版本: 6.6.0 
 
 ------
 ## 最新更新内容：
+
+2020-01-19 v6.6.0：
+
+__版本整体说明:__ SDK 6.6.0 主要针对美颜、美妆进行效果优化，性能优化，稳定性优化，同时新增部分特性，使得美颜、美妆效果进入行业顶尖水平。建议对美颜、美妆需求较高的B端用户更新SDK。  
+__注意!!!__：此版本由于底层替换原因，表情识别跟踪能力稍有降低，特别是Animoji、表情触发道具的整体表情表现力稍有减弱。Animoji的皱眉、鼓嘴、嘟嘴等动作表现效果比之较差，表情触发道具的发怒（皱眉）、鼓嘴、嘟嘴的表情触发道具较难驱动。其余ARMesh、哈哈镜、明星换脸、动态人像（活照片）的面部跟踪整体稍有10%的效果减弱。故用到表情驱动的功能重度B端用户，仍建议使用SDK6.4.0版，使用其余功能（美颜叠加贴纸等其余功能）的场景不受影响，表情识别跟踪能力将在下一版进行优化更新。   
+
+- 美颜优化：  
+  1). 新增美型6款功能，包括开眼角、眼距、眼睛角度、长鼻、缩人中、微笑嘴角。
+   2). 新增17款滤镜，其中包含8款自然系列滤镜、8款质感灰系列滤镜、1款个性滤镜。
+   3). 优化美颜中亮眼、美牙效果。
+   4). 优化美颜中3个脸型，调整优化使得V脸、窄脸、小脸效果更自然。
+   5). 优化美白红润强度，美白、红润功能开放2倍参数，详见美颜文档。
+- 美妆优化：  
+  1). 新增13套自然系组合妆，13套组合妆是滤镜+美妆的整体效果，可自定义。
+   2). 新增3款口红质地：润泽、珠光、咬唇。
+   3). 提升美妆点位准确度 ，人脸点位由209点增加至 239点。
+   4). 优化美妆素材叠加方式，使得妆容效果更加服帖自然。
+   5). 优化粉底效果，更加贴合人脸轮廓。
+- 提升人脸点位跟踪灵敏度，快速移动时跟踪良好，使美颜美妆效果跟随更紧密。
+- 提升人脸点位的稳定性，解决了半张脸屏幕、大角度、遮挡等场景的阈值抖动问题，点位抖动问题也明显优化。
+- 提升人脸跟踪角度，人脸最大左右偏转角提升至70度，低抬头检测偏转角也明显提升。
+- 优化美发道具CPU占有率，Android/iOS提升约30%
+- 新增MSAA抗锯齿接口，fuSetMultiSamples，解决虚拟形象（animoji与捏脸功能）边缘锯齿问题，详见接口文档。
+- 架构升级，支持底层AI算法能力和业务逻辑拆分，优化性能，使得系统更加容易扩展和更新迭代：  
+  1). 新增加接口 fuLoadAIModelFromPackage 用于加载AI能力模型。
+   2). 新增加接口 fuReleaseAIModel 用于释放AI能力模型。
+   3). 新增加接口 fuIsAIModelLoaded 用于判断AI能力是否已经加载。
+
+__注1__：从SDK 6.6.0 开始，为了更新以及迭代更加方便，由原先一个nama.so拆分成两个库nama.so以及fuai.so，其中nama.so为轻量级渲染引擎，fuai.so为算法引擎。升级6.6.0时，需添加fuai库。  
+__注2__: 更新SDK 6.6.0时，在fuSetup之后，需要马上调用 fuLoadAIModelFromPackage 加载 ai_faceprocessor.bundle !!!  
+__注3__: SDK 6.6.0 进行较大的架构调整 , 架构上拆分底层算法能力和业务场景，使得SDK更能够按需复用算法模块，节省内存开销，算法能力模块后期更容易维护升级，使用方式详见新增加的一组接口定义fuLoadAIModelFromPackage / fuReleaseAIModel / fuIsAIModelLoaded 。  
 
 2019-09-25 v6.4.0:
 
@@ -23,6 +54,13 @@ SDK版本: 6.4.0
 - 新增fuSetFaceTrackParam接口，用于设置人脸表情跟踪参数。 
 
 - 新增人脸美颜精细磨皮效果。
+
+**工程案例更新：**
+
+- 由于Nama 6.6的内部机制更新，AI和渲染分离，现在Nama运行在FU_Mode_RenderItems模式下（渲染Nama道具）时，如果不加载任何道具，Nama也不会运行任何AI逻辑，此时无法进行人脸检测等操作，也无法拿到相关数据！！！因此本工程案例里在DataOut场景和Simple场景中都添加了自动加载一个空道具的逻辑，以应对出现的问题。
+- 当Nama运行在FU_Mode_TrackFace模式下时，无需加载任何道具，会自动跑人脸识别的AI逻辑
+- Nama6.6同时也带来了道具加载卸载机制的更新，新的道具加载卸载接口已经全部都是同步接口，调用后立即执行，没有异步没有协程，简化了道具加载卸载的逻辑复杂度。
+- 本次更新添加了一个C#封装函数以更新默认道具/跟踪方向，这个函数会根据当前平台环境、相机是否镜像以及重力感应方向，自动设置道具和跟踪的默认方向，在Texout场景中需要每帧调用以适应重力感应，Dataout场景只需相机切换时调用。具体描述请看API文档，具体应用请看本函数在Demo中的引用。
 
 ------
 ## 目录：
@@ -78,8 +116,17 @@ SDK版本: 6.4.0
       -FaceunityWorker.cs：负责初始化faceunity插件并引入C++接口，初始化完成后每帧更新人脸跟踪数据
     +StreamingAssets		//数据文件目录
       -v3.bytes：SDK的数据文件，缺少该文件会导致初始化失败
-      -tongue.bytes：舌头跟踪必须的文件
-      -EnableTongueForUnity.bytes：某种情况下获取舌头跟踪数据需要加载的文件
+      -ai_face_processor.bytes：初始化完成后必须加载的AI数据文件
+      -ai_bgseg.bytes：背景分割AI数据文件
+      -ai_bgseg_green.bytes：带绿幕的背景分割AI数据文件
+      -ai_facelandmarks75.bytes：人脸跟踪（75特征点）AI数据文件
+      -ai_facelandmarks209.bytes：人脸跟踪（209特征点）AI数据文件
+      -ai_facelandmarks239.bytes：人脸跟踪（239特征点）AI数据文件
+      -ai_gesture.bytes：手势跟踪AI数据文件
+      -ai_hairseg.bytes：头发分割AI数据文件
+      -ai_humanpose.bytes：人体姿态跟踪AI数据文件
+      -tongue.bytes：舌头跟踪AI数据文件
+      -EmptyItem.bytes：空道具，FU_Mode_RenderItems模式下，如果不想加载其他道具，则加载这个，以获取人脸跟踪数据
   +docs					//文档目录
   +ProjectSettings   	//Unity工程配置目录
   -readme.md			//工程总文档
@@ -176,6 +223,9 @@ public enum FURuningMode
 
 fu_SetRuningMode可以设置本插件运行模式，针对需求设置运行模式可以大大提高效率。FU_Mode_RenderItems为默认运行模式，可以在FaceunityWorker.cs中自行更改初始值，也可在运行时更改。具体各项效果请查看API文档。
 
+- 由于Nama 6.6的内部机制更新，AI和渲染分离，现在Nama运行在FU_Mode_RenderItems模式下（渲染Nama道具）时，如果不加载任何道具，Nama也不会运行任何AI逻辑，此时无法进行人脸检测等操作，也无法拿到相关数据！！！因此本工程案例里在DataOut场景和Simple场景中都添加了自动加载一个空道具的逻辑，以应对出现的问题。
+- 当Nama运行在FU_Mode_TrackFace模式下时，无需加载任何道具，会自动跑人脸识别的AI逻辑
+
 **查看demoDataOut场景中的RenderToTexture或demoTexOut场景中的RenderToModel。** 
 
 这两个场景中使用了Natcam来加速视频功能，同时要处理视频旋转镜像，因此数据输入过程较为复杂。
@@ -214,7 +264,7 @@ demoDataOut场景AR模式（开启TrackPositon）的多人版本，在场景中F
 
 2.Texout场景中加载带舌头功能的道具，比如青蛙，即可展现出舌头跟踪效果。
 
-3.在Dataout场景中，FURuningMode为FU_Mode_RenderItems的时候，加载EnableTongueForUnity.bytes，才能开启舌头跟踪。FURuningMode为FU_Mode_TrackFace的时候，调用fu_SetTongueTracking(1)，才能开启舌头跟踪。注意，每次切换到FU_Mode_TrackFace之后都需要设置一次！！！
+3.在Dataout场景中，FURuningMode为FU_Mode_RenderItems的时候，加载EmptyItem.bytes，才能开启舌头跟踪。FURuningMode为FU_Mode_TrackFace的时候，调用fu_SetTongueTracking(1)，才能开启舌头跟踪。注意，每次切换到FU_Mode_TrackFace之后都需要设置一次！！！
 
 ### 3.7 输出图像数据（道具创建、销毁、切换）
 
@@ -238,19 +288,18 @@ itemid_tosdk即slot数组，里面保存了每个slot需要渲染的itemid。如
 
 ```c#
 var bundledata = Resources.LoadAsync<TextAsset>(item.fullname);
-yield return FaceunityWorker.fu_CreateItemFromPackage(pObject, bundle_bytes.Length);
-int itemid = FaceunityWorker.fu_getItemIdxFromPackage();
+int itemid = FaceunityWorker.fu_CreateItemFromPackage(pObject, bundle_bytes.Length);
 UnLoadItem(slotid); //卸载上一个在这个slot槽内的道具
 FaceunityWorker.fu_setItemIds(p_itemsid, SLOTLENGTH, IntPtr.Zero);
 ```
 
-这5行代码组成了这个接口的主要功能（这里只是伪代码），第一行调用unity的IO接口读取道具文件，第二行调用fu_CreateItemFromPackage加载道具，这个接口是个协程，它内部调用原生接口加载道具后并不会立即生效，因此会等待两帧直到道具真正加载完毕才返回，然后第三行代码去获取刚刚加载完毕的道具的itemid，因为加载完毕的道具并不会直接被渲染，这里要借助slot数组，第四行先卸载在slot数组的第N位道具，然后将刚刚得到的itemid填入slot数组的第N位，第五行设置接下来真正渲染的所有道具。
+这4行代码组成了这个接口的主要功能（这里只是伪代码），第一行调用unity的IO接口读取道具文件，第二行调用fu_CreateItemFromPackage加载道具，并返回道具的itemid，因为加载完毕的道具并不会直接被渲染，这里要借助slot数组，第3行先卸载在slot数组的第N位道具，然后将刚刚得到的itemid填入slot数组的第N位，第4行设置接下来真正渲染的所有道具。
 
 ------
 ## 4. 功能模块
 **本条案例可查看demoTexOut场景。**
 
-除特殊文件如v3.bytes、tongue.bytes以外的道具（*.bytes或 *.bundle）都可直接用LoadItem或者原生接口加载。
+除特殊文件如v3.bytes、tongue.bytes、ai_XXX.bytes这种AI数据文件以外的道具（*.bytes或 *.bundle）都可直接用LoadItem或者原生接口加载。
 
 以下功能模块均可以使用这个方法加载，以下只详细描述对应道具所独有的参数。
 
@@ -265,9 +314,8 @@ var data = bundledata.asset as TextAsset;
 byte[] bundle_bytes = data != null ? data.bytes : null;
 GCHandle hObject = GCHandle.Alloc(bundle_bytes, GCHandleType.Pinned);
 IntPtr pObject = hObject.AddrOfPinnedObject();
-yield return FaceunityWorker.fu_CreateItemFromPackage(pObject, bundle_bytes.Length);
+int itemid = FaceunityWorker.fu_CreateItemFromPackage(pObject, bundle_bytes.Length);
 hObject.Free();
-int itemid = FaceunityWorker.fu_getItemIdxFromPackage();
 var itemid_tosdk = new int[1];
 var itemid_handle = GCHandle.Alloc(itemid_tosdk, GCHandleType.Pinned);
 var p_itemsid = itemid_handle.AddrOfPinnedObject();
@@ -338,7 +386,7 @@ filter_name参数的取值和相关介绍详见：[美颜道具功能文档](美
 美白功能主要通过参数color_level来控制
 
 ```
-color_level 取值范围 0.0-1.0,0.0为无效果，1.0为最大效果，默认值0.2
+color_level 取值范围 0.0-2.0,0.0为无效果，2.0为最大效果，默认值0.5
 ```
 
 ##### 红润
@@ -346,7 +394,7 @@ color_level 取值范围 0.0-1.0,0.0为无效果，1.0为最大效果，默认�
 红润功能主要通过参数red_level 来控制
 
 ```
-red_level 取值范围 0.0-1.0,0.0为无效果，1.0为最大效果，默认值0.5
+red_level 取值范围 0.0-2.0,0.0为无效果，2.0为最大效果，默认值0.5
 ```
 
 #### 4.1.3 磨皮
@@ -411,17 +459,25 @@ face_shape: 变形取值 0:女神变形 1:网红变形 2:自然变形 3:默认�
 face_shape 为0 1 2 3时
 对应0：女神 1：网红 2：自然 3：默认
 可以使用参数
-eye_enlarging: 默认0.5, //大眼程度范围0.0-1.0
-cheek_thinning: 默认0.0,   //v脸程度范围0.0-1.0
+eye_enlarging: 	默认0.5,		//大眼程度范围0.0-1.0
+cheek_thinning:	默认0.0,  		//瘦脸程度范围0.0-1.0
 2.
-face_shape 为4时，为精细变形，添加了鼻子额头嘴巴下巴的调整
-可以使用参数
-eye_enlarging: 默认0.5, //大眼程度范围0.0-1.0
-cheek_thinning: 默认0.0,   //v脸程度范围0.0-1.0
-intensity_nose: 默认0.0,       //瘦鼻程度范围0.0-1.0
-intensity_forehead: 默认0.5,   //额头调整程度范围0.0-1.0
-intensity_mouth:默认0.5,       //嘴巴调整程度范围0.0-1.0
-intensity_chin: 默认0.5,       //下巴调整程度范围0.0-1.0
+face_shape 为4时，为用户自定义的精细变形，开放了脸型相关参数，添加了窄脸小脸参数
+eye_enlarging: 	默认0.5,		//大眼程度范围0.0-1.0
+cheek_thinning:	默认0.0,  		//瘦脸程度范围0.0-1.0
+cheek_v:	默认0.0,  		//v脸程度范围0.0-1.0
+cheek_narrow:   默认0.0,          //窄脸程度范围0.0-1.0
+cheek_small:   默认0.0,          //小脸程度范围0.0-1.0
+intensity_nose: 默认0.0,        //瘦鼻程度范围0.0-1.0
+intensity_forehead: 默认0.5,    //额头调整程度范围0.0-1.0，0-0.5是变小，0.5-1是变大
+intensity_mouth:默认0.5,       //嘴巴调整程度范围0.0-1.0，0-0.5是变小，0.5-1是变大
+intensity_chin: 默认0.5,       //下巴调整程度范围0.0-1.0，0-0.5是变小，0.5-1是变大
+intensity_philtrum：默认0.5    //人中调节范围0.0~1.0， 0.5-1.0变长，0.5-0.0变短
+intensity_long_nose：默认0.5    //鼻子长度调节范围0.0~1.0， 0.5-0.0变短，0.5-1.0变长
+intensity_eye_space：默认0.5    //眼距调节范围0.0~1.0， 0.5-0.0变长，0.5-1.0变短
+intensity_eye_rotate：默认0.5    //眼睛角度调节范围0.0~1.0， 0.5-0.0逆时针旋转，0.5-1.0顺时针旋转
+intensity_smile：默认0.0    //微笑嘴角程度范围0.0~1.0 1.0程度最强
+intensity_canthus：默认0.0    //开眼角程度范围0.0~1.0 1.0程度最强
 ```
 
 注意：变形为高级美颜功能，需要相应证书权限才能使用
@@ -449,12 +505,6 @@ FaceunityWorker.fu_ItemSetParamd(itemid, "isFlipExpr", param);
 FaceunityWorker.fu_ItemSetParamd(itemid, "isFlipTrack", param);
 //isFlipLight 参数是用于对道具内部的灯光的镜像
 FaceunityWorker.fu_ItemSetParamd(itemid, "isFlipLight", param);
-```
-
-默认人脸识别方向，会影响Animoji默认方向：
-
-```c#
-FaceunityWorker.fu_SetDefaultRotationMode(3);
 ```
 
 ### 4.3 动漫滤镜
@@ -626,6 +676,11 @@ FaceunityWorker.fu_ItemSetParamd(itemid, "isFlipExpr", param);
 FaceunityWorker.fu_ItemSetParamd(itemid, "isFlipTrack", param);
 //isFlipLight 参数是用于对道具内部的灯光的镜像
 FaceunityWorker.fu_ItemSetParamd(itemid, "isFlipLight", param);
+
+//默认人脸识别方向，会影响所有道具的默认方向，现在在FaceunityWorker.cs中封装了一个FixRotation方法，这个方法会根据环境自动调用fu_SetDefaultRotationMode来适应
+public static void FixRotation(bool ifMirrored);
+FaceunityWorker.fu_SetDefaultRotationMode(0);
+
 ```
 
 #### 5.2.3 输出图像的镜像/旋转

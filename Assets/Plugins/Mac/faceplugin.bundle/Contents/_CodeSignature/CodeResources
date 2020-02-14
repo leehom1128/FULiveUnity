@@ -10,55 +10,55 @@
 		<dict>
 			<key>cdhash</key>
 			<data>
-			3u9WfdNhoip6tBFgVS5rauPJzpw=
+			iwfwmKmbFBlqI8XC0IHFBUQ7klU=
 			</data>
 			<key>requirement</key>
-			<string>identifier bullet3 and anchor apple generic and certificate leaf[subject.CN] = "Mac Developer: Hao Qin (4BFVKDFJMK)" and certificate 1[field.1.2.840.113635.100.6.2.1] /* exists */</string>
-		</dict>
-		<key>MacOS/dde_core.dylib</key>
-		<dict>
-			<key>cdhash</key>
-			<data>
-			ashZJ8ysfyzYCgMMZJ83xZgjU2k=
-			</data>
-			<key>requirement</key>
-			<string>identifier "dde_core" and anchor apple generic and certificate leaf[subject.CN] = "Mac Developer: Hao Qin (4BFVKDFJMK)" and certificate 1[field.1.2.840.113635.100.6.2.1] /* exists */</string>
+			<string>identifier bullet3 and anchor apple generic and certificate leaf[subject.CN] = 0x4170706c6520446576656c6f706d656e743a20e99490e6b69b20e894a120283759334b384a3351563529 and certificate 1[field.1.2.840.113635.100.6.2.1] /* exists */</string>
 		</dict>
 		<key>MacOS/faceplugin.dylib</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			bljBVjk/6pPjRbHAJVK6TBBGXfs=
+			n5s8Tq5m+2qeCPgNVteb0dxURqI=
 			</data>
 			<key>requirement</key>
-			<string>identifier faceplugin and anchor apple generic and certificate leaf[subject.CN] = "Mac Developer: Hao Qin (4BFVKDFJMK)" and certificate 1[field.1.2.840.113635.100.6.2.1] /* exists */</string>
+			<string>identifier faceplugin and anchor apple generic and certificate leaf[subject.CN] = 0x4170706c6520446576656c6f706d656e743a20e99490e6b69b20e894a120283759334b384a3351563529 and certificate 1[field.1.2.840.113635.100.6.2.1] /* exists */</string>
 		</dict>
-		<key>MacOS/libtensorflow-lite.dylib</key>
+		<key>MacOS/fuauth.dylib</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			pyXDg0AZcBpYCASjIXOpTSe16+8=
+			JSBKhjAeWC+zl+lg3OR3Gn0uXp4=
 			</data>
 			<key>requirement</key>
-			<string>identifier "libtensorflow-lite" and anchor apple generic and certificate leaf[subject.CN] = "Mac Developer: Hao Qin (4BFVKDFJMK)" and certificate 1[field.1.2.840.113635.100.6.2.1] /* exists */</string>
+			<string>identifier fuauth and anchor apple generic and certificate leaf[subject.CN] = 0x4170706c6520446576656c6f706d656e743a20e99490e6b69b20e894a120283759334b384a3351563529 and certificate 1[field.1.2.840.113635.100.6.2.1] /* exists */</string>
+		</dict>
+		<key>MacOS/libfuai.dylib</key>
+		<dict>
+			<key>cdhash</key>
+			<data>
+			uKKZouVS8pjxuTtrJWdgpiSHy64=
+			</data>
+			<key>requirement</key>
+			<string>identifier libfuai and anchor apple generic and certificate leaf[subject.CN] = 0x4170706c6520446576656c6f706d656e743a20e99490e6b69b20e894a120283759334b384a3351563529 and certificate 1[field.1.2.840.113635.100.6.2.1] /* exists */</string>
 		</dict>
 		<key>MacOS/nama.dylib</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			4ndIuFr+8URzaHiMq33MF5s9cgY=
+			36AjwYFETVbpygE/aVnMLCyuS68=
 			</data>
 			<key>requirement</key>
-			<string>identifier nama and anchor apple generic and certificate leaf[subject.CN] = "Mac Developer: Hao Qin (4BFVKDFJMK)" and certificate 1[field.1.2.840.113635.100.6.2.1] /* exists */</string>
+			<string>identifier nama and anchor apple generic and certificate leaf[subject.CN] = 0x4170706c6520446576656c6f706d656e743a20e99490e6b69b20e894a120283759334b384a3351563529 and certificate 1[field.1.2.840.113635.100.6.2.1] /* exists */</string>
 		</dict>
 		<key>MacOS/webp.dylib</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			4hDJf4F+cHJOZBV8z+f2IulaIiE=
+			7gCxem28P7gt1hJWcVn4pfXH9r4=
 			</data>
 			<key>requirement</key>
-			<string>identifier webp and anchor apple generic and certificate leaf[subject.CN] = "Mac Developer: Hao Qin (4BFVKDFJMK)" and certificate 1[field.1.2.840.113635.100.6.2.1] /* exists */</string>
+			<string>identifier webp and anchor apple generic and certificate leaf[subject.CN] = 0x4170706c6520446576656c6f706d656e743a20e99490e6b69b20e894a120283759334b384a3351563529 and certificate 1[field.1.2.840.113635.100.6.2.1] /* exists */</string>
 		</dict>
 	</dict>
 	<key>rules</key>

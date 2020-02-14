@@ -96,7 +96,6 @@ public class UIManagerForTexOut : MonoBehaviour
         Item = 1,
         CommonFilter,
         Makeup,
-        MakeupAssist,
     };
 
     void Awake()
@@ -159,16 +158,16 @@ public class UIManagerForTexOut : MonoBehaviour
         if (permissions[0])
         {
             //美颜
-            yield return rtt.LoadItem(ItemConfig.beautySkin[0], (int)SlotForItems.Beauty);
             BeautySkinItemName = ItemConfig.beautySkin[0].name;
-            for (int i = 0; i < BeautyConfig.beautySkin_1.Length; i++)
-            {
-                rtt.SetItemParamd(BeautySkinItemName, BeautyConfig.beautySkin_1[i].paramword, BeautyConfig.beautySkin_1[i].defaultvalue);
-            }
-            for (int i = 0; i < BeautyConfig.beautySkin_2.Length; i++)
-            {
-                rtt.SetItemParamd(BeautySkinItemName, BeautyConfig.beautySkin_2[i].paramword, BeautyConfig.beautySkin_2[i].defaultvalue);
-            }
+            //yield return rtt.LoadItem(ItemConfig.beautySkin[0], (int)SlotForItems.Beauty);
+            //for (int i = 0; i < BeautyConfig.beautySkin_1.Length; i++)
+            //{
+            //    rtt.SetItemParamd(BeautySkinItemName, BeautyConfig.beautySkin_1[i].paramword, BeautyConfig.beautySkin_1[i].defaultvalue);
+            //}
+            //for (int i = 0; i < BeautyConfig.beautySkin_2.Length; i++)
+            //{
+            //    rtt.SetItemParamd(BeautySkinItemName, BeautyConfig.beautySkin_2[i].paramword, BeautyConfig.beautySkin_2[i].defaultvalue);
+            //}
         }
         if (permissions[12])
         {
@@ -185,11 +184,27 @@ public class UIManagerForTexOut : MonoBehaviour
         RegisterUIFunc();
     }
 
+    IEnumerator LoadBeautyBundle()
+    {
+        var tempslot = rtt.GetSlotIDbyName(ItemConfig.beautySkin[0].name);
+
+        yield return rtt.LoadItem(ItemConfig.beautySkin[0], (int)SlotForItems.Beauty);
+
+        if (tempslot < 0)
+        {
+            for (int i = 0; i < BeautyConfig.beautySkin_1.Length; i++)
+            {
+                rtt.SetItemParamd(BeautySkinItemName, BeautyConfig.beautySkin_1[i].paramword, BeautyConfig.beautySkin_1[i].defaultvalue);
+            }
+            for (int i = 0; i < BeautyConfig.beautySkin_2.Length; i++)
+            {
+                rtt.SetItemParamd(BeautySkinItemName, BeautyConfig.beautySkin_2[i].paramword, BeautyConfig.beautySkin_2[i].defaultvalue);
+            }
+        }
+    }
+
     IEnumerator LoadMakeupBundle()
     {
-        //这个库需要调整需要跟踪的方向，详见RenderToTexture的SetItemMirror
-        yield return rtt.LoadItem(ItemConfig.makeup[1], (int)SlotForItems.MakeupAssist);
-
         yield return rtt.LoadItem(ItemConfig.makeup[0], (int)SlotForItems.Makeup);
     }
 
@@ -207,7 +222,9 @@ public class UIManagerForTexOut : MonoBehaviour
     //for循环配合delegate是个坑，小心。
     void RegisterUIFunc()
     {
-        Btn_Switch.onClick.AddListener(delegate { rtt.SwitchCamera(); });
+        Btn_Switch.onClick.AddListener(delegate {
+            rtt.SwitchCamera();
+        });
         Btn_Back.onClick.AddListener(delegate {
             if (musiccor != null)
             {
@@ -219,8 +236,8 @@ public class UIManagerForTexOut : MonoBehaviour
             //unload除了美颜以外所有道具
             for (int i = 0; i < RenderToTexture.SLOTLENGTH; i++)
             {
-                if (i == (int)SlotForItems.Beauty)
-                    continue;
+                //if (i == (int)SlotForItems.Beauty)
+                //    continue;
                 rtt.UnLoadItem(i);
             }
             CloseBeautySkinUI();
@@ -238,9 +255,7 @@ public class UIManagerForTexOut : MonoBehaviour
                 {
                     if (go.name.CompareTo(ItemType.Beauty.ToString())==0)
                     {
-                        //新版美妆
-                        StartCoroutine(LoadMakeupBundle());
-                        OpenBeautySkinUI(BeautySkinType.None);
+                        StartCoroutine(OpenBeautySkinUI(BeautySkinType.None));
                     }
                     else
                     {
@@ -258,10 +273,10 @@ public class UIManagerForTexOut : MonoBehaviour
             }
         });
 
-        BeautySkinSelecterOptions[0].GetComponent<AddClickEvent>().AddListener(delegate { OpenBeautySkinUI(BeautySkinType.BeautySkin); });
-        BeautySkinSelecterOptions[1].GetComponent<AddClickEvent>().AddListener(delegate { OpenBeautySkinUI(BeautySkinType.BeautyShape); });
-        BeautySkinSelecterOptions[2].GetComponent<AddClickEvent>().AddListener(delegate { OpenBeautySkinUI(BeautySkinType.Filter); });
-        BeautySkinSelecterOptions[3].GetComponent<AddClickEvent>().AddListener(delegate { OpenBeautySkinUI(BeautySkinType.MakeupGroup); });
+        BeautySkinSelecterOptions[0].GetComponent<AddClickEvent>().AddListener(delegate { StartCoroutine(OpenBeautySkinUI(BeautySkinType.BeautySkin)); });
+        BeautySkinSelecterOptions[1].GetComponent<AddClickEvent>().AddListener(delegate { StartCoroutine(OpenBeautySkinUI(BeautySkinType.BeautyShape)); });
+        BeautySkinSelecterOptions[2].GetComponent<AddClickEvent>().AddListener(delegate { StartCoroutine(OpenBeautySkinUI(BeautySkinType.Filter)); });
+        BeautySkinSelecterOptions[3].GetComponent<AddClickEvent>().AddListener(delegate { StartCoroutine(OpenBeautySkinUI(BeautySkinType.MakeupGroup)); });
     }
 
     void UnRegisterUIFunc()
@@ -312,8 +327,14 @@ public class UIManagerForTexOut : MonoBehaviour
 
 #region BeautySkinUI
 
-    void OpenBeautySkinUI(BeautySkinType type)
+    IEnumerator OpenBeautySkinUI(BeautySkinType type)
     {
+        if(type == BeautySkinType.None)
+        {
+            yield return LoadBeautyBundle();
+            yield return LoadMakeupBundle();
+        }
+
         currentBeautySkinType = type;
         currentItemType = ItemType.Beauty;
 
@@ -630,30 +651,31 @@ public class UIManagerForTexOut : MonoBehaviour
                 BeautySkin_FaceShape[i].transform.Find("Image_bg").gameObject.SetActive(false);
             }
         }
-
-        int addnum;
+        
         var layout = BeautyOptionContentTrans.GetComponent<HorizontalLayoutGroup>();
         if (BeautyConfig.beautySkin_2[0].currentvalue == 4)
         {
             layout.padding.left = 20;
             layout.padding.right = 20;
-            addnum = BeautyConfig.beautySkin_2.Length;
+            for (int i = 1; i < BeautyConfig.beautySkin_2.Length; i++)
+            {
+                BeautyGOs[BeautyConfig.beautySkin_2[i]].SetActive(true);
+            }
         }
         else
         {
             int d=(int)((Canvas_FrontUI.GetComponent<RectTransform>().sizeDelta.x-540)*0.5);    //540=150*3+45*2
             layout.padding.left = d;
             layout.padding.right = d;
-            addnum = 3;
+            for (int i = 1; i < BeautyConfig.beautySkin_2.Length; i++)
+            {
+                if (i == 1|| i == 5)
+                    BeautyGOs[BeautyConfig.beautySkin_2[i]].SetActive(true);
+                else
+                    BeautyGOs[BeautyConfig.beautySkin_2[i]].SetActive(false);
+            }
         }
         
-        for (int i = 1; i < BeautyConfig.beautySkin_2.Length; i++)
-        {
-            if (i < addnum)
-                BeautyGOs[BeautyConfig.beautySkin_2[i]].SetActive(true);
-            else
-                BeautyGOs[BeautyConfig.beautySkin_2[i]].SetActive(false);
-        }
         rtt.SetItemParamd(BeautySkinItemName, BeautyConfig.beautySkin_2[0].paramword, BeautyConfig.beautySkin_2[0].currentvalue);
     }
 

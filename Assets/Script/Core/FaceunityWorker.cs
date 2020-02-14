@@ -186,21 +186,28 @@ public class FaceunityWorker : MonoBehaviour
 #else
     [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
 #endif
-    public static extern int fu_LoadExtendedARData(IntPtr databuf, int databuf_sz);
-
-#if UNITY_IOS && !UNITY_EDITOR
-    [DllImport("__Internal")]
-#else
-    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
-#endif
-    public static extern int fu_LoadAnimModel(IntPtr databuf, int databuf_sz);
-
-#if UNITY_IOS && !UNITY_EDITOR
-    [DllImport("__Internal")]
-#else
-    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
-#endif
     public static extern int fu_LoadTongueModel(IntPtr databuf, int databuf_sz);
+
+#if UNITY_IOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+#else
+    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
+#endif
+    public static extern int fu_LoadAIModelFromPackage(IntPtr databuf, int databuf_sz, int _type);
+
+#if UNITY_IOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+#else
+    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
+#endif
+    public static extern int fu_ReleaseAIModel(int _type);
+
+#if UNITY_IOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+#else
+    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
+#endif
+    public static extern int fu_IsAIModelLoaded(int _type);
 
 #if UNITY_IOS && !UNITY_EDITOR
     [DllImport("__Internal")]
@@ -214,20 +221,8 @@ public class FaceunityWorker : MonoBehaviour
 #else
     [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
 #endif
-    private static extern void fu_setItemDataFromPackage(IntPtr databuf, int databuf_sz);
+    public static extern int fu_CreateItemFromPackage(IntPtr databuf, int databuf_sz);
 
-#if UNITY_IOS && !UNITY_EDITOR
-    [DllImport("__Internal")]
-#else
-    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
-#endif
-    public static extern int fu_getItemIdxFromPackage();
-
-    /**
-\brief Destroy an accessory item.
-    This function MUST be called in the same GLES context / thread as the original fuCreateItemFromPackage.
-\param item is the handle to be destroyed
-*/
 #if UNITY_IOS && !UNITY_EDITOR
     [DllImport("__Internal")]
 #else
@@ -235,10 +230,6 @@ public class FaceunityWorker : MonoBehaviour
 #endif
     public static extern void fu_DestroyItem(int itemid);
 
-    /**
-\brief Destroy all accessory items ever created.
-    This function MUST be called in the same GLES context / thread as the original fuCreateItemFromPackage.
-*/
 #if UNITY_IOS && !UNITY_EDITOR
     [DllImport("__Internal")]
 #else
@@ -271,15 +262,43 @@ public class FaceunityWorker : MonoBehaviour
     public static extern int fu_setItemIds(IntPtr idxbuf, int idxbuf_sz, IntPtr mask);//mask can be null
 
     /**
-\brief Set the default rotationMode.
-\param rotationMode is the default rotationMode to be set to, one of 0..3 should work.
+\brief Set the default orientation for face detection. The correct orientation would make the initial detection much faster.
+\param rotate_mode is the default orientation to be set to, one of 0..3 should work.
 */
 #if UNITY_IOS && !UNITY_EDITOR
     [DllImport("__Internal")]
 #else
     [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
 #endif
-    public static extern void fu_SetDefaultRotationMode(int i);
+    public static extern void fu_SetDefaultOrientation(int rotate_mode);
+
+#if UNITY_IOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+#else
+    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
+#endif
+    public static extern void fu_SetDefaultRotationMode(int rotate_mode);
+
+#if UNITY_IOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+#else
+    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
+#endif
+    public static extern void fu_SetDeviceOrientation(int rotate_mode);
+
+#if UNITY_IOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+#else
+    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
+#endif
+    public static extern void fu_SetInputCameraMatrix(int flip_x, int flip_y, int rotate_mode);
+
+#if UNITY_IOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+#else
+    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
+#endif
+    public static extern void fu_SetOutputResolution(int w, int h);
 
     /**
 \brief Get certificate permission code for modules
@@ -299,6 +318,13 @@ public class FaceunityWorker : MonoBehaviour
     [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
 #endif
     public static extern int fu_SetASYNCTrackFace(int i);
+
+#if UNITY_IOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+#else
+    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
+#endif
+    public static extern int fu_SetMultiSamples(int samples);
 
 #if UNITY_IOS && !UNITY_EDITOR
     [DllImport("__Internal")]
@@ -350,6 +376,20 @@ public class FaceunityWorker : MonoBehaviour
     public static extern int fu_ItemSetParamd(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, double value);
 
     /**
+\brief Set an item parameter to a string value
+\param item specifies the item
+\param name is the parameter name
+\param value is the parameter value to be set
+\return zero for failure, non-zero for success
+*/
+#if UNITY_IOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+#else
+    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
+#endif
+    public static extern int fu_ItemSetParams(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, [MarshalAs(UnmanagedType.LPStr)]string value);
+
+    /**
 \brief Set an item parameter to a double array
 \param item specifies the item
 \param name is the parameter name
@@ -364,19 +404,21 @@ public class FaceunityWorker : MonoBehaviour
 #endif
     public static extern int fu_ItemSetParamdv(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, IntPtr value, int value_sz);
 
-    /**
-\brief Set an item parameter to a string value
-\param item specifies the item
-\param name is the parameter name
-\param value is the parameter value to be set
-\return zero for failure, non-zero for success
-*/
 #if UNITY_IOS && !UNITY_EDITOR
     [DllImport("__Internal")]
 #else
     [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
 #endif
-    public static extern int fu_ItemSetParams(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, [MarshalAs(UnmanagedType.LPStr)]string value);
+    public static extern int fu_ItemSetParamu8v(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, IntPtr value, int value_sz);
+
+#if UNITY_IOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+#else
+    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
+#endif
+    public static extern int fu_ItemSetParamu64(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, IntPtr value, int value_sz);
+
+
 
     /**
 \brief Set an item parameter to a string value
@@ -407,16 +449,26 @@ public class FaceunityWorker : MonoBehaviour
 #endif
     public static extern int fu_ItemGetParams(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, [MarshalAs(UnmanagedType.LPStr)]byte[] buf, int buf_sz);
 
-    /**
-\brief Set the default orientation for face detection. The correct orientation would make the initial detection much faster.
-\param rmode is the default orientation to be set to, one of 0..3 should work.
-*/
 #if UNITY_IOS && !UNITY_EDITOR
     [DllImport("__Internal")]
 #else
     [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
 #endif
-    public static extern void fu_SetDefaultOrientation(int rmode);
+    public static extern int fu_ItemGetParamdv(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, IntPtr value, int value_sz);
+
+#if UNITY_IOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+#else
+    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
+#endif
+    public static extern int fu_ItemGetParamu8v(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, IntPtr value, int value_sz);
+
+#if UNITY_IOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+#else
+    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
+#endif
+    public static extern int fu_ItemGetParamfv(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, IntPtr value, int value_sz);
 
 #if UNITY_IOS && !UNITY_EDITOR
     [DllImport("__Internal")]
@@ -502,6 +554,27 @@ public class FaceunityWorker : MonoBehaviour
     [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
 #endif
     public static extern IntPtr fu_GetVersion(); // Marshal.PtrToStringAnsi(fu_GetVersion());
+
+#if UNITY_IOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+#else
+    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
+#endif
+    public static extern int fu_GetVersionMajor();
+
+#if UNITY_IOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+#else
+    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
+#endif
+    public static extern int fu_GetVersionMinor();
+
+#if UNITY_IOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+#else
+    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
+#endif
+    public static extern int fu_GetVersionFix();
 
     /**
 \brief Get Faceplugin version string
@@ -718,7 +791,7 @@ public class FaceunityWorker : MonoBehaviour
     public static extern int fu_GetFaceInfo(int face_id, IntPtr ret, int szret, [MarshalAs(UnmanagedType.LPStr)]string name);
 
     /**
-     * FURuningMode为FU_Mode_RenderItems的时候，加载EnableTongueForUnity.bytes，才能开启舌头跟踪。
+     * FURuningMode为FU_Mode_RenderItems的时候，加载EmptyItem.bytes，才能开启人脸跟踪。
      * FURuningMode为FU_Mode_TrackFace的时候，调用fu_SetTongueTracking(1)，才能开启舌头跟踪。注意，每次切换到FU_Mode_TrackFace之后都需要设置一次！！！
 \brief Turn on or turn off Tongue Tracking, used in trackface.
 \param enable > 0 means turning on, enable <= 0 means turning off
@@ -781,22 +854,6 @@ public class FaceunityWorker : MonoBehaviour
 
     #endregion
 
-
-    /**
- \brief Create an accessory item from a binary package, you can discard the data after the call.
-     This function MUST be called in the same GLES context / thread as fuRenderItems.
- \param data is the pointer to the data
- \param sz is the data size, we use plain int to avoid cross-language compilation issues
- \return an integer handle represefu_Clearnting the item
- */
-    public static IEnumerator fu_CreateItemFromPackage(IntPtr databuf, int databuf_sz)
-    {
-        fu_setItemDataFromPackage(databuf, databuf_sz);
-        //GL.IssuePluginEvent(fu_GetRenderEventFunc(), 101);
-        yield return Util._endOfFrame;
-        yield return Util._endOfFrame;   //等待道具异步加载完毕
-    }
-
     public enum FURuningMode
     {
         FU_Mode_None = 0,
@@ -812,6 +869,92 @@ public class FaceunityWorker : MonoBehaviour
     {
         currentMode = mode;
         fu_SetRuningMode((int)mode);
+    }
+
+    public enum FUAITYPE
+    {
+        FUAITYPE_BACKGROUNDSEGMENTATION = 1 << 1,
+        FUAITYPE_HAIRSEGMENTATION = 1 << 2,
+        FUAITYPE_HANDGESTURE = 1 << 3,
+        FUAITYPE_TONGUETRACKING = 1 << 4,
+        FUAITYPE_FACELANDMARKS75 = 1 << 5,
+        FUAITYPE_FACELANDMARKS209 = 1 << 6,
+        FUAITYPE_FACELANDMARKS239 = 1 << 7,
+        FUAITYPE_HUMANPOSE2D = 1 << 8,
+        FUAITYPE_BACKGROUNDSEGMENTATION_GREEN = 1 << 9,
+        FUAITYPE_FACEPROCESSOR = 1 << 10
+    }
+
+    public enum FUAI_CAMERA_VIEW
+    {
+        ROT_0 = 0,
+        ROT_90 = 1,
+        ROT_180 = 2,
+        ROT_270 = 3,
+    }
+
+    public static void FixRotation(bool ifMirrored = false, FUAI_CAMERA_VIEW eyeViewRot = FUAI_CAMERA_VIEW.ROT_0)
+    {
+        var rot = FUAI_CAMERA_VIEW.ROT_0;
+#if UNITY_EDITOR || UNITY_STANDALONE
+        rot = FUAI_CAMERA_VIEW.ROT_180;
+#endif
+#if !UNITY_EDITOR && UNITY_ANDROID
+        if (ifMirrored)
+        {
+            switch (eyeViewRot)
+            {
+                case FUAI_CAMERA_VIEW.ROT_0:
+                    rot = FUAI_CAMERA_VIEW.ROT_270;
+                    break;
+                case FUAI_CAMERA_VIEW.ROT_90:
+                    rot = FUAI_CAMERA_VIEW.ROT_180;
+                    break;
+                case FUAI_CAMERA_VIEW.ROT_180:
+                    rot = FUAI_CAMERA_VIEW.ROT_90;
+                    break;
+                case FUAI_CAMERA_VIEW.ROT_270:
+                    rot = FUAI_CAMERA_VIEW.ROT_0;
+                    break;
+            }
+        }
+        else
+        {
+            switch (eyeViewRot)
+            {
+                case FUAI_CAMERA_VIEW.ROT_0:
+                    rot = FUAI_CAMERA_VIEW.ROT_90;
+                    break;
+                case FUAI_CAMERA_VIEW.ROT_90:
+                    rot = FUAI_CAMERA_VIEW.ROT_180;
+                    break;
+                case FUAI_CAMERA_VIEW.ROT_180:
+                    rot = FUAI_CAMERA_VIEW.ROT_270;
+                    break;
+                case FUAI_CAMERA_VIEW.ROT_270:
+                    rot = FUAI_CAMERA_VIEW.ROT_0;
+                    break;
+            }
+        }
+#endif
+#if !UNITY_EDITOR && UNITY_IOS
+        switch (eyeViewRot)
+        {
+            case FUAI_CAMERA_VIEW.ROT_0:
+                rot = FUAI_CAMERA_VIEW.ROT_180;
+                break;
+            case FUAI_CAMERA_VIEW.ROT_90:
+                rot = FUAI_CAMERA_VIEW.ROT_270;
+                break;
+            case FUAI_CAMERA_VIEW.ROT_180:
+                rot = FUAI_CAMERA_VIEW.ROT_0;
+                break;
+            case FUAI_CAMERA_VIEW.ROT_270:
+                rot = FUAI_CAMERA_VIEW.ROT_90;
+                break;
+        }
+#endif
+        fu_SetDefaultRotationMode((int)rot);
     }
 
     ///////////////////////////////
@@ -838,14 +981,6 @@ public class FaceunityWorker : MonoBehaviour
     //we must keep the GC handles to keep the arrays pinned to the same addresses
     [HideInInspector]
     public bool m_plugin_inited = false;
-
-    public enum SETUPMODE
-    {
-        Normal,
-        Local,
-    }
-
-    public SETUPMODE SetupMode = SETUPMODE.Normal;
 
     public int MAXFACE = 1;
     public bool EnableExpressionLoop = true;
@@ -879,11 +1014,8 @@ public class FaceunityWorker : MonoBehaviour
     public static event EventHandler OnInitOK;
     private delegate void DebugCallback(string message);
 
-    bool isfirstLoop = true;
     GCHandle m_licdata_handle;
     GCHandle m_v3data_handle;
-    GCHandle m_offlinebundle_handle;
-    GCHandle tongue_handle;
 
     ///////////////////////////////
     /**
@@ -990,74 +1122,7 @@ public class FaceunityWorker : MonoBehaviour
                                 m_v3data_handle.Free();
                             m_v3data_handle = GCHandle.Alloc(m_v3data_bytes, GCHandleType.Pinned); //pinned avoid GC
                             IntPtr v3ptr = m_v3data_handle.AddrOfPinnedObject(); //pinned addr
-
-                            if (SetupMode == SETUPMODE.Normal)
-                            {
-                                fu_Setup(v3ptr, m_v3data_bytes.Length, licptr, sbytes.Length); //要查看license是否有效请打开插件log（fu_EnableLog(true);）
-                            }
-                            else if (SetupMode == SETUPMODE.Local)
-                            {
-                                byte[] offlinebundledata_bytes = null;
-                                bool loaclAuthMode = true;
-                                
-                                string offlinebundle_path = Application.persistentDataPath + "/Bundles/"; //这个路径可能无法读取，请自行指定可以读写的路径！
-                                string offlinebundle_name = "license_signed.bytes";
-
-                                string offlinebundle_signed = "file://" + offlinebundle_path + offlinebundle_name;
-
-                                WWW offlinebundledata_signed = new WWW(offlinebundle_signed);
-                                yield return offlinebundledata_signed;
-
-                                if (offlinebundledata_signed.bytes == null || offlinebundledata_signed.bytes.Length == 0)
-                                {
-                                    string offlinebundle_unsigned = Util.GetStreamingAssetsPath() + "/faceunity/license_unsigned.bytes";
-                                    WWW offlinebundledata_unsigned = new WWW(offlinebundle_unsigned);
-                                    yield return offlinebundledata_unsigned;
-                                    offlinebundledata_bytes = offlinebundledata_unsigned.bytes;
-                                    loaclAuthMode = false;
-                                }
-                                else
-                                {
-                                    offlinebundledata_bytes = offlinebundledata_signed.bytes;
-                                }
-
-                                if (m_offlinebundle_handle.IsAllocated)
-                                    m_offlinebundle_handle.Free();
-                                m_offlinebundle_handle = GCHandle.Alloc(offlinebundledata_bytes, GCHandleType.Pinned);
-                                IntPtr fptrset = m_offlinebundle_handle.AddrOfPinnedObject();
-
-                                fu_SetupLocal(v3ptr, m_v3data_bytes.Length, licptr, sbytes.Length, fptrset, offlinebundledata_bytes.Length);
-
-                                GL.IssuePluginEvent(fu_GetRenderEventFunc(), 1);
-
-                                while (jc_part_inited() == 0)
-                                {
-                                    yield return Util._endOfFrame;
-                                }
-                                int message = fu_GetSystemError();
-                                Debug.LogFormat("Init Message:{0},{1},loaclAuthMode=={2}", message, Marshal.PtrToStringAnsi(fu_GetSystemErrorString(message)), loaclAuthMode);
-
-                                IntPtr fptr = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(byte)));
-                                IntPtr iptr = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(int)));
-
-                                int isAuthed = fu_GetOfflineBundle(ref fptr, iptr);
-
-                                if (isAuthed == 0)
-                                {
-                                    Debug.LogError("Auth Faild!");
-                                    yield break;
-                                }
-
-                                if (!loaclAuthMode)
-                                {
-                                    int arrSize = Marshal.ReadInt32(iptr);
-                                    byte[] fpa = new byte[arrSize];
-                                    Marshal.Copy(fptr, fpa, 0, fpa.Length);
-                                    //不能释放fptr和iptr，由Nama自行管理，否则会崩溃
-                                    Util.SaveBytesFile(fpa, offlinebundle_path, offlinebundle_name);
-                                }
-                            }
-
+                            fu_Setup(v3ptr, m_v3data_bytes.Length, licptr, sbytes.Length); //要查看license是否有效请打开插件log（fu_EnableLog(true);）
                             m_plugin_inited = true;
                         }
                     }
@@ -1070,35 +1135,19 @@ public class FaceunityWorker : MonoBehaviour
 
                 if (m_plugin_inited == true)
                 {
-                    string tongue = Util.GetStreamingAssetsPath() + "/faceunity/tongue.bytes";    //舌头检测
-                    WWW tonguedata = new WWW(tongue);
-                    yield return tonguedata;
-                    byte[] tongue_bytes = tonguedata.bytes;
-                    if (tongue_handle.IsAllocated)
-                        tongue_handle.Free();
-                    tongue_handle = GCHandle.Alloc(tongue_bytes, GCHandleType.Pinned);
-                    IntPtr tonguedataptr = tongue_handle.AddrOfPinnedObject();
-                    fu_LoadTongueModel(tonguedataptr, tongue_bytes.Length);
-
                     var v = GCHandle.Alloc(0.5f, GCHandleType.Pinned);
                     IntPtr vptr = v.AddrOfPinnedObject();
                     fu_SetFaceTrackParam("mouth_expression_more_flexible", vptr);
                     v.Free();
 
-                    fu_SetASYNCTrackFace(0);    //异步人脸跟踪，部分平台能提升性能，默认关闭
+                    //fu_SetASYNCTrackFace(0);    //异步人脸跟踪，部分平台能提升性能，默认关闭
+                    //fu_SetMultiSamples(4);
                     SetRunningMode(FURuningMode.FU_Mode_RenderItems);   //默认模式，随时可以改
                     SetUseNatCam(1);  //默认选项，仅安卓有效
                     fu_SetFocalLengthScale(FocalLengthScale);   //默认值是1
                     Debug.LogFormat("fu_SetFocalLengthScale({0})", FocalLengthScale);
 
-                    if (OnInitOK != null)
-                        OnInitOK(this, null);//触发初始化完成事件
-
-                    //Debug.Log("错误:" + fu_GetSystemError() +","+ Marshal.PtrToStringAnsi(fu_GetSystemErrorString(fu_GetSystemError())));
-                    Debug.Log("Nama Version:" + Marshal.PtrToStringAnsi(fu_GetVersion()));
-                    Debug.Log("Faceplugin Version:" + Marshal.PtrToStringAnsi(fu_GetFacepluginVersion()));
-
-                    StartCoroutine("CallPluginAtEndOfFrames");
+                    StartCoroutine(GLLoop());
                 }
             }
         }
@@ -1111,7 +1160,38 @@ public class FaceunityWorker : MonoBehaviour
 
 
 
+    private IEnumerator GLLoop()
+    {
+        yield return Util._endOfFrame;
+        ////////////////////////////////
+        fu_SetMaxFaces(MAXFACE);
+        GL.IssuePluginEvent(fu_GetRenderEventFunc(), 1);// cal for sdk render
 
+        if (m_licdata_handle.IsAllocated)
+            m_licdata_handle.Free();
+        if (m_v3data_handle.IsAllocated)
+            m_v3data_handle.Free();
+
+        yield return LoadAIBundle("ai_face_processor.bytes", FUAITYPE.FUAITYPE_FACEPROCESSOR);
+        yield return LoadAIBundle("ai_bgseg.bytes", FUAITYPE.FUAITYPE_BACKGROUNDSEGMENTATION);
+        //yield return LoadAIBundle("ai_bgseg_green.bytes", FUAITYPE.FUAITYPE_BACKGROUNDSEGMENTATION_GREEN);
+        yield return LoadAIBundle("ai_facelandmarks75.bytes", FUAITYPE.FUAITYPE_FACELANDMARKS75);
+        yield return LoadAIBundle("ai_facelandmarks209.bytes", FUAITYPE.FUAITYPE_FACELANDMARKS209);
+        yield return LoadAIBundle("ai_facelandmarks239.bytes", FUAITYPE.FUAITYPE_FACELANDMARKS239);
+        yield return LoadAIBundle("ai_gesture.bytes", FUAITYPE.FUAITYPE_HANDGESTURE);
+        //yield return LoadAIBundle("ai_hairseg.bytes", FUAITYPE.FUAITYPE_HAIRSEGMENTATION); 
+        //yield return LoadAIBundle("ai_humanpose.bytes", FUAITYPE.FUAITYPE_HUMANPOSE2D);
+        yield return LoadTongueBundle("tongue.bytes");
+
+        if (OnInitOK != null)
+            OnInitOK(this, null);//触发初始化完成事件
+
+        //Debug.Log("错误:" + fu_GetSystemError() +","+ Marshal.PtrToStringAnsi(fu_GetSystemErrorString(fu_GetSystemError())));
+        Debug.Log("Nama Version:" + Marshal.PtrToStringAnsi(fu_GetVersion()));
+        Debug.Log("Faceplugin Version:" + Marshal.PtrToStringAnsi(fu_GetFacepluginVersion()));
+
+        yield return CallPluginAtEndOfFrames();
+    }
 
     /**\brief SDK渲染的GL循环协程，每一帧的末尾，调用GL.IssuePluginEvent使Unity执行SDK内部的渲染代码，同时获取并保存跟踪信息\return 无    */
     private IEnumerator CallPluginAtEndOfFrames()
@@ -1122,18 +1202,6 @@ public class FaceunityWorker : MonoBehaviour
             ////////////////////////////////
             fu_SetMaxFaces(MAXFACE);
             GL.IssuePluginEvent(fu_GetRenderEventFunc(), 1);// cal for sdk render
-            if (isfirstLoop)
-            {
-                isfirstLoop = false;
-                if (m_licdata_handle.IsAllocated)
-                    m_licdata_handle.Free();
-                if (m_v3data_handle.IsAllocated)
-                    m_v3data_handle.Free();
-                if (m_offlinebundle_handle.IsAllocated)
-                    m_offlinebundle_handle.Free();
-                if (tongue_handle.IsAllocated)
-                    tongue_handle.Free();
-            }
             if (EnableExpressionLoop)
             {
                 if (MaxExpression != MAXFACE)
@@ -1178,13 +1246,42 @@ public class FaceunityWorker : MonoBehaviour
 
 
     /**\brief 用来注册SDK的LOG回调，SDK中间层可以用这个来在Unity内部打log\param message 要打的log\return 无    */
-    private static void DebugMethod(string message)
+    private void DebugMethod(string message)
     {
         Debug.Log("From Dll: " + message);
     }
 
 
+    private IEnumerator LoadAIBundle(string name,FUAITYPE type)
+    {
+        if (fu_IsAIModelLoaded((int)type) == 0)
+        {
+            string bundle = Util.GetStreamingAssetsPath() + "/faceunity/" + name;
+            WWW bundledata = new WWW(bundle);
+            yield return bundledata;
+            byte[] bundle_bytes = bundledata.bytes;
+            var bundle_handle = GCHandle.Alloc(bundle_bytes, GCHandleType.Pinned);
+            IntPtr bundledataptr = bundle_handle.AddrOfPinnedObject();
 
+            fu_LoadAIModelFromPackage(bundledataptr, bundle_bytes.Length, (int)type);
+
+            bundle_handle.Free();
+        }
+    }
+
+    private IEnumerator LoadTongueBundle(string name)
+    {
+        string bundle = Util.GetStreamingAssetsPath() + "/faceunity/" + name;
+        WWW bundledata = new WWW(bundle);
+        yield return bundledata;
+        byte[] bundle_bytes = bundledata.bytes;
+        var bundle_handle = GCHandle.Alloc(bundle_bytes, GCHandleType.Pinned);
+        IntPtr bundledataptr = bundle_handle.AddrOfPinnedObject();
+
+        fu_LoadTongueModel(bundledataptr, bundle_bytes.Length);
+
+        bundle_handle.Free();
+    }
 
 
     /**\brief 应用退出是清理相关GCHandle和SDK相关数据\return 无*/
@@ -1194,16 +1291,10 @@ public class FaceunityWorker : MonoBehaviour
             m_licdata_handle.Free();
         if (m_v3data_handle.IsAllocated)
             m_v3data_handle.Free();
-        if (m_offlinebundle_handle.IsAllocated)
-            m_offlinebundle_handle.Free();
-        if (tongue_handle.IsAllocated)
-            tongue_handle.Free();
         if (m_plugin_inited == true)
             fu_OnDeviceLost();
         ClearImages();
     }
-
-
 
 
     /**\brief 检测当前渲染环境是否符合要求，本SDK仅支持在OpenGL下运行\return true为检测通过，false为不通过*/

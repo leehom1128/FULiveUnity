@@ -73,7 +73,6 @@ public class StdController : MonoBehaviour
         }
 
         float[] R = FaceunityWorker.instance.m_rotation[faceid].m_data; //人脸旋转数据
-        float[] RM = FaceunityWorker.instance.m_rotation_mode[faceid].m_data;   //人脸旋转模式，这个是为了在各个方向下跟踪人脸
         float[] P = FaceunityWorker.instance.m_translation[faceid].m_data;  //人脸位移数据
 
         bool ifMirrored = NatCam.Camera.Facing == Facing.Front; //是否镜像
@@ -92,10 +91,9 @@ public class StdController : MonoBehaviour
                     skinnedMeshRenderers[j].SetBlendShapeWeight(mirrorBlendShape[i], data[i] * 100);    //SDK输出表情系数数据为0~1，一般Unity的BlendShape系数为0~100，因此需要调整
                 }
             }
-            //本SDK跟踪人脸时，当人脸Z轴旋转角度超过90度时（Z轴即人脸前方），旋转基准会重置，因此需要使用人脸旋转模式来补偿这一重置，根据环境不同补偿方向也不同
-            transform.localRotation = m_rotation0 * Quaternion.AngleAxis(getRotateEuler((int)RM[0], ifMirrored), Vector3.back) * new Quaternion(R[0], R[1], -R[2], -R[3]);
+            transform.localRotation = m_rotation0 * new Quaternion(R[0], R[1], -R[2], -R[3]);
             if (rtm.ifTrackPos == true)
-                transform.localPosition = getRotatePosition(getRotateEuler((int)RM[0], ifMirrored), -P[0], P[1], P[2]);//new Vector3(-P[0], P[1], P[2]);
+                transform.localPosition = new Vector3(-P[0], P[1], P[2]);//new Vector3(-P[0], P[1], P[2]);
             else
                 transform.localPosition = m_position0;
         }
@@ -109,101 +107,13 @@ public class StdController : MonoBehaviour
                     skinnedMeshRenderers[j].SetBlendShapeWeight(i, data[i] * 100);
                 }
             }
-            transform.localRotation = m_rotation0 * Quaternion.AngleAxis(getRotateEuler((int)RM[0], ifMirrored), Vector3.back) * new Quaternion(R[0], -R[1], R[2], -R[3]);
+            transform.localRotation = m_rotation0 * new Quaternion(R[0], -R[1], R[2], -R[3]);
             if (rtm.ifTrackPos == true)
-                transform.localPosition = getRotatePosition(getRotateEuler((int)RM[0], ifMirrored), P[0], P[1], P[2]);//new Vector3(P[0], P[1], P[2]);
+                transform.localPosition = new Vector3(P[0], P[1], P[2]);//new Vector3(P[0], P[1], P[2]);
             else
                 transform.localPosition = m_position0;
         }
         //Debug.Log("STDUpdate:localRotation="+ transform.localEulerAngles.x+","+ transform.localEulerAngles.y + "," + transform.localEulerAngles.z);
-    }
-
-    //这个为经验数据，具体情况请自行测试
-    Vector3 getRotatePosition(int euler, float x, float y, float z)
-    {
-        switch (euler)
-        {
-            case -90: return new Vector3(y, -x, z);
-            case 0: return new Vector3(x, y, z);
-            case 90: return new Vector3(-y, x, z);
-            case 180: return new Vector3(-x, -y, z);
-            default: return new Vector3(x, y, z);
-        }
-    }
-
-    //这个为经验数据，具体情况请自行测试
-    int getRotateEuler(int mode, bool mirrored)
-    {
-#if (UNITY_ANDROID) && (!UNITY_EDITOR)
-        if (mirrored)
-            if (Util.isNexus5X())
-            {
-                switch (mode)
-                {
-
-                    case 0: return -90;
-                    case 1: return 0;
-                    case 2: return 90;
-                    case 3: return 180;
-                    default: return 0;
-                }
-            }
-            else
-            {
-                switch (mode)
-                {
-                    case 0: return -90;
-                    case 3: return 0;
-                    case 2: return 90;
-                    case 1: return 180;
-                    default: return 0;
-                }
-            }
-        else
-        {
-            if (Util.isNexus6())
-            {
-                switch (mode)
-                {
-
-                    case 2: return -90;
-                    case 3: return 0;
-                    case 0: return 90;
-                    case 1: return 180;
-                    default: return 0;
-                }
-            }
-            else
-            {
-                switch (mode)
-                {
-                    case 0: return -90;
-                    case 1: return 0;
-                    case 2: return 90;
-                    case 3: return 180;
-                    default: return 0;
-                }
-            }
-        }
-#elif (UNITY_IOS) && (!UNITY_EDITOR)
-        switch (mode)
-        {
-            case 1: return -90;
-            case 2: return 0;
-            case 3: return 90;
-            case 0: return 180;
-            default: return 0;
-        }
-#else
-        switch (mode)
-        {
-            case 3: return -90;
-            case 2: return 0;
-            case 1: return 90;
-            case 0: return 180;
-            default: return 0;
-        }
-#endif
     }
 
     //重置人脸的位置旋转

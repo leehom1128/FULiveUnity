@@ -22,14 +22,6 @@ public enum ItemType
     //...更多类型道具请咨询技术支持
 }
 
-public enum FUAI_CAMERA_VIEW
-{
-    ROT_0 = 0,
-    ROT_90 = 1,
-    ROT_180 = 2,
-    ROT_270 = 3,
-}
-
 //这个struct只是为了方便Texout场景的搭建，建议谨慎参考
 //这个struct关联了一个道具的各种数据，包括名字，相对加载路径，UI的ID，道具提示信息，道具的种类
 public struct Item
@@ -65,7 +57,6 @@ public class ItemConfig
 
     public static Item[] makeup ={
         new Item { name = "face_makeup", fullname = "face_makeup", iconid = -1 ,type=ItemType.Makeup},
-        new Item { name = "new_face_tracker_normal", fullname = "new_face_tracker_normal", iconid = -1 ,type=ItemType.Makeup},
     };
 
     //Animoji
@@ -100,15 +91,15 @@ public class ItemConfig
         new Item { name = "xiongmao", fullname = "items/ARMask/xiongmao", iconid = 4 ,type=ItemType.ARMask},
     };
 
-    //ChangeFace
+    //ChangeFace,deprecated
     public static Item[] item_4 = {
-        new Item { name = "mask_guocaijie", fullname = "items/ChangeFace/mask_guocaijie", iconid = 0 ,type=ItemType.ChangeFace},
-        new Item { name = "mask_huangxiaoming", fullname = "items/ChangeFace/mask_huangxiaoming", iconid = 1 ,type=ItemType.ChangeFace},
-        new Item { name = "mask_linzhiling", fullname = "items/ChangeFace/mask_linzhiling", iconid = 2 ,type=ItemType.ChangeFace},
-        new Item { name = "mask_liudehua", fullname = "items/ChangeFace/mask_liudehua", iconid = 3 ,type=ItemType.ChangeFace},
-        new Item { name = "mask_luhan", fullname = "items/ChangeFace/mask_luhan", iconid = 4 ,type=ItemType.ChangeFace},
-        new Item { name = "mask_matianyu", fullname = "items/ChangeFace/mask_matianyu", iconid = 5 ,type=ItemType.ChangeFace},
-        new Item { name = "mask_tongliya", fullname = "items/ChangeFace/mask_tongliya", iconid = 6 ,type=ItemType.ChangeFace},
+        //new Item { name = "mask_guocaijie", fullname = "items/ChangeFace/mask_guocaijie", iconid = 0 ,type=ItemType.ChangeFace},
+        //new Item { name = "mask_huangxiaoming", fullname = "items/ChangeFace/mask_huangxiaoming", iconid = 1 ,type=ItemType.ChangeFace},
+        //new Item { name = "mask_linzhiling", fullname = "items/ChangeFace/mask_linzhiling", iconid = 2 ,type=ItemType.ChangeFace},
+        //new Item { name = "mask_liudehua", fullname = "items/ChangeFace/mask_liudehua", iconid = 3 ,type=ItemType.ChangeFace},
+        //new Item { name = "mask_luhan", fullname = "items/ChangeFace/mask_luhan", iconid = 4 ,type=ItemType.ChangeFace},
+        //new Item { name = "mask_matianyu", fullname = "items/ChangeFace/mask_matianyu", iconid = 5 ,type=ItemType.ChangeFace},
+        //new Item { name = "mask_tongliya", fullname = "items/ChangeFace/mask_tongliya", iconid = 6 ,type=ItemType.ChangeFace},
     };
 
     //ExpressionRecognition
@@ -156,21 +147,21 @@ public class ItemConfig
         new Item { name = "facewarp6", fullname = "items/MagicMirror/facewarp6", iconid = 4 ,type=ItemType.MagicMirror},
     };
 
-    //PortraitLightEffect
+    //PortraitLightEffect,deprecated
     public static Item[] item_10 ={
-        new Item { name = "PortraitLighting_effect_0", fullname = "items/PortraitLightEffect/PortraitLighting_effect_0", iconid = 0 ,type=ItemType.PortraitLightEffect},
-        new Item { name = "PortraitLighting_effect_1", fullname = "items/PortraitLightEffect/PortraitLighting_effect_1", iconid = 1 ,type=ItemType.PortraitLightEffect},
-        new Item { name = "PortraitLighting_effect_2", fullname = "items/PortraitLightEffect/PortraitLighting_effect_2", iconid = 2 ,type=ItemType.PortraitLightEffect},
-        new Item { name = "PortraitLighting_effect_3", fullname = "items/PortraitLightEffect/PortraitLighting_effect_3", iconid = 3 ,type=ItemType.PortraitLightEffect},
-        new Item { name = "PortraitLighting_X_rim", fullname = "items/PortraitLightEffect/PortraitLighting_X_rim", iconid = 4 ,type=ItemType.PortraitLightEffect},
-        new Item { name = "PortraitLighting_X_studio", fullname = "items/PortraitLightEffect/PortraitLighting_X_studio", iconid = 5 ,type=ItemType.PortraitLightEffect},
+        //new Item { name = "PortraitLighting_effect_0", fullname = "items/PortraitLightEffect/PortraitLighting_effect_0", iconid = 0 ,type=ItemType.PortraitLightEffect},
+        //new Item { name = "PortraitLighting_effect_1", fullname = "items/PortraitLightEffect/PortraitLighting_effect_1", iconid = 1 ,type=ItemType.PortraitLightEffect},
+        //new Item { name = "PortraitLighting_effect_2", fullname = "items/PortraitLightEffect/PortraitLighting_effect_2", iconid = 2 ,type=ItemType.PortraitLightEffect},
+        //new Item { name = "PortraitLighting_effect_3", fullname = "items/PortraitLightEffect/PortraitLighting_effect_3", iconid = 3 ,type=ItemType.PortraitLightEffect},
+        //new Item { name = "PortraitLighting_X_rim", fullname = "items/PortraitLightEffect/PortraitLighting_X_rim", iconid = 4 ,type=ItemType.PortraitLightEffect},
+        //new Item { name = "PortraitLighting_X_studio", fullname = "items/PortraitLightEffect/PortraitLighting_X_studio", iconid = 5 ,type=ItemType.PortraitLightEffect},
     };
 
-    //PortraitDrive
+    //PortraitDrive,deprecated
     public static Item[] item_11 ={
-        new Item { name = "picasso_e1", fullname = "items/PortraitDrive/picasso_e1", iconid = 0,type=ItemType.PortraitDrive},
-        new Item { name = "picasso_e2", fullname = "items/PortraitDrive/picasso_e2", iconid = 1 ,type=ItemType.PortraitDrive},
-        new Item { name = "picasso_e3", fullname = "items/PortraitDrive/picasso_e3", iconid = 2 ,type=ItemType.PortraitDrive},
+        //new Item { name = "picasso_e1", fullname = "items/PortraitDrive/picasso_e1", iconid = 0,type=ItemType.PortraitDrive},
+        //new Item { name = "picasso_e2", fullname = "items/PortraitDrive/picasso_e2", iconid = 1 ,type=ItemType.PortraitDrive},
+        //new Item { name = "picasso_e3", fullname = "items/PortraitDrive/picasso_e3", iconid = 2 ,type=ItemType.PortraitDrive},
     };
 
 }
@@ -240,29 +231,32 @@ public class BeautyConfig
         new Beauty { name = "精准美肤", paramword = "skin_detect", maxvalue=1, defaultvalue=1, disablevalue=0, iconid_0 = 0,iconid_1=1 },//0-1 int,d=0
         new Beauty { name = "清晰磨皮", paramword = "blur_type", maxvalue=2, defaultvalue=0, disablevalue=0, iconid_0 = 2,iconid_1=3 },//0-2 int,d=0 朦胧磨皮,d=1 重度磨皮,d=2 精细磨皮
         new Beauty { name = "磨皮", paramword = "blur_level", maxvalue=6, defaultvalue=6, disablevalue=0, iconid_0 = 2,iconid_1=3 },//0-6 int,
-        new Beauty { name = "美白", paramword = "color_level", maxvalue=1, defaultvalue=0.5f, disablevalue=0, iconid_0 = 4,iconid_1=5 },//0-1f
-        new Beauty { name = "红润", paramword = "red_level", maxvalue=1, defaultvalue=0.5f, disablevalue=0, iconid_0 = 6,iconid_1=7 },//0-1f
+        new Beauty { name = "美白", paramword = "color_level", maxvalue=2, defaultvalue=0.5f, disablevalue=0, iconid_0 = 4,iconid_1=5 },//0-2f
+        new Beauty { name = "红润", paramword = "red_level", maxvalue=2, defaultvalue=0.5f, disablevalue=0, iconid_0 = 6,iconid_1=7 },//0-2f
         new Beauty { name = "亮眼", paramword = "eye_bright", maxvalue=1, defaultvalue=0.7f, disablevalue=0, iconid_0 = 8,iconid_1=9 },//0-1f
         new Beauty { name = "美牙", paramword = "tooth_whiten", maxvalue=1, defaultvalue=0.7f, disablevalue=0, iconid_0 = 10,iconid_1=11 },//0-1f
     };
 
     public static Beauty[] beautySkin_2 = {
         new Beauty { name = "脸型", paramword = "face_shape", maxvalue=4, defaultvalue=4, disablevalue=-1, iconid_0 = 12,iconid_1=13 },//0-4 int ,d=3
-        new Beauty { name = "大眼", paramword = "eye_enlarging", maxvalue=1, defaultvalue=0.4f, disablevalue=0, iconid_0 = 14,iconid_1=15 },//0-1f
-        new Beauty { name = "瘦脸", paramword = "cheek_thinning", maxvalue=1, defaultvalue=0.4f, disablevalue=0, iconid_0 = 16,iconid_1=17 },//0-1f
-        new Beauty { name = "下巴", paramword = "intensity_chin", maxvalue=1, defaultvalue=0.3f, disablevalue=0.5f, iconid_0 = 18,iconid_1=19 },//0-1f
-        new Beauty { name = "额头", paramword = "intensity_forehead", maxvalue=1, defaultvalue=0.3f, disablevalue=0.5f, iconid_0 = 20,iconid_1=21 },//0-1f
-        new Beauty { name = "瘦鼻", paramword = "intensity_nose", maxvalue=1, defaultvalue=0.5f, disablevalue=0, iconid_0 = 22,iconid_1=23 },//0-1f
-        new Beauty { name = "嘴型", paramword = "intensity_mouth", maxvalue=1, defaultvalue=0.4f, disablevalue=0.5f, iconid_0 = 24,iconid_1=25 },//0-1f
+        new Beauty { name = "瘦脸", paramword = "cheek_thinning", maxvalue=1, defaultvalue=0.4f, disablevalue=0, iconid_0 = 14,iconid_1=15 },//0-1f
+        new Beauty { name = "V脸", paramword = "cheek_v", maxvalue=1, defaultvalue=0.0f, disablevalue=0, iconid_0 = 16,iconid_1=17 },//0-1f
+        new Beauty { name = "窄脸", paramword = "cheek_narrow", maxvalue=1, defaultvalue=0.0f, disablevalue=0, iconid_0 = 18,iconid_1=19 },//0-1f
+        new Beauty { name = "小脸", paramword = "cheek_small", maxvalue=1, defaultvalue=0.0f, disablevalue=0, iconid_0 = 20,iconid_1=21 },//0-1f
+        new Beauty { name = "大眼", paramword = "eye_enlarging", maxvalue=1, defaultvalue=0.4f, disablevalue=0, iconid_0 = 22,iconid_1=23 },//0-1f
+        new Beauty { name = "下巴", paramword = "intensity_chin", maxvalue=1, defaultvalue=0.3f, disablevalue=0.5f, iconid_0 = 24,iconid_1=25 },//0-1f
+        new Beauty { name = "额头", paramword = "intensity_forehead", maxvalue=1, defaultvalue=0.3f, disablevalue=0.5f, iconid_0 = 26,iconid_1=27 },//0-1f
+        new Beauty { name = "瘦鼻", paramword = "intensity_nose", maxvalue=1, defaultvalue=0.5f, disablevalue=0, iconid_0 = 28,iconid_1=29 },//0-1f
+        new Beauty { name = "嘴型", paramword = "intensity_mouth", maxvalue=1, defaultvalue=0.4f, disablevalue=0.5f, iconid_0 = 30,iconid_1=31 },//0-1f
     };
 
     public static Beauty[] beautySkin_3 = {
-        new Beauty { name = "原图", paramword = "origin", maxvalue=1, defaultvalue=0.5f, iconid_0 = 26},//0-1f
-        new Beauty { name = "白亮", paramword = "bailiang2", maxvalue=1, defaultvalue=0.5f, iconid_0 = 27},
-        new Beauty { name = "粉嫩", paramword = "fennen1", maxvalue=1, defaultvalue=0.5f, iconid_0 = 28},
-        new Beauty { name = "小清新", paramword = "xiaoqingxin6", maxvalue=1, defaultvalue=0.5f, iconid_0 = 29},
-        new Beauty { name = "冷色调", paramword = "lengsediao1", maxvalue=1, defaultvalue=0.5f, iconid_0 = 30},
-        new Beauty { name = "暖色调", paramword = "nuansediao1", maxvalue=1, defaultvalue=0.5f, iconid_0 = 31},
+        new Beauty { name = "原图", paramword = "origin", maxvalue=1, defaultvalue=0.5f, iconid_0 = 32},//0-1f
+        new Beauty { name = "白亮", paramword = "bailiang2", maxvalue=1, defaultvalue=0.5f, iconid_0 = 33},
+        new Beauty { name = "粉嫩", paramword = "fennen1", maxvalue=1, defaultvalue=0.5f, iconid_0 = 34},
+        new Beauty { name = "小清新", paramword = "xiaoqingxin6", maxvalue=1, defaultvalue=0.5f, iconid_0 = 35},
+        new Beauty { name = "冷色调", paramword = "lengsediao1", maxvalue=1, defaultvalue=0.5f, iconid_0 = 36},
+        new Beauty { name = "暖色调", paramword = "nuansediao1", maxvalue=1, defaultvalue=0.5f, iconid_0 = 37},
     };
 
     public static Makeup[] makeupGroup_1 =

@@ -1,11 +1,29 @@
 # Unity Nama C# API 参考文档
 级别：Public
-更新日期：2019-09-25 
-SDK版本: 6.4.0 
+更新日期：2020-01-19
+SDK版本: 6.6.0
 
 ------
 
 ## 最新更新内容：
+
+2020-01-19 v6.6.0:
+
+注意: 更新SDK 6.6.0时，在fuSetup之后，需要马上调用 fuLoadAIModelFromPackage 加载ai_faceprocessor.bundle 到 FUAITYPE::FUAITYPE_FACEPROCESSOR!!!
+
+在Nama 6.6.0及以上，AI能力的调用会按道具需求调用，避免同一帧多次调用；同时由Nama AI子系统管理推理，简化调用过程；将能力和产品功能进行拆分，避免在道具bundle内的冗余AI模型资源，方便维护升级，同时加快道具的加载；方便各新旧AI能力集成，后续的升级迭代。
+
+基本逻辑：Nama初始化后，可以预先加载一个或多个将来可能使用到的AI能力模块。调用实时render处理接口时，Nama主pipe会在最开始的时候，分析当前全部道具需要AI能力，然后由AI子系统执行相关能力推理，然后开始调用各个道具的‘生命周期’函数，各道具只需要按需在特定的‘生命周期’函数调用JS接口获取AI推理的结果即可，并用于相关逻辑处理或渲染。
+
+1. 新增加接口 fuLoadAIModelFromPackage 用于加载AI能力模型。
+2. 新增加接口 fuReleaseAIModel 用于释放AI能力模型。
+3. 新增加接口 fuIsAIModelLoaded 判断AI能力是否已经加载。
+4. 新增fuSetMultiSamples接口，MSAA抗锯齿接口，解决虚拟形象等内容边缘锯齿问题。
+
+例子1：背景分割
+	a. 加载AI能力模型，fuLoadAIModelFromPackage加载ai_bgseg.bundle 到 FUAITYPE::FUAITYPE_BACKGROUNDSEGMENTATION上。
+	b. 加载产品业务道具A，A道具使用了背景分割能力。
+	c. 切换产品业务道具B，B道具同样使用了背景分割能力，但这时AI能力不需要重新加载。
 
 2019-09-25 v6.4.0:
 
@@ -13,7 +31,7 @@ SDK版本: 6.4.0
 
 2019-08-14 v6.3.0:
 
-- 新增fuSetFaceTrackParam函数，用于设置人脸跟踪参数。
+- 新增fu_SetFaceTrackParam函数，用于设置人脸跟踪参数。
 
 2019-06-27 v6.2.0:
 
@@ -181,26 +199,6 @@ __备注:__
 
 ------
 
-##### ~~fu_LoadExtendedARData 函数~~
-
-**已弃用**
-
-```c#
-public static extern int fu_LoadExtendedARData(IntPtr databuf, int databuf_sz);
-```
-
-------
-
-##### ~~fu_LoadAnimModel 函数~~
-
-**已弃用**
-
-```c#
-public static extern int fu_LoadAnimModel(IntPtr databuf, int databuf_sz);
-```
-
-------
-
 ##### fu_LoadTongueModel 函数
 
 加载舌头跟踪需要的数据文件
@@ -220,7 +218,90 @@ __返回值:__
 
 __备注:__
 
-这个接口会**延迟**生效。
+这个接口会**立即**生效。
+
+------
+
+##### fu_LoadAIModelFromPackage 函数
+
+加载AI运算需要的数据文件
+
+```c#
+public static extern int fu_LoadAIModelFromPackage(IntPtr databuf, int databuf_sz, int _type);
+```
+
+__参数:__
+
+*databuf*:  tongue.bytes中读取的二进制数据的指针
+*databuf_sz*:  tongue.bytes的长度
+*_type*:  AI数据文件类型，有以下几类：
+```c#
+public enum FUAITYPE
+{
+    FUAITYPE_BACKGROUNDSEGMENTATION = 1 << 1,
+    FUAITYPE_HAIRSEGMENTATION = 1 << 2,
+    FUAITYPE_HANDGESTURE = 1 << 3,
+    FUAITYPE_TONGUETRACKING = 1 << 4,
+    FUAITYPE_FACELANDMARKS75 = 1 << 5,
+    FUAITYPE_FACELANDMARKS209 = 1 << 6,
+    FUAITYPE_FACELANDMARKS239 = 1 << 7,
+    FUAITYPE_HUMANPOSE2D = 1 << 8,
+    FUAITYPE_BACKGROUNDSEGMENTATION_GREEN = 1 << 9,
+    FUAITYPE_FACEPROCESSOR = 1 << 10
+}
+```
+
+__返回值:__
+
+无
+
+__备注:__
+
+这个接口会**立即**生效。
+
+------
+
+##### fu_ReleaseAIModel 函数
+
+卸载AI运算需要的数据文件
+
+```c#
+public static extern int fu_ReleaseAIModel(int _type);
+```
+
+__参数:__
+
+*_type*:  AI数据文件类型
+
+__返回值:__
+
+无
+
+__备注:__
+
+这个接口会**立即**生效。
+
+------
+
+##### fu_IsAIModelLoaded 函数
+
+查询对应类型的AI运算数据文件是否已加载
+
+```c#
+public static extern int fu_IsAIModelLoaded(int _type);
+```
+
+__参数:__
+
+*_type*:  AI数据文件类型
+
+__返回值:__
+
+0为未加载，否则为已加载
+
+__备注:__
+
+这个接口会**立即**生效。
 
 ---
 
@@ -624,12 +705,12 @@ __备注:__
 
 #### 2.3 加载销毁道具
 
-##### fu_setItemDataFromPackage 函数
+##### fu_CreateItemFromPackage 函数
 
-这个接口用于加载UnityNamaSDK所适配的道具文件，如美颜，贴纸，Animoji等等，但是不建议直接调用这个接口，而是用封装好的fu_CreateItemFromPackage
+这个接口用于加载UnityNamaSDK所适配的道具文件，如美颜，贴纸，Animoji等等
 
 ```c#
-private static extern void fu_setItemDataFromPackage(IntPtr databuf, int databuf_sz);
+public static extern int fu_CreateItemFromPackage(IntPtr databuf, int databuf_sz);
 ```
 
 __参数:__
@@ -643,16 +724,38 @@ __返回值:__
 
 __备注:__
 
-这个接口会**延迟**生效。
+这个接口会**立即**生效。
 
 ------
 
-##### fu_getItemIdxFromPackage 函数
+##### fu_DestroyItem 函数
 
-获取上一个加载成功的道具的Index（又称ItemID）
+销毁指定道具
 
 ```c#
-public static extern int fu_getItemIdxFromPackage();
+public static extern void fu_DestroyItem(int itemid);
+```
+
+__参数:__
+
+*itemid*:  道具加载后返回的ItemID
+
+__返回值:__
+
+无
+
+__备注:__
+
+这个接口会**立即**生效。
+
+------
+
+##### fu_DestroyAllItems 函数
+
+销毁当前所有加载的道具
+
+```c#
+public static extern void fu_DestroyAllItems();
 ```
 
 __参数:__
@@ -661,13 +764,13 @@ __参数:__
 
 __返回值:__
 
-上一个加载的道具的Index
+无
 
 __备注:__
 
 这个接口会**立即**生效。
 
----
+------
 
 ##### fu_setItemIds 函数
 
@@ -693,58 +796,36 @@ __备注:__
 
 ------
 
-##### fu_DestroyItem 函数
-
-销毁指定道具
-
-```c#
-public static extern void fu_DestroyItem(int itemid);
-```
-
-__参数:__
-
-*itemid*:  道具加载后返回的ItemID
-
-__返回值:__
-
-无
-
-__备注:__
-
-这个接口会**延迟**生效。
-如果同一帧内多次调用本函数，只有最后一次调用会生效。
-
-------
-
-##### fu_DestroyAllItems 函数
-
-销毁当前所有加载的道具
-
-```c#
-public static extern void fu_DestroyAllItems();
-```
-
-__参数:__
-
-无
-
-__返回值:__
-
-无
-
-__备注:__
-
-这个接口会**延迟**生效。
-如果同一帧内多次调用本函数，只有最后一次调用会生效。
-
----
-
 ##### fu_ItemSetParamd 函数
 
 给道具设置参数（double）
 
 ```c#
 public static extern int fu_ItemSetParamd(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, double value);
+```
+
+__参数:__
+
+*itemid*: 需要设置参数的道具ID
+*name*: 参数的名字
+*value*: 参数
+
+__返回值:__
+
+当返回1时表示成功，0表示失败。
+
+__备注:__
+
+这个接口会**立即**生效。
+
+------
+
+##### fu_ItemSetParams 函数
+
+给道具设置参数（string）
+
+```c#
+public static extern int fu_ItemSetParams(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, [MarshalAs(UnmanagedType.LPStr)]string value);
 ```
 
 __参数:__
@@ -788,19 +869,45 @@ __备注:__
 
 ------
 
-##### fu_ItemSetParams 函数
+##### fu_ItemSetParamu8v 函数
 
-给道具设置参数（string）
+给道具设置参数（u8数组）
 
 ```c#
-public static extern int fu_ItemSetParams(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, [MarshalAs(UnmanagedType.LPStr)]string value);
+public static extern int fu_ItemSetParamu8v(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, IntPtr value, int value_sz);
 ```
 
 __参数:__
 
 *itemid*: 需要设置参数的道具ID
 *name*: 参数的名字
-*value*: 参数
+*value*: 参数指针
+*value_sz*: 参数长度
+
+__返回值:__
+
+当返回1时表示成功，0表示失败。
+
+__备注:__
+
+这个接口会**立即**生效。
+
+------
+
+##### fu_ItemSetParamu64 函数
+
+给道具设置参数（u64数组）
+
+```c#
+public static extern int fu_ItemSetParamu64(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, IntPtr value, int value_sz);
+```
+
+__参数:__
+
+*itemid*: 需要设置参数的道具ID
+*name*: 参数的名字
+*value*: 参数指针
+*value_sz*: 参数长度
 
 __返回值:__
 
@@ -841,6 +948,81 @@ __备注:__
 
 ```c#
 public static extern int fu_ItemGetParams(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, [MarshalAs(UnmanagedType.LPStr)]byte[] buf, int buf_sz);
+```
+
+__参数:__
+
+*itemid*: 需要获取参数的道具ID
+*name*: 参数的名字
+*buf*: 参数指针
+*buf_sz*: 参数的长度
+
+__返回值:__
+
+当返回1时表示成功，0表示失败。
+
+__备注:__
+
+这个接口会**立即**生效。
+
+------
+
+##### fu_ItemGetParamdv 函数
+
+获取指定道具的某个参数（double数组）
+
+```c#
+public static extern int fu_ItemGetParamdv(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, IntPtr value, int value_sz);
+```
+
+__参数:__
+
+*itemid*: 需要获取参数的道具ID
+*name*: 参数的名字
+*buf*: 参数指针
+*buf_sz*: 参数的长度
+
+__返回值:__
+
+当返回1时表示成功，0表示失败。
+
+__备注:__
+
+这个接口会**立即**生效。
+
+------
+
+##### fu_ItemGetParamu8v 函数
+
+获取指定道具的某个参数（u8数组）
+
+```c#
+public static extern int fu_ItemGetParamu8v(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, IntPtr value, int value_sz);
+```
+
+__参数:__
+
+*itemid*: 需要获取参数的道具ID
+*name*: 参数的名字
+*buf*: 参数指针
+*buf_sz*: 参数的长度
+
+__返回值:__
+
+当返回1时表示成功，0表示失败。
+
+__备注:__
+
+这个接口会**立即**生效。
+
+------
+
+##### fu_ItemGetParamfv 函数
+
+获取指定道具的某个参数（float数组）
+
+```c#
+public static extern int fu_ItemGetParamfv(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, IntPtr value, int value_sz);
 ```
 
 __参数:__
@@ -967,7 +1149,7 @@ public static extern void fu_SetDefaultRotationMode(int i);
 
 __参数:__
 
-*i*:  输入0~3的整数，具体应用请参考UnityDemo中的StdController.cs中的getRotateEuler函数
+*i*:  输入0~3的整数，具体应用请参考FixRotation函数
 
 __返回值:__
 
@@ -997,6 +1179,29 @@ __返回值:__
 
 __备注:__
 
+这个接口会**立即**生效。
+
+------
+
+##### fuSetMultiSamples 函数
+
+设置MSAA抗锯齿功能的采样数。默认为0，处于关闭状态。
+
+```c#
+public static extern int fu_SetMultiSamples(int samples);
+```
+
+__参数:__
+
+*samples*：默认为0，处于关闭状态。samples要小于等于设备GL_MAX_SAMPLES，通常可以设置4。
+
+__返回值:__
+
+设置后系统的采样数，设置成功返回samples。 
+
+__备注:__
+
+该功能为硬件抗锯齿功能，需要ES3的Context。
 这个接口会**立即**生效。
 
 ------
@@ -1355,29 +1560,6 @@ __备注:__
 
 #### 2.5 C#端辅助接口
 
-##### fu_CreateItemFromPackage 函数
-
-开启这个协程来加载Nama道具，这个道具会自动等待两帧，待道具真正加载完毕再返回。
-
-```c#
- public static IEnumerator fu_CreateItemFromPackage(IntPtr databuf, int databuf_sz)
-```
-
-__参数:__
-
-*databuf*: 道具文件数组的指针
-*databuf_sz*: 道具文件数组的长度
-
-__返回值:__
-
-无
-
-__备注:__
-
-这是一个C#函数，不是UnityNamaSDK接口
-
-------
-
 ##### InitCFaceUnityCoefficientSet 函数
 
 实例化所有获取人脸信息的类， 这些实例内含了fu_GetFaceInfo，用于获取各种人脸信息。
@@ -1402,10 +1584,32 @@ __备注:__
 
 ##### Start 函数
 
-这个协程会初始化整个UnityNamaSDK。初始化完毕会自动开启CallPluginAtEndOfFrames。
+这个协程会准备初始化整个UnityNamaSDK。准备完毕会自动开启GLLoop。
 
 ```c#
  IEnumerator Start()
+```
+
+__参数:__
+
+无
+
+__返回值:__
+
+无
+
+__备注:__
+
+这是一个C#函数，不是UnityNamaSDK接口
+
+------
+
+##### GLLoop 函数
+
+这个协程会真正执行初始化逻辑。初始化完毕会自动开启CallPluginAtEndOfFrames。
+
+```c#
+private IEnumerator GLLoop()
 ```
 
 __参数:__
@@ -1466,6 +1670,51 @@ __备注:__
 
 ------
 
+##### LoadAIBundle 函数
+
+封装过的AI数据文件加载函数
+
+```c#
+ private IEnumerator LoadAIBundle(string name,FUAITYPE type)
+```
+
+__参数:__
+
+*name*: 数据文件全名（带后缀）
+*type*: AI数据文件类型
+
+__返回值:__
+
+无
+
+__备注:__
+
+这是一个C#函数，不是UnityNamaSDK接口
+
+------
+
+##### LoadTongueBundle 函数
+
+封装过的AI舌头跟踪数据文件加载函数
+
+```c#
+ private IEnumerator LoadTongueBundle(string name)
+```
+
+__参数:__
+
+*name*: 数据文件全名（带后缀）
+
+__返回值:__
+
+无
+
+__备注:__
+
+这是一个C#函数，不是UnityNamaSDK接口
+
+------
+
 ##### OnApplicationQuit 函数
 
 在应用退出的时候清理GCHandle及UnityNamaSDK内部的相关数据。
@@ -1503,6 +1752,30 @@ __参数:__
 __返回值:__
 
 false表示检测不通过，true表示检测通过
+
+__备注:__
+
+这是一个C#函数，不是UnityNamaSDK接口
+
+---
+
+##### FixRotation 函数
+
+根据当前平台环境、相机是否镜像以及重力感应方向，自动设置道具和跟踪的默认方向，在Texout场景中需要每帧调用以适应重力感应，Dataout场景只需相机切换时调用。具体应用请看本函数在Demo中的引用。
+
+```c#
+ public static void FixRotation(bool ifMirrored = false, FUAI_CAMERA_VIEW eyeViewRot = FUAI_CAMERA_VIEW.ROT_0)
+```
+
+__参数:__
+
+`ifMirrored` 是否镜像
+`eyeViewRot` 你想要的默认渲染方向，当手机屏幕面对你，home键在下时为ROT_0，在右时为ROT_90，在上时为ROT_180，在左时为ROT_270，一般由重力感应决定这个值
+
+
+__返回值:__
+
+无
 
 __备注:__
 

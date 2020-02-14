@@ -188,6 +188,8 @@ public class RenderToModel : MonoBehaviour
         newCamera = newCamera < 0 ? (NatCam.Camera + 1) % DeviceCamera.Cameras.Count : newCamera;
         // Set the new active camera
         NatCam.Camera = (DeviceCamera)newCamera;
+
+        FaceunityWorker.FixRotation(NatCam.Camera.Facing != Facing.Front);
     }
 
     //根据运行环境调整相机UI的缩放旋转，这段简单的代码无法覆盖所有情况
@@ -266,6 +268,8 @@ public class RenderToModel : MonoBehaviour
             // Register callback for when the preview starts //Note that this is a MUST when assigning the preview texture to anything
             NatCam.OnStart += OnStart;
 
+            FaceunityWorker.FixRotation(NatCam.Camera.Facing != Facing.Front);
+
 #if UNITY_EDITOR || UNITY_STANDALONE
             if (img_handle.IsAllocated)
                 img_handle.Free();
@@ -292,6 +296,7 @@ public class RenderToModel : MonoBehaviour
     {
         baseRotation = RawImg_BackGroud.rectTransform.rotation;
         StartCoroutine("InitCamera");
+        StartCoroutine(LoadItem(Util.GetStreamingAssetsPath() + "/faceunity/EmptyItem.bytes"));
     }
 
     //当前环境是PC或者MAC的时候，在这里向SDK输入数据并获取SDK输出的纹理
@@ -363,7 +368,7 @@ public class RenderToModel : MonoBehaviour
         }
     }
 
-    //加载道具。用于舌头跟踪，详见文档
+    //加载道具。RenderItem下的获取跟踪数据，详见文档
     public IEnumerator LoadItem(string path, int slotid = 0)
     {
         Debug.Log("LoadItem:" + path);
@@ -373,22 +378,25 @@ public class RenderToModel : MonoBehaviour
         GCHandle hObject = GCHandle.Alloc(bundle_bytes, GCHandleType.Pinned);
         IntPtr pObject = hObject.AddrOfPinnedObject();
 
-        yield return FaceunityWorker.fu_CreateItemFromPackage(pObject, bundle_bytes.Length);
+        int itemid = FaceunityWorker.fu_CreateItemFromPackage(pObject, bundle_bytes.Length);
         hObject.Free();
-        int itemid = FaceunityWorker.fu_getItemIdxFromPackage();
+
+        if (itemid_tosdk[slotid] > 0)
+            UnLoadItem(slotid);
 
         itemid_tosdk[slotid] = itemid;
 
         FaceunityWorker.fu_setItemIds(p_itemsid, SLOTLENGTH, IntPtr.Zero);
     }
 
-    //卸载道具。用于舌头跟踪，详见文档
+    //加载道具。RenderItem下的获取跟踪数据，详见文档
     public bool UnLoadItem(int slotid = 0)
     {
         if (slotid >= 0 && slotid < SLOTLENGTH)
         {
             FaceunityWorker.fu_DestroyItem(itemid_tosdk[slotid]);
             itemid_tosdk[slotid] = 0;
+            Debug.LogFormat("UnLoadItem slotid = {0}", slotid);
             return true;
         }
         Debug.LogError("UnLoadItem Faild!!!");

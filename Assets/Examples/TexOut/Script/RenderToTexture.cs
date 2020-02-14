@@ -35,6 +35,13 @@ public class RenderToTexture : MonoBehaviour
         public string name;
         public int id;
         public Item item;
+
+        public void Reset()
+        {
+            id = 0;
+            name = "";
+            item = Item.Empty;
+        }
     };
     private slot_item[] slot_items; //关联起item和slotid的一个数组，长度为SLOTLENGTH
 
@@ -74,6 +81,8 @@ public class RenderToTexture : MonoBehaviour
             return bgMaterial;
         }
     }
+
+    //public Text txt;
 
     /**\brief 调整输入的纹理的旋转和镜像，用以下三个参数可以表达一个纹理任意方向的旋转和镜像的结果（2^3=8种）\param tex_origin 原始的纹理\param SwichXY  是否调换纹理的UV的X轴和Y轴，即沿着对角线翻转\param flipx    是否翻转X轴\param flipy    是否翻转Y轴\return 计算好的纹理    */
     public Texture2D AdjustTex(Texture2D tex_origin,int SwichXY, int flipx, int flipy)
@@ -138,6 +147,8 @@ public class RenderToTexture : MonoBehaviour
         NatCam.Camera = (DeviceCamera)newCamera;
 
         StartCoroutine(delaySetItemMirror());
+
+
     }
 
     //延迟设置道具的镜像参数，因为相机切换不是瞬间完成的
@@ -302,9 +313,7 @@ public class RenderToTexture : MonoBehaviour
             slot_items = new slot_item[SLOTLENGTH];
             for(int i=0;i< SLOTLENGTH;i++)
             {
-                slot_items[i].id = 0;
-                slot_items[i].name = "";
-                slot_items[i].item = Item.Empty;
+                slot_items[i].Reset();
             }
         }
     }
@@ -371,6 +380,47 @@ public class RenderToTexture : MonoBehaviour
             }
         }
 #endif
+
+        //txt.text = Input.acceleration.ToString();
+        var g = Input.acceleration;
+        FaceunityWorker.FUAI_CAMERA_VIEW v = FaceunityWorker.FUAI_CAMERA_VIEW.ROT_0;
+        if (Mathf.Abs(g.x) > Mathf.Abs(g.y))
+        {
+            if (g.x > 0.5f)
+            {
+                //txt.text += "\n90";
+                v = FaceunityWorker.FUAI_CAMERA_VIEW.ROT_90;
+            }
+            else if (g.x < -0.5f)
+            {
+                //txt.text += "\n270";
+                v = FaceunityWorker.FUAI_CAMERA_VIEW.ROT_270;
+            }
+            else
+            {
+                //txt.text += "\nDefault 0";
+                v = FaceunityWorker.FUAI_CAMERA_VIEW.ROT_0;
+            }
+        }
+        else
+        {
+            if (g.y > 0.5f)
+            {
+                //txt.text += "\n180";
+                v = FaceunityWorker.FUAI_CAMERA_VIEW.ROT_180;
+            }
+            else if (g.y < -0.5f)
+            {
+                //txt.text += "\n0";
+                v = FaceunityWorker.FUAI_CAMERA_VIEW.ROT_0;
+            }
+            else
+            {
+                //txt.text += "\nDefault 0";
+                v = FaceunityWorker.FUAI_CAMERA_VIEW.ROT_0;
+            }
+        }
+        FaceunityWorker.FixRotation(NatCam.Camera.Facing != Facing.Front, v);
     }
 
     void OnApplicationPause(bool isPause)
@@ -409,11 +459,10 @@ public class RenderToTexture : MonoBehaviour
                 Debug.LogFormat("bundledata name:{0}, size:{1}", item.name, bundle_bytes.Length);
                 GCHandle hObject = GCHandle.Alloc(bundle_bytes, GCHandleType.Pinned);
                 IntPtr pObject = hObject.AddrOfPinnedObject();
-                yield return FaceunityWorker.fu_CreateItemFromPackage(pObject, bundle_bytes.Length);
+                var itemid = FaceunityWorker.fu_CreateItemFromPackage(pObject, bundle_bytes.Length);
                 hObject.Free();
-                int itemid = FaceunityWorker.fu_getItemIdxFromPackage();
 
-                UnLoadItem(slotid); //卸载上一个在这个slot槽内的道具，并非必要，但是为了节省内存还是清一下
+                UnLoadItem(slotid); //卸载上一个在这个slot槽内的道具
 
                 itemid_tosdk[slotid] = itemid;
                 slot_items[slotid].id = itemid;
@@ -428,14 +477,10 @@ public class RenderToTexture : MonoBehaviour
                 UnLoadItem(slotid);
 
                 itemid_tosdk[slotid] = slot_items[tempslot].id;
-                slot_items[slotid].id = slot_items[tempslot].id;
-                slot_items[slotid].name = slot_items[tempslot].name;
-                slot_items[slotid].item = slot_items[tempslot].item;
+                slot_items[slotid] = slot_items[tempslot];
 
                 itemid_tosdk[tempslot] = 0;
-                slot_items[tempslot].id = 0;
-                slot_items[tempslot].name = "";
-                slot_items[tempslot].item = Item.Empty;
+                slot_items[tempslot].Reset();
 
                 FaceunityWorker.fu_setItemIds(p_itemsid, SLOTLENGTH, IntPtr.Zero);
                 Debug.Log("移动Item：" + item.name + " from tempslot=" + tempslot + " to slotid="+ slotid);
@@ -497,10 +542,7 @@ public class RenderToTexture : MonoBehaviour
     {
         if (slotid >= 0 && slotid< SLOTLENGTH)
         {
-            if (slot_items[slotid].id == 0)
-                return true;
             Debug.Log("UnLoadItem name=" + slot_items[slotid].name+ " slotid="+ slotid);
-
             FaceunityWorker.fu_DestroyItem(slot_items[slotid].id);
             itemid_tosdk[slotid] = 0;
             slot_items[slotid].id = 0;
@@ -520,7 +562,7 @@ public class RenderToTexture : MonoBehaviour
         for (int i = 0; i < SLOTLENGTH; i++)
         {
             itemid_tosdk[i] = 0;
-            slot_items[i] = new slot_item { name = "", id = 0, item = Item.Empty };
+            slot_items[i].Reset();
         }
     }
 
@@ -653,25 +695,10 @@ public class RenderToTexture : MonoBehaviour
         bool ifMirrored = NatCam.Camera.Facing == Facing.Front;
 #if (UNITY_ANDROID) && (!UNITY_EDITOR)
         //道具旋转
-        if (ifMirrored)
-        {
-            if (Util.isNexus6())
-                FaceunityWorker.fu_SetDefaultRotationMode(3);
-            else
-                FaceunityWorker.fu_SetDefaultRotationMode(1);
-        }
-        else
-        {
-            if (Util.isNexus5X())
-                FaceunityWorker.fu_SetDefaultRotationMode(1);
-            else
-                FaceunityWorker.fu_SetDefaultRotationMode(3);
-        }
         ifMirrored = !ifMirrored;
         FaceunityWorker.fu_ItemSetParamd(itemid, "isAndroid", 1.0);
 #endif
 #if (UNITY_IOS) && (!UNITY_EDITOR)
-        FaceunityWorker.fu_SetDefaultRotationMode(2);
         ifMirrored=false;
         if (item.name.CompareTo(ItemConfig.item_8[0].name)==0 || item.name.CompareTo(ItemConfig.item_8[1].name) == 0 || item.name.CompareTo(ItemConfig.item_8[2].name) == 0)
         {
@@ -714,25 +741,7 @@ public class RenderToTexture : MonoBehaviour
         //isFlipLight 参数是用于对道具内部的灯光的镜像
         FaceunityWorker.fu_ItemSetParamd(itemid, "isFlipLight", param);
 
-        //这里的设置是为了new_face_tracker_normal这个新跟踪库，这个跟踪库一次只会跟踪一个方向，因此需要主动调整跟踪的方向（绕垂直于手机屏幕的轴旋转0，90，180，270度）
-#if UNITY_EDITOR || UNITY_STANDALONE
-        if (item.name.CompareTo(ItemConfig.makeup[1].name) == 0)
-            FaceunityWorker.fu_ItemSetParamd(itemid, "orientation", (float)FUAI_CAMERA_VIEW.ROT_180);
-#endif
-#if !UNITY_EDITOR && UNITY_ANDROID
-        if (item.name.CompareTo(ItemConfig.makeup[1].name) == 0)
-        {
-            if (ifMirrored)
-                FaceunityWorker.fu_ItemSetParamd(itemid, "orientation", (float)FUAI_CAMERA_VIEW.ROT_270);
-            else
-                FaceunityWorker.fu_ItemSetParamd(itemid, "orientation", (float)FUAI_CAMERA_VIEW.ROT_90);
-        }
-#endif
-#if !UNITY_EDITOR && UNITY_IOS
-        if (item.name.CompareTo(ItemConfig.makeup[1].name) == 0)
-            FaceunityWorker.fu_ItemSetParamd(itemid, "orientation", (float)FUAI_CAMERA_VIEW.ROT_180);
-#endif
-
+        FaceunityWorker.FixRotation(ifMirrored);
     }
 
     private void OnApplicationQuit()

@@ -37,7 +37,6 @@ public class UIManagerForDataOut : MonoBehaviour {
     {
         NatCam.OnStart += OnStart;
         RegisterUIFunc();
-        StartCoroutine(rtm.LoadItem(Util.GetStreamingAssetsPath() + "/faceunity/EnableTongueForUnity.bytes"));
     }
 
     public void OnStart()
@@ -69,7 +68,6 @@ public class UIManagerForDataOut : MonoBehaviour {
             {
                 rtm.ifTrackPos = true;
                 FaceunityWorker.SetRunningMode(FaceunityWorker.FURuningMode.FU_Mode_RenderItems);
-                StartCoroutine(rtm.LoadItem(Util.GetStreamingAssetsPath() + "/faceunity/EnableTongueForUnity.bytes"));
                 StartCoroutine(rtm.delaySet());
             }
             else

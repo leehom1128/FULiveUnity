@@ -33,6 +33,10 @@ public class RenderSimple : MonoBehaviour {
     public RawImage RawImg_BackGroud;   //用来显示相机结果的UI控件
     public Texture2D InputTex;  //通过纹理来往SDK内部传输数据
 
+    const int SLOTLENGTH = 1;
+    int[] itemid_tosdk;
+    GCHandle itemid_handle;
+    IntPtr p_itemsid;
 
     //切换相机
     public void SwitchCamera()
@@ -87,12 +91,19 @@ public class RenderSimple : MonoBehaviour {
     void Awake()
     {
         FaceunityWorker.OnInitOK += InitApplication;
+        if (itemid_tosdk == null)
+        {
+            itemid_tosdk = new int[SLOTLENGTH];
+            itemid_handle = GCHandle.Alloc(itemid_tosdk, GCHandleType.Pinned);
+            p_itemsid = itemid_handle.AddrOfPinnedObject();
+        }
     }
 
     //初始化相机
     void InitApplication(object source, EventArgs e)
     {
         StartCoroutine(InitCamera());
+        StartCoroutine(LoadItem(Util.GetStreamingAssetsPath() + "/faceunity/EmptyItem.bytes"));
     }
 
     //四种数据输入格式，详见文档
@@ -170,6 +181,7 @@ public class RenderSimple : MonoBehaviour {
         {
             img_nv21_handle.Free();
         }
+        UnLoadItem();
     }
 
 
@@ -260,5 +272,40 @@ public class RenderSimple : MonoBehaviour {
                 index++;
             }
         }
+    }
+
+    public IEnumerator LoadItem(string path, int slotid = 0)
+    {
+        Debug.Log("LoadItem:" + path);
+        WWW bundledata = new WWW(path);
+        yield return bundledata;
+        byte[] bundle_bytes = bundledata.bytes;
+        GCHandle hObject = GCHandle.Alloc(bundle_bytes, GCHandleType.Pinned);
+        IntPtr pObject = hObject.AddrOfPinnedObject();
+
+        int itemid = FaceunityWorker.fu_CreateItemFromPackage(pObject, bundle_bytes.Length);
+        hObject.Free();
+
+        if (itemid_tosdk[slotid] > 0)
+            UnLoadItem(slotid);
+
+        itemid_tosdk[slotid] = itemid;
+
+        FaceunityWorker.fu_setItemIds(p_itemsid, SLOTLENGTH, IntPtr.Zero);
+
+        Debug.Log("LoadItem Finish");
+    }
+
+    public bool UnLoadItem(int slotid = 0)
+    {
+        if (slotid >= 0 && slotid < SLOTLENGTH)
+        {
+            FaceunityWorker.fu_DestroyItem(itemid_tosdk[slotid]);
+            itemid_tosdk[slotid] = 0;
+            Debug.LogFormat("UnLoadItem slotid = {0}", slotid);
+            return true;
+        }
+        Debug.LogError("UnLoadItem Faild!!!");
+        return false;
     }
 }

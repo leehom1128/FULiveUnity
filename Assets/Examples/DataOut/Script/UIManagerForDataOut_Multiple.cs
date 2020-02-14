@@ -34,7 +34,6 @@ public class UIManagerForDataOut_Multiple : MonoBehaviour {
     void InitApplication(object source, EventArgs e)
     {
         RegisterUIFunc();
-        StartCoroutine(rtm.LoadItem(Util.GetStreamingAssetsPath() + "/faceunity/EnableTongueForUnity.bytes"));
     }
 
     void Update()
