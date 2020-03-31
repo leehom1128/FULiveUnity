@@ -96,6 +96,7 @@ public class UIManagerForDataOut : MonoBehaviour {
                     if (id < stcs.Length)
                     {
                         stcs[id].gameObject.SetActive(false);
+                        stcs[id].ResetTransform();
                     }
                 }
             });
@@ -128,6 +129,7 @@ public class UIManagerForDataOut : MonoBehaviour {
                 if (i < stcs.Length)
                 {
                     stcs[i].gameObject.SetActive(false);
+                    stcs[i].ResetTransform();
                 }
             }
         }

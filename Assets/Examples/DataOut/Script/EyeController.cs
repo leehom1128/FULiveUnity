@@ -58,10 +58,7 @@ public class EyeController : MonoBehaviour {
         float angle = 0;
 
         bool ifMirrored = NatCam.Camera.Facing == Facing.Front;
-#if (UNITY_ANDROID) && (!UNITY_EDITOR)
-        if(!Util.isNexus6())
-            ifMirrored = !ifMirrored;
-#elif (UNITY_IOS) && (!UNITY_EDITOR)
+#if (UNITY_IOS) && (!UNITY_EDITOR)
         ifMirrored=false;
 #endif
 

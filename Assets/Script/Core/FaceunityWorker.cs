@@ -8,6 +8,12 @@ using System.Collections.Generic;
 
 public class FaceunityWorker : MonoBehaviour
 {
+    public enum FaceUnityCoefficientDataType
+    {
+        _float = 0,
+        _int = 1
+    }
+
     //封装好的用于获取当前跟踪信息的类
     public class CFaceUnityCoefficientSet
     {
@@ -18,7 +24,7 @@ public class FaceunityWorker : MonoBehaviour
         public string m_name;   //跟踪数据的名字，SDK通过这个来判断返回哪种数据
         public int m_addr_size; //跟踪数据的长度，可变
         public int m_faceId = 0;    //跟踪的人脸ID
-        public int m_datatype = 0;  //0为float，1为int
+        public FaceUnityCoefficientDataType m_datatype = FaceUnityCoefficientDataType._float;  //0为float，1为int
 
         /**
    \brief 构造函数
@@ -28,20 +34,20 @@ public class FaceunityWorker : MonoBehaviour
    \param datatype 跟踪数据类型，有些为int有些为float，请参照相关文档设置，否则会出错，默认值为float
    \return 类实例
             */
-        public CFaceUnityCoefficientSet(string name, int size, int faceId = 0,int datatype=0)
+        public CFaceUnityCoefficientSet(string name, int size, int faceId = 0, FaceUnityCoefficientDataType datatype = FaceUnityCoefficientDataType._float)
        {
            m_name = name;
            m_addr_size = size;
            m_faceId = faceId;
            m_datatype = datatype;
 
-           if (m_datatype == 0)
+           if (m_datatype == FaceUnityCoefficientDataType._float)
            {
                m_data = new float[m_addr_size];
                m_handle = GCHandle.Alloc(m_data, GCHandleType.Pinned);
                m_addr = m_handle.AddrOfPinnedObject();
            }
-           else if (m_datatype == 1)
+           else if (m_datatype == FaceUnityCoefficientDataType._int)
            {
                m_data_int = new int[m_addr_size];
                m_handle = GCHandle.Alloc(m_data_int, GCHandleType.Pinned);
@@ -88,13 +94,13 @@ public class FaceunityWorker : MonoBehaviour
                    m_handle.Free();
                }
                m_addr_size = num;
-               if (m_datatype == 0)
+               if (m_datatype == FaceUnityCoefficientDataType._float)
                {
                    m_data = new float[m_addr_size];
                    m_handle = GCHandle.Alloc(m_data, GCHandleType.Pinned);
                    m_addr = m_handle.AddrOfPinnedObject();
                }
-               else if (m_datatype == 1)
+               else if (m_datatype == FaceUnityCoefficientDataType._int)
                {
                    m_data_int = new int[m_addr_size];
                    m_handle = GCHandle.Alloc(m_data_int, GCHandleType.Pinned);
@@ -186,6 +192,13 @@ public class FaceunityWorker : MonoBehaviour
 #else
     [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
 #endif
+    public static extern int fu_IsLibraryInit();
+
+#if UNITY_IOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+#else
+    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
+#endif
     public static extern int fu_LoadTongueModel(IntPtr databuf, int databuf_sz);
 
 #if UNITY_IOS && !UNITY_EDITOR
@@ -247,6 +260,34 @@ public class FaceunityWorker : MonoBehaviour
 #endif
     public static extern void fu_DestroyLibData();
 
+#if UNITY_IOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+#else
+    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
+#endif
+    public static extern int fu_SetCropState(int state);
+
+#if UNITY_IOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+#else
+    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
+#endif
+    public static extern int fu_SetCropFreePixel(int x0, int y0, int x1, int y1);
+
+#if UNITY_IOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+#else
+    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
+#endif
+    public static extern void fu_SetFaceProcessorFov(float fov);
+
+#if UNITY_IOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+#else
+    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
+#endif
+    public static extern float fu_GetFaceProcessorFov();
+
     /**
 	\brief Render a list of items on top of a GLES texture or a memory buffer.
 		This function needs a GLES 2.0+ context. 
@@ -278,6 +319,13 @@ public class FaceunityWorker : MonoBehaviour
     [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
 #endif
     public static extern void fu_SetDefaultRotationMode(int rotate_mode);
+
+#if UNITY_IOS && !UNITY_EDITOR
+    [DllImport("__Internal")]
+#else
+    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
+#endif
+    public static extern int fu_GetCurrentRotationMode();
 
 #if UNITY_IOS && !UNITY_EDITOR
     [DllImport("__Internal")]
@@ -529,20 +577,6 @@ public class FaceunityWorker : MonoBehaviour
     [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
 #endif
     public static extern int fu_SetMaxFaces(int num);
-
-    /**
-\brief Set the quality-performance tradeoff. 
-\param quality is the new quality value. 
-       It's a floating point number between 0 and 1.
-       Use 0 for maximum performance and 1 for maximum quality.
-       The default quality is 1 (maximum quality).
-*/
-#if UNITY_IOS && !UNITY_EDITOR
-    [DllImport("__Internal")]
-#else
-    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
-#endif
-    public static extern void fu_SetQualityTradeoff(float num);
 
     /**
 \brief Get Nama version string
@@ -987,11 +1021,20 @@ public class FaceunityWorker : MonoBehaviour
     int MaxExpression = 0;
     public string LICENSE = "";
 
+    public string OfflineBundleName = "";
+
+    public enum SETUPMODE
+    {
+        Normal,
+        Local,
+    }
+
+    public SETUPMODE SetupMode = SETUPMODE.Normal;
+
     [HideInInspector]
     public int m_need_update_facenum = 0;
     public List<CFaceUnityCoefficientSet> m_translation = new List<CFaceUnityCoefficientSet>();//("translation", 3); //3D translation of face in camera space - 3 float
     public List<CFaceUnityCoefficientSet> m_rotation = new List<CFaceUnityCoefficientSet>();//("rotation", 4); //rotation quaternion - 4 float
-    public List<CFaceUnityCoefficientSet> m_rotation_mode = new List<CFaceUnityCoefficientSet>();//("rotation_mode", 1); //the relative orientaion of face agains phone, 0-3 - 1 float
     //public List<CFaceUnityCoefficientSet> m_expression = new List<CFaceUnityCoefficientSet>();//("expression", 46);
     public List<CFaceUnityCoefficientSet> m_expression_with_tongue = new List<CFaceUnityCoefficientSet>();//("expression_with_tongue", 56);
     //public List<CFaceUnityCoefficientSet> m_landmarks = new List<CFaceUnityCoefficientSet>();//("landmarks",75*2); //2D landmarks coordinates in image space - 75*2 float
@@ -1001,7 +1044,6 @@ public class FaceunityWorker : MonoBehaviour
     //public List<CFaceUnityCoefficientSet> m_face_rect = new List<CFaceUnityCoefficientSet>();//("face_rect",4); //the rectangle of tracked face in image space, (xmin,ymin,xmax,ymax) - 4 float
     //public List<CFaceUnityCoefficientSet> m_failure_rate = new List<CFaceUnityCoefficientSet>();//("failure_rate",1); //the failure rate of face tracking, the less the more confident about tracking result - 1 float
     public List<CFaceUnityCoefficientSet> m_pupil_pos = new List<CFaceUnityCoefficientSet>();//("pupil_pos", 4);
-    public List<CFaceUnityCoefficientSet> m_focallength = new List<CFaceUnityCoefficientSet>();//("focal_length", 1);
 
     //public List<CFaceUnityCoefficientSet> m_armesh_vertex_num = new List<CFaceUnityCoefficientSet>();
     //public List<CFaceUnityCoefficientSet> m_armesh_vertices = new List<CFaceUnityCoefficientSet>();
@@ -1009,13 +1051,8 @@ public class FaceunityWorker : MonoBehaviour
     //public List<CFaceUnityCoefficientSet> m_armesh_face_num = new List<CFaceUnityCoefficientSet>();
     //public List<CFaceUnityCoefficientSet> m_armesh_faces = new List<CFaceUnityCoefficientSet>();
 
-    public static float FocalLengthScale = 1f;
-
     public static event EventHandler OnInitOK;
     private delegate void DebugCallback(string message);
-
-    GCHandle m_licdata_handle;
-    GCHandle m_v3data_handle;
 
     ///////////////////////////////
     /**
@@ -1030,11 +1067,9 @@ public class FaceunityWorker : MonoBehaviour
             {
                 m_translation.Add(new CFaceUnityCoefficientSet("translation", 3, i));
                 m_rotation.Add(new CFaceUnityCoefficientSet("rotation", 4, i));
-                m_rotation_mode.Add(new CFaceUnityCoefficientSet("rotation_mode", 1, i));
                 //m_expression.Add(new CFaceUnityCoefficientSet("expression", 46, i));
                 m_expression_with_tongue.Add(new CFaceUnityCoefficientSet("expression_with_tongue", 56, i));
                 m_pupil_pos.Add(new CFaceUnityCoefficientSet("pupil_pos", 4, i));
-                m_focallength.Add(new CFaceUnityCoefficientSet("focal_length", 1, i));
                 //m_landmarks.Add(new CFaceUnityCoefficientSet("landmarks", 75 * 2, i));
 
                 //m_armesh_vertex_num.Add(new CFaceUnityCoefficientSet("armesh_vertex_num", 1, i, 1));
@@ -1048,11 +1083,9 @@ public class FaceunityWorker : MonoBehaviour
             {
                 m_translation.RemoveAt(i);
                 m_rotation.RemoveAt(i);
-                m_rotation_mode.RemoveAt(i);
                 //m_expression.RemoveAt(i);
                 m_expression_with_tongue.RemoveAt(i);
                 m_pupil_pos.RemoveAt(i);
-                m_focallength.RemoveAt(i);
                 //m_landmarks.RemoveAt(i);
 
                 //m_armesh_vertex_num.RemoveAt(i);
@@ -1108,21 +1141,102 @@ public class FaceunityWorker : MonoBehaviour
                                 m_licdata_bytes[i] = sbyte.Parse(sbytes[i]);
                                 //Debug.Log(m_licdata_bytes[i]);
                             }
-                            if (m_licdata_handle.IsAllocated)
-                                m_licdata_handle.Free();
-                            m_licdata_handle = GCHandle.Alloc(m_licdata_bytes, GCHandleType.Pinned);
+                            GCHandle m_licdata_handle = GCHandle.Alloc(m_licdata_bytes, GCHandleType.Pinned);
                             IntPtr licptr = m_licdata_handle.AddrOfPinnedObject();
 
+                            /* Deprecated  */
                             //load nama sdk data
-                            string fnv3 = Util.GetStreamingAssetsPath() + "/faceunity/v3.bytes";
-                            WWW v3data = new WWW(fnv3);
-                            yield return v3data;
-                            byte[] m_v3data_bytes = v3data.bytes;
-                            if (m_v3data_handle.IsAllocated)
-                                m_v3data_handle.Free();
-                            m_v3data_handle = GCHandle.Alloc(m_v3data_bytes, GCHandleType.Pinned); //pinned avoid GC
-                            IntPtr v3ptr = m_v3data_handle.AddrOfPinnedObject(); //pinned addr
-                            fu_Setup(v3ptr, m_v3data_bytes.Length, licptr, sbytes.Length); //要查看license是否有效请打开插件log（fu_EnableLog(true);）
+                            //string fnv3 = Util.GetStreamingAssetsPath() + "/faceunity/v3.bytes";
+                            //WWW v3data = new WWW(fnv3);
+                            //yield return v3data;
+                            //byte[] m_v3data_bytes = v3data.bytes;
+                            //GCHandle m_v3data_handle = GCHandle.Alloc(m_v3data_bytes, GCHandleType.Pinned); //pinned avoid GC
+                            //IntPtr v3ptr = m_v3data_handle.AddrOfPinnedObject(); //pinned addr
+
+                            if (SetupMode == SETUPMODE.Normal)
+                            {
+                                fu_Setup(IntPtr.Zero, 0, licptr, sbytes.Length); //要查看license是否有效请打开插件log（fu_EnableLog(true);）
+
+                                GL.IssuePluginEvent(fu_GetRenderEventFunc(), 1);
+
+                                while (jc_part_inited() == 0)
+                                {
+                                    yield return Util._endOfFrame;
+                                }
+
+                                Debug.Log("fu_Setup Finished!");
+                            }
+                            else if (SetupMode == SETUPMODE.Local)
+                            {
+                                byte[] offlinebundledata_bytes = null;
+                                bool loaclAuthMode = true;
+
+                                string offlinebundle_path = Application.persistentDataPath + "/Bundles/"; //这个路径可能无法读取，请自行指定可以读写的路径！
+                                string offlinebundle_name = "signed_" + OfflineBundleName;
+
+                                offlinebundledata_bytes = Util.ReadBytesFile(offlinebundle_path, offlinebundle_name);
+
+                                if (offlinebundledata_bytes == null || offlinebundledata_bytes.Length == 0)
+                                {
+                                    string offlinebundle_unsigned = Util.GetStreamingAssetsPath() + "/faceunity/" + OfflineBundleName;
+                                    WWW offlinebundledata_unsigned = new WWW(offlinebundle_unsigned);
+                                    yield return offlinebundledata_unsigned;
+                                    offlinebundledata_bytes = offlinebundledata_unsigned.bytes;
+                                    loaclAuthMode = false;
+                                }
+
+                                GCHandle m_offlinebundle_handle = GCHandle.Alloc(offlinebundledata_bytes, GCHandleType.Pinned);
+                                IntPtr fptrset = m_offlinebundle_handle.AddrOfPinnedObject();
+
+                                fu_SetupLocal(IntPtr.Zero, 0, licptr, sbytes.Length, fptrset, offlinebundledata_bytes.Length);
+
+                                GL.IssuePluginEvent(fu_GetRenderEventFunc(), 1);
+
+                                while (jc_part_inited() == 0)
+                                {
+                                    yield return Util._endOfFrame;
+                                }
+
+                                if (m_offlinebundle_handle.IsAllocated)
+                                    m_offlinebundle_handle.Free();
+
+                                int message = fu_GetSystemError();
+                                Debug.LogFormat("Init Message:{0},{1},loaclAuthMode={2}", message, Marshal.PtrToStringAnsi(fu_GetSystemErrorString(message)), loaclAuthMode);
+
+                                IntPtr fptr = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(byte)));
+                                IntPtr iptr = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(int)));
+
+                                int isAuthed = fu_GetOfflineBundle(ref fptr, iptr);
+
+                                if (isAuthed == 0)
+                                {
+                                    Debug.LogError("Auth Faild!");
+                                    yield break;
+                                }
+
+                                if (!loaclAuthMode)
+                                {
+                                    int arrSize = Marshal.ReadInt32(iptr);
+                                    byte[] fpa = new byte[arrSize];
+                                    Marshal.Copy(fptr, fpa, 0, fpa.Length);
+                                    //不能释放fptr和iptr，由Nama自行管理，否则会崩溃
+                                    Util.SaveBytesFile(fpa, offlinebundle_path, offlinebundle_name);
+                                }
+                            }
+
+                            if (m_licdata_handle.IsAllocated)
+                                m_licdata_handle.Free();
+                            //if (m_v3data_handle.IsAllocated)
+                            //    m_v3data_handle.Free();
+
+                            yield return LoadAIBundle("ai_face_processor.bytes", FUAITYPE.FUAITYPE_FACEPROCESSOR);
+                            yield return LoadAIBundle("ai_bgseg.bytes", FUAITYPE.FUAITYPE_BACKGROUNDSEGMENTATION);
+                            //yield return LoadAIBundle("ai_bgseg_green.bytes", FUAITYPE.FUAITYPE_BACKGROUNDSEGMENTATION_GREEN);
+                            yield return LoadAIBundle("ai_gesture.bytes", FUAITYPE.FUAITYPE_HANDGESTURE);
+                            //yield return LoadAIBundle("ai_hairseg.bytes", FUAITYPE.FUAITYPE_HAIRSEGMENTATION); 
+                            //yield return LoadAIBundle("ai_humanpose.bytes", FUAITYPE.FUAITYPE_HUMANPOSE2D);
+                            yield return LoadTongueBundle("tongue.bytes");
+
                             m_plugin_inited = true;
                         }
                     }
@@ -1135,19 +1249,18 @@ public class FaceunityWorker : MonoBehaviour
 
                 if (m_plugin_inited == true)
                 {
-                    var v = GCHandle.Alloc(0.5f, GCHandleType.Pinned);
-                    IntPtr vptr = v.AddrOfPinnedObject();
-                    fu_SetFaceTrackParam("mouth_expression_more_flexible", vptr);
-                    v.Free();
-
-                    //fu_SetASYNCTrackFace(0);    //异步人脸跟踪，部分平台能提升性能，默认关闭
                     //fu_SetMultiSamples(4);
                     SetRunningMode(FURuningMode.FU_Mode_RenderItems);   //默认模式，随时可以改
                     SetUseNatCam(1);  //默认选项，仅安卓有效
-                    fu_SetFocalLengthScale(FocalLengthScale);   //默认值是1
-                    Debug.LogFormat("fu_SetFocalLengthScale({0})", FocalLengthScale);
 
-                    StartCoroutine(GLLoop());
+                    if (OnInitOK != null)
+                        OnInitOK(this, null);//触发初始化完成事件
+
+                    //Debug.Log("错误:" + fu_GetSystemError() +","+ Marshal.PtrToStringAnsi(fu_GetSystemErrorString(fu_GetSystemError())));
+                    Debug.Log("Nama Version:" + Marshal.PtrToStringAnsi(fu_GetVersion()));
+                    Debug.Log("Faceplugin Version:" + Marshal.PtrToStringAnsi(fu_GetFacepluginVersion()));
+
+                    yield return CallPluginAtEndOfFrames();
                 }
             }
         }
@@ -1158,42 +1271,7 @@ public class FaceunityWorker : MonoBehaviour
         }
     }
 
-
-
-    private IEnumerator GLLoop()
-    {
-        yield return Util._endOfFrame;
-        ////////////////////////////////
-        fu_SetMaxFaces(MAXFACE);
-        GL.IssuePluginEvent(fu_GetRenderEventFunc(), 1);// cal for sdk render
-
-        if (m_licdata_handle.IsAllocated)
-            m_licdata_handle.Free();
-        if (m_v3data_handle.IsAllocated)
-            m_v3data_handle.Free();
-
-        yield return LoadAIBundle("ai_face_processor.bytes", FUAITYPE.FUAITYPE_FACEPROCESSOR);
-        yield return LoadAIBundle("ai_bgseg.bytes", FUAITYPE.FUAITYPE_BACKGROUNDSEGMENTATION);
-        //yield return LoadAIBundle("ai_bgseg_green.bytes", FUAITYPE.FUAITYPE_BACKGROUNDSEGMENTATION_GREEN);
-        yield return LoadAIBundle("ai_facelandmarks75.bytes", FUAITYPE.FUAITYPE_FACELANDMARKS75);
-        yield return LoadAIBundle("ai_facelandmarks209.bytes", FUAITYPE.FUAITYPE_FACELANDMARKS209);
-        yield return LoadAIBundle("ai_facelandmarks239.bytes", FUAITYPE.FUAITYPE_FACELANDMARKS239);
-        yield return LoadAIBundle("ai_gesture.bytes", FUAITYPE.FUAITYPE_HANDGESTURE);
-        //yield return LoadAIBundle("ai_hairseg.bytes", FUAITYPE.FUAITYPE_HAIRSEGMENTATION); 
-        //yield return LoadAIBundle("ai_humanpose.bytes", FUAITYPE.FUAITYPE_HUMANPOSE2D);
-        yield return LoadTongueBundle("tongue.bytes");
-
-        if (OnInitOK != null)
-            OnInitOK(this, null);//触发初始化完成事件
-
-        //Debug.Log("错误:" + fu_GetSystemError() +","+ Marshal.PtrToStringAnsi(fu_GetSystemErrorString(fu_GetSystemError())));
-        Debug.Log("Nama Version:" + Marshal.PtrToStringAnsi(fu_GetVersion()));
-        Debug.Log("Faceplugin Version:" + Marshal.PtrToStringAnsi(fu_GetFacepluginVersion()));
-
-        yield return CallPluginAtEndOfFrames();
-    }
-
-    /**\brief SDK渲染的GL循环协程，每一帧的末尾，调用GL.IssuePluginEvent使Unity执行SDK内部的渲染代码，同时获取并保存跟踪信息\return 无    */
+    /**\brief SDK渲染的GL循环协程，每一个Unity生命周期的末尾，调用GL.IssuePluginEvent使Unity执行SDK内部的渲染代码，同时获取并保存跟踪信息\return 无    */
     private IEnumerator CallPluginAtEndOfFrames()
     {
         while (true)
@@ -1202,6 +1280,7 @@ public class FaceunityWorker : MonoBehaviour
             ////////////////////////////////
             fu_SetMaxFaces(MAXFACE);
             GL.IssuePluginEvent(fu_GetRenderEventFunc(), 1);// cal for sdk render
+            
             if (EnableExpressionLoop)
             {
                 if (MaxExpression != MAXFACE)
@@ -1219,10 +1298,8 @@ public class FaceunityWorker : MonoBehaviour
 
                     m_translation[i].Update();
                     m_rotation[i].Update();
-                    m_rotation_mode[i].Update();
                     //m_landmarks[i].Update();
                     m_pupil_pos[i].Update();
-                    m_focallength[i].Update();
                     ////////////////////////
 
                     m_expression_with_tongue[i].Update();
@@ -1287,10 +1364,6 @@ public class FaceunityWorker : MonoBehaviour
     /**\brief 应用退出是清理相关GCHandle和SDK相关数据\return 无*/
     private void OnApplicationQuit()
     {
-        if (m_licdata_handle.IsAllocated)
-            m_licdata_handle.Free();
-        if (m_v3data_handle.IsAllocated)
-            m_v3data_handle.Free();
         if (m_plugin_inited == true)
             fu_OnDeviceLost();
         ClearImages();

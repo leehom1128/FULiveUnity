@@ -352,6 +352,8 @@ MonoBehaviour:
   MAXFACE: 1
   EnableExpressionLoop: 0
   LICENSE: 
+  OfflineBundleName: 
+  SetupMode: 0
   m_need_update_facenum: 0
 --- !u!4 &51551130
 Transform:
@@ -469,6 +471,7 @@ MonoBehaviour:
   verbose: 0
   RawImg_BackGroud: {fileID: 1792170471}
   bgShader: {fileID: 4800000, guid: a592c7ed21c6a5a4cb8d64da029009dc, type: 3}
+  txt: {fileID: 124040273}
 --- !u!114 &51551134
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -548,7 +551,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a0767a74d6a4de640919c31d728bbe55, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Beauty:
+  BeautySkin:
   - {fileID: 21300000, guid: 44ac39d591acfef4299d6845e4be9cff, type: 3}
   - {fileID: 21300000, guid: 5d60c8135bdf50447b4b65577bcb41f7, type: 3}
   - {fileID: 21300000, guid: 7c16ac550f0002f4287382b61ffe4d5b, type: 3}
@@ -561,6 +564,11 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 65816852c609c4042b523c9ef4163c86, type: 3}
   - {fileID: 21300000, guid: 5b95465d36519204e9bc0e32019f72cc, type: 3}
   - {fileID: 21300000, guid: 1dcd7207bb2ff9340899ac75a005a05b, type: 3}
+  - {fileID: 21300000, guid: 5db7658a682b00443ae8cc428618f9a5, type: 3}
+  - {fileID: 21300000, guid: 5a9773972700cdd41818105b3373f08d, type: 3}
+  - {fileID: 21300000, guid: 7353930d43f91ad4ba9f5556f1205928, type: 3}
+  - {fileID: 21300000, guid: 9f5c7b31129f7d344beb4d331f421f84, type: 3}
+  BeautyShape:
   - {fileID: 21300000, guid: 64de0f59307ebca4e894b8d74a105318, type: 3}
   - {fileID: 21300000, guid: ffbb5f333f2e9134ca66464accb948f0, type: 3}
   - {fileID: 21300000, guid: ffba53d45943d524c821924ac94a74cb, type: 3}
@@ -581,6 +589,19 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 8ac8588858fc80442974703696c66862, type: 3}
   - {fileID: 21300000, guid: a7dd06834e19ab9418b9aa1c7e12f063, type: 3}
   - {fileID: 21300000, guid: cf996fa4e68159943a64d9131ca8866e, type: 3}
+  - {fileID: 21300000, guid: bc240bf0cc0771a42a1c253ccbf70e23, type: 3}
+  - {fileID: 21300000, guid: 6707c5d4e6954d44e97bb576820985c9, type: 3}
+  - {fileID: 21300000, guid: e962df4e1f426ab42a66f9097b5a0067, type: 3}
+  - {fileID: 21300000, guid: 6ba4a85fe4b33774da47d7eaf51e4d01, type: 3}
+  - {fileID: 21300000, guid: 4ead80ff0a6622b44abc40f92633a170, type: 3}
+  - {fileID: 21300000, guid: bd5fcd60f9c835d48a523a6aea751da4, type: 3}
+  - {fileID: 21300000, guid: 856bb977fa0985644a734d8936fa9eb2, type: 3}
+  - {fileID: 21300000, guid: 49f39b5328b4b9f42acef86b1c2bc4d7, type: 3}
+  - {fileID: 21300000, guid: be64ce4a63a53954db22508c1089bf6e, type: 3}
+  - {fileID: 21300000, guid: 02b2114c010bf73479e69a09f46d5927, type: 3}
+  - {fileID: 21300000, guid: a1b8fba9392f1e3419c26b268551294a, type: 3}
+  - {fileID: 21300000, guid: 624db5938ae2ed2498fd9923385457b9, type: 3}
+  BeautyFilter:
   - {fileID: 21300000, guid: 36c67aa5a59d2c14f92bc49fb4df6874, type: 3}
   - {fileID: 21300000, guid: 9528fd025312efb44a18cacad8a6dbde, type: 3}
   - {fileID: 21300000, guid: a0fca9c86fa75734e80b40f1d6326ba1, type: 3}
@@ -612,7 +633,6 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 00ffa8b2c1f897c4ca2023561fde610f, type: 3}
   - {fileID: 21300000, guid: fb9bd11d06ec2684db8abfb295627de2, type: 3}
   ARMask:
-  - {fileID: 21300000, guid: e6a283946faa96848a6cb5d8830b784c, type: 3}
   - {fileID: 21300000, guid: 86873a99611d57644a825179a4ffe52b, type: 3}
   - {fileID: 21300000, guid: a7798cf62ff70f245b5aa7e855c0b5ab, type: 3}
   - {fileID: 21300000, guid: f86414f8d0bff2248a19ecc634607c83, type: 3}
@@ -1016,6 +1036,80 @@ MonoBehaviour:
   m_Spacing: 0
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
+--- !u!1 &124040271
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 4
+  m_Component:
+  - 224: {fileID: 124040272}
+  - 222: {fileID: 124040274}
+  - 114: {fileID: 124040273}
+  m_Layer: 5
+  m_Name: Text
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &124040272
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 124040271}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_Children: []
+  m_Father: {fileID: 517978782}
+  m_RootOrder: 8
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 754}
+  m_SizeDelta: {x: 555, y: 150}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &124040273
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 124040271}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 708705254, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_RaycastTarget: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
+      Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  m_FontData:
+    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_FontSize: 14
+    m_FontStyle: 0
+    m_BestFit: 1
+    m_MinSize: 10
+    m_MaxSize: 100
+    m_Alignment: 4
+    m_AlignByGeometry: 0
+    m_RichText: 1
+    m_HorizontalOverflow: 0
+    m_VerticalOverflow: 0
+    m_LineSpacing: 1
+  m_Text: New Text
+--- !u!222 &124040274
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 124040271}
 --- !u!1 &132877745
 GameObject:
   m_ObjectHideFlags: 0
@@ -4087,6 +4181,7 @@ RectTransform:
   - {fileID: 466918076}
   - {fileID: 496873850}
   - {fileID: 1405260293}
+  - {fileID: 124040272}
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_AnchorMin: {x: 0, y: 0}

@@ -27,7 +27,11 @@ using System.Collections.Generic;
 
 public class Sprites : MonoBehaviour {
 
-    public Sprite[] Beauty;
+    public Sprite[] BeautySkin;
+    public Sprite[] BeautyShape;
+    public Sprite[] BeautyFilter;
+    Dictionary<BeautySkinType, Sprite[]> beautyspritelist = new Dictionary<BeautySkinType, Sprite[]>();
+
     public Sprite[] CommonFilter;
     public Sprite[] Makeup;
     public Sprite[] Animoji;
@@ -41,7 +45,6 @@ public class Sprites : MonoBehaviour {
     public Sprite[] MagicMirror;
     public Sprite[] PortraitLightEffect;
     public Sprite[] PortraitDrive;
-
     Dictionary<ItemType,Sprite[]> spritelist = new Dictionary<ItemType,Sprite[]>();
 
     public Texture2D[] MakeupBlush;
@@ -51,9 +54,13 @@ public class Sprites : MonoBehaviour {
 
     private void Awake()
     {
-        spritelist.Clear();
+        beautyspritelist.Clear();
+        beautyspritelist.Add(BeautySkinType.BeautySkin, BeautySkin);
+        beautyspritelist.Add(BeautySkinType.BeautyShape, BeautyShape);
+        beautyspritelist.Add(BeautySkinType.BeautyFilter, BeautyFilter);
 
-        spritelist.Add(ItemType.Beauty, Beauty);
+        spritelist.Clear();
+        
         spritelist.Add(ItemType.CommonFilter, CommonFilter);
         spritelist.Add(ItemType.Makeup, Makeup);
         spritelist.Add(ItemType.Animoji, Animoji);
@@ -80,6 +87,20 @@ public class Sprites : MonoBehaviour {
         if (spritelist.ContainsKey(type))
         {
             var sprites = spritelist[type];
+            if (id >= 0 && id < sprites.Length)
+                return sprites[id];
+            else
+                return null;
+        }
+        else
+            return null;
+    }
+
+    public Sprite GetSprite(BeautySkinType type, int id)
+    {
+        if (beautyspritelist.ContainsKey(type))
+        {
+            var sprites = beautyspritelist[type];
             if (id >= 0 && id < sprites.Length)
                 return sprites[id];
             else

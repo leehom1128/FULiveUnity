@@ -121,10 +121,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_plugin_inited: 0
-  SetupMode: 0
   MAXFACE: 1
   EnableExpressionLoop: 0
   LICENSE: 
+  OfflineBundleName: 
+  SetupMode: 0
   m_need_update_facenum: 0
 --- !u!4 &51551130
 Transform:
@@ -167,7 +168,7 @@ MonoBehaviour:
   cameraFrameRate: 30
   RawImg_BackGroud: {fileID: 1792170471}
   InputTex: {fileID: 0}
-  updateDataMode: 3
+  updateDataMode: 2
 --- !u!114 &51551133
 MonoBehaviour:
   m_ObjectHideFlags: 0

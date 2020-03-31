@@ -16,34 +16,6 @@ public class Util
         return path;
     }
 
-    private static bool? isnexus6 = null;
-    public static bool isNexus6()   //Nexus6前置摄像头的数据规格和常规安卓手机的不一样
-    {
-        if (isnexus6 == null)
-        {
-            string tmp = SystemInfo.deviceModel.ToLower();
-            if (tmp.Contains("nexus") && tmp.Contains("6"))
-                isnexus6 = true;
-            else
-                isnexus6 = false;
-        }
-        return isnexus6 == true;
-    }
-
-    private static bool? isnexus5x = null;
-    public static bool isNexus5X()   //Nexus6前置摄像头的数据规格和常规安卓手机的不一样
-    {
-        if (isnexus5x == null)
-        {
-            string tmp = SystemInfo.deviceModel.ToLower();
-            if (tmp.Contains("nexus") && tmp.Contains("5x"))
-                isnexus5x = true;
-            else
-                isnexus5x = false;
-        }
-        return isnexus5x == true;
-    }
-
     public static WaitForEndOfFrame _endOfFrame = new WaitForEndOfFrame();
     public static WaitForFixedUpdate _fixedupdate = new WaitForFixedUpdate();
 
@@ -64,5 +36,17 @@ public class Util
         File.WriteAllBytes(fullfilename, data);
         Debug.Log("保存了一个文件:" + fullfilename);
         return fullfilename;
+    }
+
+    public static byte[] ReadBytesFile(string path, string nameWithExtension)
+    {
+        if (Directory.Exists(path) == false)
+        {
+            return null;
+        }
+        string fullfilename = path + nameWithExtension;
+        byte[] data = File.ReadAllBytes(fullfilename);
+        Debug.Log("读取了一个文件:" + fullfilename);
+        return data;
     }
 }

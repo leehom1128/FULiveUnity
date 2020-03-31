@@ -82,7 +82,7 @@ public class RenderToTexture : MonoBehaviour
         }
     }
 
-    //public Text txt;
+    public Text txt;
 
     /**\brief 调整输入的纹理的旋转和镜像，用以下三个参数可以表达一个纹理任意方向的旋转和镜像的结果（2^3=8种）\param tex_origin 原始的纹理\param SwichXY  是否调换纹理的UV的X轴和Y轴，即沿着对角线翻转\param flipx    是否翻转X轴\param flipy    是否翻转Y轴\return 计算好的纹理    */
     public Texture2D AdjustTex(Texture2D tex_origin,int SwichXY, int flipx, int flipy)
@@ -179,10 +179,7 @@ public class RenderToTexture : MonoBehaviour
             NatCam.SetFlipx(false);
             NatCam.SetFlipy(false);
 #endif
-            if (Util.isNexus6())
-                RawImg_BackGroud.rectTransform.rotation = baseRotation * Quaternion.AngleAxis((int)DispatchUtility.Orientation * 90, Vector3.back);
-            else
-                RawImg_BackGroud.rectTransform.rotation = baseRotation * Quaternion.AngleAxis((int)DispatchUtility.Orientation * 90, Vector3.forward);
+            RawImg_BackGroud.rectTransform.rotation = baseRotation * Quaternion.AngleAxis((int)DispatchUtility.Orientation * 90, Vector3.forward);
 #if UNITY_EDITOR || UNITY_STANDALONE
             RawImg_BackGroud.uvRect = new Rect(1, 0, -1, 1);    //镜像处理
 #else
@@ -195,10 +192,7 @@ public class RenderToTexture : MonoBehaviour
             NatCam.SetFlipx(true);
             NatCam.SetFlipy(false);
 #endif
-            if (Util.isNexus5X())
-                RawImg_BackGroud.rectTransform.rotation = baseRotation * Quaternion.AngleAxis((int)DispatchUtility.Orientation * 90, Vector3.forward);
-            else
-                RawImg_BackGroud.rectTransform.rotation = baseRotation * Quaternion.AngleAxis((int)DispatchUtility.Orientation * 90, Vector3.back);
+            RawImg_BackGroud.rectTransform.rotation = baseRotation * Quaternion.AngleAxis((int)DispatchUtility.Orientation * 90, Vector3.back);
 #if UNITY_EDITOR || UNITY_STANDALONE
             RawImg_BackGroud.uvRect = new Rect(0, 0, 1, 1);
 #else
@@ -321,6 +315,7 @@ public class RenderToTexture : MonoBehaviour
     //SDK初始化完成后会执行这个回调，记录相机UI原始旋转信息，开启相机初始化协程
     void InitApplication(object source, EventArgs e)
     {
+        FaceunityWorker.SetRunningMode(FaceunityWorker.FURuningMode.FU_Mode_RenderItems);
         baseRotation = RawImg_BackGroud.rectTransform.rotation;
         StartCoroutine("InitCamera");
     }
@@ -540,7 +535,7 @@ public class RenderToTexture : MonoBehaviour
     //输入slotid卸载在该位置的道具
     public bool UnLoadItem(int slotid)
     {
-        if (slotid >= 0 && slotid< SLOTLENGTH)
+        if (slotid >= 0 && slotid< SLOTLENGTH && slot_items[slotid].id>0)
         {
             Debug.Log("UnLoadItem name=" + slot_items[slotid].name+ " slotid="+ slotid);
             FaceunityWorker.fu_DestroyItem(slot_items[slotid].id);
@@ -549,7 +544,6 @@ public class RenderToTexture : MonoBehaviour
             slot_items[slotid].name = "";
             return true;
         }
-        Debug.LogWarning("UnLoadItem Faild!!!");
         return false;
     }
 
@@ -693,10 +687,15 @@ public class RenderToTexture : MonoBehaviour
         var item = slot_items[slotid].item;
         FaceunityWorker.fu_ItemSetParamd(itemid, "camera_change", 1.0);
         bool ifMirrored = NatCam.Camera.Facing == Facing.Front;
+
 #if (UNITY_ANDROID) && (!UNITY_EDITOR)
         //道具旋转
         ifMirrored = !ifMirrored;
         FaceunityWorker.fu_ItemSetParamd(itemid, "isAndroid", 1.0);
+        if (item.name.CompareTo(ItemConfig.item_5[3].name) == 0)
+        {
+            FaceunityWorker.fu_ItemSetParamd(itemid, "rotationAngle", (int)DispatchUtility.Orientation * 90);
+        }
 #endif
 #if (UNITY_IOS) && (!UNITY_EDITOR)
         ifMirrored=false;
@@ -740,8 +739,6 @@ public class RenderToTexture : MonoBehaviour
         FaceunityWorker.fu_ItemSetParamd(itemid, "isFlipTrack", param);
         //isFlipLight 参数是用于对道具内部的灯光的镜像
         FaceunityWorker.fu_ItemSetParamd(itemid, "isFlipLight", param);
-
-        FaceunityWorker.FixRotation(ifMirrored);
     }
 
     private void OnApplicationQuit()

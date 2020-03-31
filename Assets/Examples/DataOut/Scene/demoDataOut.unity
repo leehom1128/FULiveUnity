@@ -124,6 +124,8 @@ MonoBehaviour:
   MAXFACE: 1
   EnableExpressionLoop: 1
   LICENSE: 
+  OfflineBundleName: 
+  SetupMode: 0
   m_need_update_facenum: 0
 --- !u!4 &51551130
 Transform:
@@ -1508,7 +1510,7 @@ Prefab:
       objectReference: {fileID: 51551132}
     - target: {fileID: 1000012440473472, guid: 63b681a722e5c5742b1065b3d6b43af3, type: 2}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 63b681a722e5c5742b1065b3d6b43af3, type: 2}
@@ -2254,7 +2256,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 1000011316534724, guid: a2459138a2613a84fa25349516636f5d, type: 2}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: a2459138a2613a84fa25349516636f5d, type: 2}
@@ -2316,7 +2318,7 @@ Prefab:
       objectReference: {fileID: 51551132}
     - target: {fileID: 1000012657479880, guid: 32a2e672aacf1df4ea39aae966ebc9cc, type: 2}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 32a2e672aacf1df4ea39aae966ebc9cc, type: 2}
@@ -2378,7 +2380,7 @@ Prefab:
       objectReference: {fileID: 51551132}
     - target: {fileID: 1000013833846802, guid: 4c687edebd3e8f246a65c70249ec08ac, type: 2}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 4c687edebd3e8f246a65c70249ec08ac, type: 2}

@@ -1,10 +1,28 @@
 # Unity Nama SDK 集成指导文档  
 级别：Public
-更新日期：2020-01-19 
-SDK版本: 6.6.0 
+更新日期：2020-03-19
+SDK版本: 6.7.0 
 
 ------
 ## 最新更新内容：
+
+2020-03-19 v6.7.0:
+
+1. 美颜效果优化
+   - 新增去黑眼圈、去法令纹功能
+   - 优化磨皮效果，新增只磨皮人脸区域功能
+   - 优化原有美型效果
+   - 提供美颜推荐参数（6套）
+2. 优化表情跟踪效果，解决了6.6.0版表情系数表情灵活度问题——FaceProcessor模块优化
+   - 解决Animoji表情灵活度问题，基本与原有SDK v6.4.0效果相近
+   - 解决优化了表情动图的鼻子跟踪效果问题
+3. 优化美妆效果，人脸点位优化，提高准确性
+   - 优化口红点位与效果，解决张嘴、正脸、低抬头、左右转头、抿嘴动作的口红溢色
+   - 优化美瞳点位效果，是美瞳效果稳定
+   - 腮红效果优化，解决了仰头角度下腮红强拉扯问题
+4. 新增接口支持图像裁剪，解决瘦脸边缘变形问题（边缘变形剪裁）
+5. 新增接口判断初始化完成状态；
+6. unity版本新增离线鉴权 
 
 2020-01-19 v6.6.0：
 
@@ -119,9 +137,6 @@ __注3__: SDK 6.6.0 进行较大的架构调整 , 架构上拆分底层算法能
       -ai_face_processor.bytes：初始化完成后必须加载的AI数据文件
       -ai_bgseg.bytes：背景分割AI数据文件
       -ai_bgseg_green.bytes：带绿幕的背景分割AI数据文件
-      -ai_facelandmarks75.bytes：人脸跟踪（75特征点）AI数据文件
-      -ai_facelandmarks209.bytes：人脸跟踪（209特征点）AI数据文件
-      -ai_facelandmarks239.bytes：人脸跟踪（239特征点）AI数据文件
       -ai_gesture.bytes：手势跟踪AI数据文件
       -ai_hairseg.bytes：头发分割AI数据文件
       -ai_humanpose.bytes：人体姿态跟踪AI数据文件
@@ -405,10 +420,14 @@ red_level 取值范围 0.0-2.0,0.0为无效果，2.0为最大效果，默认值0
 blur_level: 磨皮程度，取值范围0.0-6.0，默认6.0
 skin_detect:肤色检测开关，0为关，1为开
 nonskin_blur_scale:肤色检测之后非肤色区域的融合程度，取值范围0.0-1.0，默认0.45
-heavy_blur: 重度磨皮开关，0为清晰磨皮，1为重度磨皮
+heavy_blur: 朦胧磨皮开关，0为清晰磨皮，1为朦胧磨皮
+blur_type：此参数优先级比heavy_blur低，在使用时要将heavy_blur设为0，0 清晰磨皮  1 朦胧磨皮  2精细磨皮
+blur_use_mask: ios端默认为1，其他端默认为0。1为开启基于人脸的磨皮mask，0为不使用mask正常磨皮。只在blur_type为2时生效。
 ```
 
-注意：重度磨皮为高级美颜功能，需要相应证书权限才能使用
+**注意1：精细磨皮为建议使用的磨皮类型。**
+
+注意2：重度磨皮为高级美颜功能，需要相应证书权限才能使用
 
 #### 4.1.4 亮眼
 
@@ -430,7 +449,27 @@ tooth_whiten   取值范围 0.0-1.0,0.0为无效果，1.0为最大效果，默�
 
 注意：美牙为高级美颜功能，需要相应证书权限才能使用
 
-#### 4.1.6 美型
+#### 4.1.6 去黑眼圈
+
+去黑眼圈功能主要通过参数remove_pouch_strength来控制
+
+```
+remove_pouch_strength   取值范围 0.0-1.0,0.0为无效果，1.0为最大效果，默认值1.0
+```
+
+注意：去黑眼圈为高级美颜功能，需要相应证书权限才能使用
+
+#### 4.1.7 去法令纹
+
+去法令纹功能主要通过参数remove_nasolabial_folds_strength来控制
+
+```
+remove_nasolabial_folds_strength   取值范围 0.0-1.0,0.0为无效果，1.0为最大效果，默认值1.0
+```
+
+注意：去法令纹为高级美颜功能，需要相应证书权限才能使用
+
+#### 4.1.8 美型
 
 美型的整体程度由face_shape_level参数控制
 
@@ -457,7 +496,7 @@ face_shape: 变形取值 0:女神变形 1:网红变形 2:自然变形 3:默认�
 ```
 1.
 face_shape 为0 1 2 3时
-对应0：女神 1：网红 2：自然 3：默认
+对应0：女神 1：网红 2：自然 3：默认 4:精细变形 默认4
 可以使用参数
 eye_enlarging: 	默认0.5,		//大眼程度范围0.0-1.0
 cheek_thinning:	默认0.0,  		//瘦脸程度范围0.0-1.0
@@ -480,7 +519,9 @@ intensity_smile：默认0.0    //微笑嘴角程度范围0.0~1.0 1.0程度最强
 intensity_canthus：默认0.0    //开眼角程度范围0.0~1.0 1.0程度最强
 ```
 
-注意：变形为高级美颜功能，需要相应证书权限才能使用
+注意1：变形为高级美颜功能，需要相应证书权限才能使用
+
+注意2：以上参数后面均表明了取值范围，如果超出了取值范围会影响效果，不建议使用
 
 ### 4.2 Animoji
 
@@ -654,8 +695,6 @@ mirrorBlendShape
 //镜像跟踪的旋转和位移
 m_rotation
 m_translation
-//镜像AR模式的旋转参数
-m_rotation_mode
 //镜像眼球旋转
 pupil_pos
 ```
@@ -680,7 +719,6 @@ FaceunityWorker.fu_ItemSetParamd(itemid, "isFlipLight", param);
 //默认人脸识别方向，会影响所有道具的默认方向，现在在FaceunityWorker.cs中封装了一个FixRotation方法，这个方法会根据环境自动调用fu_SetDefaultRotationMode来适应
 public static void FixRotation(bool ifMirrored);
 FaceunityWorker.fu_SetDefaultRotationMode(0);
-
 ```
 
 #### 5.2.3 输出图像的镜像/旋转

@@ -200,6 +200,8 @@ public class UIManagerForTexOut : MonoBehaviour
             {
                 rtt.SetItemParamd(BeautySkinItemName, BeautyConfig.beautySkin_2[i].paramword, BeautyConfig.beautySkin_2[i].defaultvalue);
             }
+            rtt.SetItemParams(BeautySkinItemName, "filter_name", BeautyConfig.beautySkin_3[2].paramword);
+            rtt.SetItemParamd(BeautySkinItemName, "filter_level", BeautyConfig.beautySkin_3[2].defaultvalue);
         }
     }
 
@@ -209,9 +211,9 @@ public class UIManagerForTexOut : MonoBehaviour
     }
 
 
-    void SetItemTypeEnable(int i,bool ifenable)
+    void SetItemTypeEnable(int i, bool ifenable)
     {
-        if(i< ItemSelecters.Length && ItemSelecters[i])
+        if (i < ItemSelecters.Length && ItemSelecters[i])
         {
             ItemSelecters[i].transform.Find("Image_On").gameObject.SetActive(ifenable);
             ItemSelecters[i].transform.Find("Image_Off").gameObject.SetActive(!ifenable);
@@ -222,10 +224,12 @@ public class UIManagerForTexOut : MonoBehaviour
     //for循环配合delegate是个坑，小心。
     void RegisterUIFunc()
     {
-        Btn_Switch.onClick.AddListener(delegate {
+        Btn_Switch.onClick.AddListener(delegate
+        {
             rtt.SwitchCamera();
         });
-        Btn_Back.onClick.AddListener(delegate {
+        Btn_Back.onClick.AddListener(delegate
+        {
             if (musiccor != null)
             {
                 StopCoroutine(musiccor);
@@ -248,12 +252,12 @@ public class UIManagerForTexOut : MonoBehaviour
         Btn_TakePic_mini_1.onClick.AddListener(TakePicture);
         Btn_TakePic_mini_2.onClick.AddListener(TakePicture);
 
-        for (int i=0;i< ItemSelecters.Length;i++)
+        for (int i = 0; i < ItemSelecters.Length; i++)
         {
             if (ItemSelecters[i].activeSelf)
                 ItemSelecters[i].GetComponent<AddClickEvent>().AddListener(delegate (GameObject go)
                 {
-                    if (go.name.CompareTo(ItemType.Beauty.ToString())==0)
+                    if (go.name.CompareTo(ItemType.Beauty.ToString()) == 0)
                     {
                         StartCoroutine(OpenBeautySkinUI(BeautySkinType.None));
                     }
@@ -265,7 +269,8 @@ public class UIManagerForTexOut : MonoBehaviour
                 });
         }
 
-        rtt.RawImg_BackGroud.GetComponent<AddClickEvent>().AddListener(delegate {
+        rtt.RawImg_BackGroud.GetComponent<AddClickEvent>().AddListener(delegate
+        {
             if (currentItemType == ItemType.Beauty)
             {
                 CloseAllBeautySkinContent();
@@ -275,7 +280,7 @@ public class UIManagerForTexOut : MonoBehaviour
 
         BeautySkinSelecterOptions[0].GetComponent<AddClickEvent>().AddListener(delegate { StartCoroutine(OpenBeautySkinUI(BeautySkinType.BeautySkin)); });
         BeautySkinSelecterOptions[1].GetComponent<AddClickEvent>().AddListener(delegate { StartCoroutine(OpenBeautySkinUI(BeautySkinType.BeautyShape)); });
-        BeautySkinSelecterOptions[2].GetComponent<AddClickEvent>().AddListener(delegate { StartCoroutine(OpenBeautySkinUI(BeautySkinType.Filter)); });
+        BeautySkinSelecterOptions[2].GetComponent<AddClickEvent>().AddListener(delegate { StartCoroutine(OpenBeautySkinUI(BeautySkinType.BeautyFilter)); });
         BeautySkinSelecterOptions[3].GetComponent<AddClickEvent>().AddListener(delegate { StartCoroutine(OpenBeautySkinUI(BeautySkinType.MakeupGroup)); });
     }
 
@@ -325,11 +330,11 @@ public class UIManagerForTexOut : MonoBehaviour
         OnCancelTakePicture();
     }
 
-#region BeautySkinUI
+    #region BeautySkinUI
 
     IEnumerator OpenBeautySkinUI(BeautySkinType type)
     {
-        if(type == BeautySkinType.None)
+        if (type == BeautySkinType.None)
         {
             yield return LoadBeautyBundle();
             yield return LoadMakeupBundle();
@@ -350,7 +355,7 @@ public class UIManagerForTexOut : MonoBehaviour
         if (type == BeautySkinType.BeautySkin)
         {
             BeautySkinSelecterOptions[0].GetComponent<Text>().color = highlightColor;
-            
+
             AddBeautySkinOptions(0, BeautyConfig.beautySkin_1[0]).GetComponent<AddClickEvent>().AddListener(delegate (GameObject go)
             {
                 Beauty bi = BeautyConfig.beautySkin_1[0];
@@ -358,19 +363,19 @@ public class UIManagerForTexOut : MonoBehaviour
                 {
                     currentSelected = go;
                     UnSelectAllBeautySkinOptions();
-                    go.GetComponentInChildren<Image>().sprite = uisprites.GetSprite(0, bi.iconid_1);
+                    go.GetComponentInChildren<Image>().sprite = uisprites.GetSprite(bi.type, bi.iconid_1);
                     go.GetComponentInChildren<Text>().color = highlightColor;
                     BeautySkinContentPanels[2].SetActive(false);
                     BeautySkinContentPanels[1].SetActive(false);
                 }
                 else
                 {
-                    bi.currentvalue = bi.currentvalue==bi.disablevalue ? bi.maxvalue : bi.disablevalue;
+                    bi.currentvalue = bi.currentvalue == bi.disablevalue ? bi.maxvalue : bi.disablevalue;
                     rtt.SetItemParamd(BeautySkinItemName, BeautyConfig.beautySkin_1[0].paramword, bi.currentvalue);
                     SwitchBeautyOptionUIState(bi, go);
                 }
             });
-            
+
             GameObject bgo1 = AddBeautySkinOptions(1, BeautyConfig.beautySkin_1[2]);
             bgo1.GetComponent<AddClickEvent>().AddListener(delegate (GameObject go)
             {
@@ -381,7 +386,7 @@ public class UIManagerForTexOut : MonoBehaviour
                 {
                     currentSelected = go;
                     UnSelectAllBeautySkinOptions();
-                    go.GetComponentInChildren<Image>().sprite = uisprites.GetSprite(0, bi2.iconid_1);
+                    go.GetComponentInChildren<Image>().sprite = uisprites.GetSprite(bi2.type, bi2.iconid_1);
                     go.GetComponentInChildren<Text>().color = highlightColor;
                     BeautySkinContentPanels[2].SetActive(false);
                     BeautySkin_Slider.onValueChanged.RemoveAllListeners();
@@ -409,7 +414,7 @@ public class UIManagerForTexOut : MonoBehaviour
                     {
                         go.GetComponentInChildren<Text>().text = "重度磨皮";
                     }
-                    else if(bi1.currentvalue == 2)
+                    else if (bi1.currentvalue == 2)
                     {
                         go.GetComponentInChildren<Text>().text = "精细磨皮";
                     }
@@ -429,7 +434,7 @@ public class UIManagerForTexOut : MonoBehaviour
                 bgo1.GetComponentInChildren<Text>().text = "精细磨皮";
             }
 
-                for (int i = 3; i < BeautyConfig.beautySkin_1.Length; i++)
+            for (int i = 3; i < BeautyConfig.beautySkin_1.Length; i++)
             {
                 AddBeautySkinOptions(i, BeautyConfig.beautySkin_1[i]).GetComponent<AddClickEvent>().AddListener(delegate (GameObject go)
                  {
@@ -448,7 +453,7 @@ public class UIManagerForTexOut : MonoBehaviour
                          }
                          currentSelected = go;
                          UnSelectAllBeautySkinOptions();
-                         go.GetComponentInChildren<Image>().sprite = uisprites.GetSprite(0, bi.iconid_1);
+                         go.GetComponentInChildren<Image>().sprite = uisprites.GetSprite(bi.type, bi.iconid_1);
                          go.GetComponentInChildren<Text>().color = highlightColor;
                          BeautySkinContentPanels[2].SetActive(false);
                          BeautySkin_Slider.onValueChanged.RemoveAllListeners();
@@ -481,13 +486,13 @@ public class UIManagerForTexOut : MonoBehaviour
                     Beauty bi = BeautyConfig.beautySkin_2[0];
                     currentSelected = go;
                     UnSelectAllBeautySkinOptions();
-                    go.GetComponentInChildren<Image>().sprite = uisprites.GetSprite(0, bi.iconid_1);
+                    go.GetComponentInChildren<Image>().sprite = uisprites.GetSprite(bi.type, bi.iconid_1);
                     go.GetComponentInChildren<Text>().color = highlightColor;
                     BeautySkinContentPanels[1].SetActive(false);
                     BeautySkinContentPanels[2].SetActive(true);
                 }
             });
-            bgo1.GetComponentInChildren<Image>().sprite = uisprites.GetSprite(0, BeautyConfig.beautySkin_2[0].iconid_1);
+            bgo1.GetComponentInChildren<Image>().sprite = uisprites.GetSprite(BeautyConfig.beautySkin_2[0].type, BeautyConfig.beautySkin_2[0].iconid_1);
             bgo1.GetComponentInChildren<Text>().color = highlightColor;
 
             for (int i = 1; i < BeautyConfig.beautySkin_2.Length; i++)
@@ -509,7 +514,7 @@ public class UIManagerForTexOut : MonoBehaviour
                         }
                         currentSelected = go;
                         UnSelectAllBeautySkinOptions();
-                        go.GetComponentInChildren<Image>().sprite = uisprites.GetSprite(0, bi.iconid_1);
+                        go.GetComponentInChildren<Image>().sprite = uisprites.GetSprite(bi.type, bi.iconid_1);
                         go.GetComponentInChildren<Text>().color = highlightColor;
                         BeautySkinContentPanels[2].SetActive(false);
                         BeautySkin_Slider.onValueChanged.RemoveAllListeners();
@@ -535,7 +540,7 @@ public class UIManagerForTexOut : MonoBehaviour
                     OpenBeautyShapeUI();
                 });
             }
-            if(BeautyConfig.beautySkin_2[0].currentvalue == -1)
+            if (BeautyConfig.beautySkin_2[0].currentvalue == -1)
                 BeautyConfig.beautySkin_2[0].currentvalue = 4;
             else if (BeautyConfig.beautySkin_2[0].currentvalue == -5)
                 BeautyConfig.beautySkin_2[0].currentvalue = 3;
@@ -546,7 +551,7 @@ public class UIManagerForTexOut : MonoBehaviour
             BeautySkinContentPanels[2].SetActive(true);
             BeautySkinContentPanels[4].SetActive(true);
         }
-        else if (type == BeautySkinType.Filter)
+        else if (type == BeautySkinType.BeautyFilter)
         {
             BeautySkinSelecterOptions[2].GetComponent<Text>().color = highlightColor;
             string currentfiltername = rtt.GetItemParams(BeautySkinItemName, "filter_name");
@@ -576,7 +581,7 @@ public class UIManagerForTexOut : MonoBehaviour
         else if (type == BeautySkinType.MakeupGroup)
         {
             BeautySkinSelecterOptions[3].GetComponent<Text>().color = highlightColor;
-            
+
             foreach (var mg in BeautyConfig.makeupGroup_1)
             {
                 GameObject go = AddMakeupOptions(mg);
@@ -627,7 +632,7 @@ public class UIManagerForTexOut : MonoBehaviour
         option.transform.localPosition = Vector3.zero;
         option.name = name.ToString();
         option.GetComponentInChildren<Text>().text = beautyitem.name;
-        option.GetComponentInChildren<Image>().sprite = uisprites.GetSprite(0, beautyitem.iconid_0);
+        option.GetComponentInChildren<Image>().sprite = uisprites.GetSprite(beautyitem.type, beautyitem.iconid_0);
 
         if (BeautyGOs.ContainsKey(beautyitem))
             BeautyGOs.Remove(beautyitem);
@@ -651,7 +656,7 @@ public class UIManagerForTexOut : MonoBehaviour
                 BeautySkin_FaceShape[i].transform.Find("Image_bg").gameObject.SetActive(false);
             }
         }
-        
+
         var layout = BeautyOptionContentTrans.GetComponent<HorizontalLayoutGroup>();
         if (BeautyConfig.beautySkin_2[0].currentvalue == 4)
         {
@@ -664,18 +669,18 @@ public class UIManagerForTexOut : MonoBehaviour
         }
         else
         {
-            int d=(int)((Canvas_FrontUI.GetComponent<RectTransform>().sizeDelta.x-540)*0.5);    //540=150*3+45*2
+            int d = (int)((Canvas_FrontUI.GetComponent<RectTransform>().sizeDelta.x - 540) * 0.5);    //540=150*3+45*2
             layout.padding.left = d;
             layout.padding.right = d;
             for (int i = 1; i < BeautyConfig.beautySkin_2.Length; i++)
             {
-                if (i == 1|| i == 5)
+                if (i == 1 || i == 5)
                     BeautyGOs[BeautyConfig.beautySkin_2[i]].SetActive(true);
                 else
                     BeautyGOs[BeautyConfig.beautySkin_2[i]].SetActive(false);
             }
         }
-        
+
         rtt.SetItemParamd(BeautySkinItemName, BeautyConfig.beautySkin_2[0].paramword, BeautyConfig.beautySkin_2[0].currentvalue);
     }
 
@@ -687,7 +692,7 @@ public class UIManagerForTexOut : MonoBehaviour
         option.transform.localPosition = Vector3.zero;
         option.name = beautyitem.name;
         option.GetComponentInChildren<Text>().text = beautyitem.name;
-        option.GetComponentInChildren<Image>().sprite = uisprites.GetSprite(ItemType.Beauty, beautyitem.iconid_0);
+        option.GetComponentInChildren<Image>().sprite = uisprites.GetSprite(beautyitem.type, beautyitem.iconid_0);
 
         if (BeautyGOs.ContainsKey(beautyitem))
             BeautyGOs.Remove(beautyitem);
@@ -704,6 +709,8 @@ public class UIManagerForTexOut : MonoBehaviour
                 go.transform.Find("Image_bg").gameObject.SetActive(true);
             }
             rtt.SetItemParams(BeautySkinItemName, "filter_name", beautyitem.paramword);
+            rtt.SetItemParamd(BeautySkinItemName, "filter_level", beautyitem.defaultvalue);
+            BeautySkin_Slider.value = beautyitem.defaultvalue;
         });
         return option;
     }
@@ -743,7 +750,7 @@ public class UIManagerForTexOut : MonoBehaviour
             {
                 rtt.SetItemParamd((int)SlotForItems.Makeup, "is_makeup_on", 1);
                 rtt.SetItemParamd((int)SlotForItems.Makeup, "makeup_intensity", makeupitem.intensity);
-                
+
                 rtt.SetItemParamdv((int)SlotForItems.Makeup, "makeup_lip_color", makeupitem.Lipstick_color);
                 rtt.SetItemParamd((int)SlotForItems.Makeup, "makeup_intensity_lip", makeupitem.Lipstick_intensity);
                 rtt.SetItemParamd((int)SlotForItems.Makeup, "makeup_lip_mask", 1.0);
@@ -787,7 +794,7 @@ public class UIManagerForTexOut : MonoBehaviour
         return option;
     }
 
-    void CreateTexForItem(Texture2D tex , string name)
+    void CreateTexForItem(Texture2D tex, string name)
     {
         var newtex = rtt.AdjustTex(tex, 0, 0, 1);   //纹理需要在Y轴镜像一下
         var webtexdata = newtex.GetPixels32();
@@ -801,7 +808,7 @@ public class UIManagerForTexOut : MonoBehaviour
     {
         var bg = go.transform.Find("Image_bg");
         if (bg)
-            if (Math.Abs(bi.currentvalue-bi.disablevalue)<0.01)
+            if (Math.Abs(bi.currentvalue - bi.disablevalue) < 0.01)
             {
                 bg.gameObject.SetActive(false);
             }
@@ -826,7 +833,7 @@ public class UIManagerForTexOut : MonoBehaviour
     {
         foreach (var bgo in BeautyGOs)
         {
-            bgo.Value.GetComponentInChildren<Image>().sprite = uisprites.GetSprite(0, bgo.Key.iconid_0);
+            bgo.Value.GetComponentInChildren<Image>().sprite = uisprites.GetSprite(bgo.Key.type, bgo.Key.iconid_0);
             bgo.Value.GetComponentInChildren<Text>().color = normalColor;
         }
     }
@@ -848,9 +855,9 @@ public class UIManagerForTexOut : MonoBehaviour
         BeautySkinContent.SetActive(false);
         BeautySkinSelecter.SetActive(false);
     }
-#endregion
+    #endregion
 
-#region ItemsUI
+    #region ItemsUI
 
     void OpenItemsUI(string it)
     {
@@ -921,7 +928,7 @@ public class UIManagerForTexOut : MonoBehaviour
             default:
                 break;
         }
-        
+
         Item_Content.SetActive(true);
     }
 
@@ -952,10 +959,10 @@ public class UIManagerForTexOut : MonoBehaviour
             }
         });
 
-        for(int i=0;i< items.Length;i++)
+        for (int i = 0; i < items.Length; i++)
         {
             var itemobj = AddItemOption(items[i]);
-            if(i==0)
+            if (i == 0)
             {
                 itemobj.GetComponent<Toggle>().isOn = true;
                 Item_ToggleGroup.NotifyToggleOn(itemobj.GetComponent<Toggle>());
@@ -966,7 +973,7 @@ public class UIManagerForTexOut : MonoBehaviour
     GameObject AddItemOption(Item item)
     {
         GameObject option = Instantiate(Item_UIExample);
-        option.transform.SetParent(ItemOptionContentTrans,false);
+        option.transform.SetParent(ItemOptionContentTrans, false);
         option.transform.localScale = Vector3.one;
         option.transform.localPosition = Vector3.zero;
         option.name = item.name;
@@ -979,7 +986,7 @@ public class UIManagerForTexOut : MonoBehaviour
 
         toggle.onValueChanged.AddListener(delegate
         {
-            if(toggle.isOn)
+            if (toggle.isOn)
             {
                 if (musiccor != null)
                 {
@@ -987,7 +994,7 @@ public class UIManagerForTexOut : MonoBehaviour
                     musiccor = null;
                     audios.Stop();
                 }
-                StartCoroutine(rtt.LoadItem(item,(int)SlotForItems.Item, new RenderToTexture.LoadItemCallback(OnItemLoaded)));
+                StartCoroutine(rtt.LoadItem(item, (int)SlotForItems.Item, new RenderToTexture.LoadItemCallback(OnItemLoaded)));
             }
         });
         return option;
@@ -996,7 +1003,7 @@ public class UIManagerForTexOut : MonoBehaviour
     IEnumerator PlayMusic(string name)
     {
         bool isMusicFilter = false;
-        foreach(Item item in ItemConfig.item_6)
+        foreach (Item item in ItemConfig.item_6)
         {
             if (string.Equals(name, item.name))
             {
@@ -1050,7 +1057,7 @@ public class UIManagerForTexOut : MonoBehaviour
     {
         Item_Content.SetActive(false);
     }
-#endregion
+    #endregion
 
     void OnApplicationQuit()
     {

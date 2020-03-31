@@ -39,8 +39,6 @@ public class RenderToModel : MonoBehaviour
     public RawImage RawImg_BackGroud;   //用来显示相机结果的UI控件
     private Quaternion baseRotation;    //RawImg_BackGroud的初始旋转
     public Camera camera3d; //渲染3D物体的相机
-    private float dde_focallength = 0;  //SDK跟踪时算出来的焦距，需要和Unity的camera3d同步，从而实现真人和3D物体的位移旋转统一
-    private Coroutine fovcor = null;    //同步焦距用的协程，因为实际计算中可能没法第一时间拿到跟踪焦距
     public bool ifTrackPos = false;     //是否跟踪人脸位置，选择true时只跟踪人脸旋转
 
     public Text txt;
@@ -104,70 +102,7 @@ public class RenderToModel : MonoBehaviour
         {
             RawImg_BackGroud.gameObject.SetActive(false);
             RawImg_BackGroud.texture = null;
-            ResetFOV();
         }
-    }
-
-    //根据SDK实时跟踪给出的焦距调整Unity内部渲染3D物体的相机的焦距（其实是FOV），可能无法在切换摄像机后第一时间调整好，所以需要不停跑直到完成
-    IEnumerator SetFOV()
-    {
-        if(FaceunityWorker.fu_IsTracking() <= 0)
-        {
-            ResetFOV();
-        }
-        while (true)
-        {
-			if (!ifTrackPos) {
-				ResetFOV();
-				break;
-			}
-            if (FaceunityWorker.instance.m_focallength != null && FaceunityWorker.fu_IsTracking() > 0)
-            {
-                var R = FaceunityWorker.instance.m_focallength[0].m_data;
-                if (R != null && R[0]>0)
-                {
-                    if (Mathf.Abs(R[0] - dde_focallength) > 0.0001f)
-                    {
-                        dde_focallength = R[0];
-                        Vector2 currentResolution = NatCam.Camera.PreviewResolution;
-                        float l = 0;
-                        float rotz = RawImg_BackGroud.rectTransform.eulerAngles.z;
-                        if ((rotz > 45 && rotz < 135) || (rotz > 225 && rotz < 315))
-                        {
-                            if (RawImg_BackGroud.rectTransform.sizeDelta.x < RawImg_BackGroud.rectTransform.sizeDelta.y)
-                                l = Mathf.Min(currentResolution.x, currentResolution.y);
-                            else
-                                l = Mathf.Max(currentResolution.x, currentResolution.y);
-                        }
-                        else
-                        {
-                            if (RawImg_BackGroud.rectTransform.sizeDelta.x > RawImg_BackGroud.rectTransform.sizeDelta.y)
-                                l = Mathf.Min(currentResolution.x, currentResolution.y);
-                            else
-                                l = Mathf.Max(currentResolution.x, currentResolution.y);
-                        }
-                        camera3d.fieldOfView = (float)(Mathf.Atan(l / (2 * R[0])) * Mathf.Rad2Deg * 2.0);
-                        //Debug.Log("fieldOfView@@@");
-                        //txt.text = "m_focallength=" + R[0] + "\n fieldOfView=" + camera3d.fieldOfView+ "\n VerticalBGLength="+ l;
-                    }
-                    //txt.text = "m_focallength=" + R[0] + "\n fieldOfView=" + camera3d.fieldOfView;
-                    Debug.Log("dde_focallength=" + dde_focallength+ " R[0]=" + R[0]);
-                    break;
-                }
-            }
-            //Debug.Log("SetFOV Running!!!");
-            yield return Util._endOfFrame;
-        }
-        fovcor = null;
-    }
-
-    //重置渲染相机的FOV
-    public void ResetFOV()
-    {
-        dde_focallength = 0;
-        camera3d.fieldOfView = 48.725f;
-        //txt.text = "ResetFOV";
-        Debug.Log("ReSetFOV");
     }
 
     //切换相机
@@ -177,12 +112,6 @@ public class RenderToModel : MonoBehaviour
 
         if (onSwitchCamera != null)
             onSwitchCamera(true);
-
-        if (fovcor != null)
-        {
-            StopCoroutine(fovcor);
-            fovcor = null;
-        }
         
         // Select the new camera ID // If no argument is given, switch to the next camera
         newCamera = newCamera < 0 ? (NatCam.Camera + 1) % DeviceCamera.Cameras.Count : newCamera;
@@ -205,10 +134,7 @@ public class RenderToModel : MonoBehaviour
 
         if (NatCam.Camera.Facing == Facing.Front)
         {
-            if (Util.isNexus6())
-                RawImg_BackGroud.rectTransform.rotation = baseRotation * Quaternion.AngleAxis((int)DispatchUtility.Orientation * 90, Vector3.back);
-            else
-                RawImg_BackGroud.rectTransform.rotation = baseRotation * Quaternion.AngleAxis((int)DispatchUtility.Orientation * 90, Vector3.forward);
+            RawImg_BackGroud.rectTransform.rotation = baseRotation * Quaternion.AngleAxis((int)DispatchUtility.Orientation * 90, Vector3.forward);
 #if UNITY_EDITOR || UNITY_STANDALONE
             RawImg_BackGroud.uvRect = new Rect(1, 0, -1, 1);    //镜像处理
 #else
@@ -217,10 +143,7 @@ public class RenderToModel : MonoBehaviour
         }
         else
         {
-            if (Util.isNexus5X())
-                RawImg_BackGroud.rectTransform.rotation = baseRotation * Quaternion.AngleAxis((int)DispatchUtility.Orientation * 90, Vector3.forward);
-            else
-                RawImg_BackGroud.rectTransform.rotation = baseRotation * Quaternion.AngleAxis((int)DispatchUtility.Orientation * 90, Vector3.back);
+            RawImg_BackGroud.rectTransform.rotation = baseRotation * Quaternion.AngleAxis((int)DispatchUtility.Orientation * 90, Vector3.back);
 #if UNITY_EDITOR || UNITY_STANDALONE
             RawImg_BackGroud.uvRect = new Rect(0, 0, 1, 1);
 #else
@@ -230,9 +153,31 @@ public class RenderToModel : MonoBehaviour
 #else
 		RawImg_BackGroud.rectTransform.sizeDelta = new Vector2(targetResolution.y * currentResolution.y / currentResolution.x, targetResolution.y);
 #endif
+    }
 
-        if (fovcor==null)
-            fovcor=StartCoroutine(SetFOV());
+    public void SelfAdjusFov()
+    {
+        if (NatCam.Camera == null || camera3d == null)
+            return;
+        Vector2 currentResolution = NatCam.Camera.PreviewResolution;
+        float fov = camera3d.fieldOfView;
+        //Debug.Log(currentResolution);
+        //Debug.LogFormat("Orientation:{0}", (int)DispatchUtility.Orientation);
+
+        if ((DispatchUtility.Orientation == Orientation.Rotation_0 || DispatchUtility.Orientation == Orientation.Rotation_180) && currentResolution.x < currentResolution.y)
+        {
+            float t = Mathf.Tan(fov / 2.0f * Mathf.Deg2Rad);
+            fov = 2.0f * Mathf.Atan2(currentResolution.x * t, currentResolution.y) * Mathf.Rad2Deg;
+        }
+        else if ((DispatchUtility.Orientation == Orientation.Rotation_90 || DispatchUtility.Orientation == Orientation.Rotation_270) && currentResolution.x > currentResolution.y)
+        {
+            float t = Mathf.Tan(fov / 2.0f * Mathf.Deg2Rad);
+            fov = 2.0f * Mathf.Atan2(currentResolution.y * t, currentResolution.x) * Mathf.Rad2Deg;
+        }
+        FaceunityWorker.fu_SetFaceProcessorFov(fov);
+
+        //Debug.LogFormat("fu_SetFaceProcessorFov:{0}", fov);
+        //Debug.LogFormat("fu_GetFaceProcessorFov:{0}", FaceunityWorker.fu_GetFaceProcessorFov());
     }
 
     // 初始化摄像头 
@@ -267,7 +212,8 @@ public class RenderToModel : MonoBehaviour
             NatCam.Play();
             // Register callback for when the preview starts //Note that this is a MUST when assigning the preview texture to anything
             NatCam.OnStart += OnStart;
-
+            
+            SelfAdjusSize();
             FaceunityWorker.FixRotation(NatCam.Camera.Facing != Facing.Front);
 
 #if UNITY_EDITOR || UNITY_STANDALONE
@@ -302,6 +248,7 @@ public class RenderToModel : MonoBehaviour
     //当前环境是PC或者MAC的时候，在这里向SDK输入数据并获取SDK输出的纹理
     void Update()
     {
+        SelfAdjusFov();
 #if UNITY_EDITOR || UNITY_STANDALONE
         if (NatCam.Camera == null)
             return;
@@ -341,8 +288,8 @@ public class RenderToModel : MonoBehaviour
                     Debug.Log("m_rendered_tex: " + m_rendered_tex.GetNativeTexturePtr());
                 }
             }
-            else
-                Debug.Log("ERROR!!!m_fu_texid: " + m_fu_texid);
+            //else
+                //Debug.Log("ERROR!!!m_fu_texid: " + m_fu_texid);
         }
 #endif
         //if (FaceunityWorker.instance.m_rotation_mode != null)

@@ -1,11 +1,27 @@
 # Unity Nama C# API 参考文档
 级别：Public
-更新日期：2020-01-19
-SDK版本: 6.6.0
+更新日期：2020-03-19
+SDK版本: 6.7.0
 
 ------
 
 ## 最新更新内容：
+
+2020-03-19 v6.7.0:
+
+1. 优化6.6.0版本表情系数的灵活度，Animoji表情跟踪更加灵活。  
+2. 新增接口 fuIsLibraryInit，检测SDK是否已初始化。  
+3. AI能力模型中人脸相关能力合并为一体。将FUAITYPE::FUAITYPE_FACELANDMARKS75,FUAITYPE_FACELANDMARKS209,FUAITYPE_FACELANDMARKS239,FUAITYPE_FACEPROCESSOR统一合并到FUAITYPE_FACEPROCESSOR。美颜美妆道具中"landmarks_type"参数关闭，由系统自动切换。  
+4. 优化美颜模块：  
+	- 新增去黑眼圈、去法令纹功能。  
+	- 优化美颜美型效果。  
+	- 美颜磨皮效果优化，新增支持仅磨人脸区域功能。  
+5. 新增接口支持图像裁剪，可用于瘦脸边缘变形裁剪。详见fuSetCropState，fuSetCropFreePixel接口。
+6. 优化美妆效果，人脸点位优化，提高准确性。 
+	- 优化口红点位与效果，解决张嘴、正脸、低抬头、左右转头、抿嘴动作的口红溢色。
+	- 优化美瞳点位效果，美瞳效果更准确。
+	- 腮红效果优化，解决了仰头角度下腮红强拉扯问题。
+7. Nama库大小裁剪优化。
 
 2020-01-19 v6.6.0:
 
@@ -79,9 +95,9 @@ public static extern int fu_Setup(IntPtr v3buf, int v3buf_sz, IntPtr licbuf, int
 
 __参数:__
 
-*v3buf*: v3.bytes中读取的二进制数据的指针
+*v3buf*: v3.bytes中读取的二进制数据的指针，已弃用，传NULL
 
-*v3buf_sz*:  v3.bytes的长度
+*v3buf_sz*:  v3.bytes的长度，已弃用，传0
 
 *licbuf*：证书的文本数据，用`,`分割，将分割后的数组数据转成sbyte格式
 
@@ -111,9 +127,9 @@ public static extern int fu_SetupLocal(IntPtr v3buf, int v3buf_sz, IntPtr licbuf
 
 __参数:__
 
-*v3buf*: v3.bytes中读取的二进制数据的指针
+*v3buf*: v3.bytes中读取的二进制数据的指针，已弃用，传NULL
 
-*v3buf_sz*:  v3.bytes的长度
+*v3buf_sz*:  v3.bytes的长度，已弃用，传0
 
 *licbuf*：证书的文本数据，用`,`分割，将分割后的数组数据转成sbyte格式
 
@@ -183,6 +199,28 @@ __备注:__
 
 ```c#
 public static extern int fu_GetNamaInited();
+```
+
+__参数:__
+
+无
+
+__返回值:__
+
+当返回1时表示成功，0表示失败。
+
+__备注:__
+
+这个接口会**立即**生效。
+
+------
+
+##### fu_IsLibraryInit 函数
+
+返回值表示UnityNamaSDK初始化PART2是否成功。PART1和PART2均成功时，UnityNamaSDK才真正初始化成功。
+
+```c#
+public static extern int fu_IsLibraryInit();
 ```
 
 __参数:__
@@ -1161,6 +1199,28 @@ __备注:__
 
 ------
 
+##### fu_GetCurrentRotationMode 函数
+
+获取默认的RotationMode，即默认的渲染方向
+
+```c#
+public static extern int fu_GetCurrentRotationMode();
+```
+
+__参数:__
+
+无
+
+__返回值:__
+
+默认的RotationMode，即默认的渲染方向
+
+__备注:__
+
+这个接口会**立即**生效。
+
+------
+
 ##### fu_SetASYNCTrackFace 函数
 
 开启异步跟踪功能，某些机型可以性能会提升，但是某些机型性能下降。
@@ -1556,6 +1616,51 @@ __备注:__
 
 ---
 
+##### fu_SetCropState 函数
+
+是否开启和关闭裁剪功能，参数设为0关闭，设为1开启。
+
+```c#
+public static extern int fu_SetCropState(int state);
+```
+
+__参数:__
+
+*state*：是否开启和关闭裁剪功能，参数设为0关闭，设为1开启。
+
+__返回值:__
+
+返回状态0为关闭，1开启。
+
+__备注:__
+
+这个接口会**立即**生效。
+
+------
+
+##### fu_SetCropFreePixel 函数
+
+自由裁剪接口：x0,y0为裁剪后的起始坐标（裁剪前为（0,0）），x1,y1为裁剪后的终止坐标（裁剪前为（imageWidth,imageHeight））。
+
+```c#
+public static extern int fu_SetCropFreePixel(int x0, int y0, int x1, int y1);
+```
+
+__参数:__
+
+*(x0,y0)*：x0,y0为裁剪后的起始坐标（裁剪前为（0,0））
+*(x1,y1)*：x1,y1为裁剪后的终止坐标（裁剪前为（imageWidth,imageHeight））
+
+__返回值:__
+
+返回状态0为失败，1成功。
+
+__备注:__
+
+这个接口会**立即**生效。
+
+---
+
 
 
 #### 2.5 C#端辅助接口
@@ -1604,31 +1709,9 @@ __备注:__
 
 ------
 
-##### GLLoop 函数
-
-这个协程会真正执行初始化逻辑。初始化完毕会自动开启CallPluginAtEndOfFrames。
-
-```c#
-private IEnumerator GLLoop()
-```
-
-__参数:__
-
-无
-
-__返回值:__
-
-无
-
-__备注:__
-
-这是一个C#函数，不是UnityNamaSDK接口
-
-------
-
 ##### CallPluginAtEndOfFrames 函数
 
-开启这个协程，在每帧的末尾会自动调用UnityNamaSDK来识别人脸并渲染当前图像帧，如果开启相关参数(EnableExpressionLoop)，会同时自动获取识别后的人脸信息。
+开启这个协程，在每个Unity生命周期的末尾会自动调用UnityNamaSDK来识别人脸并渲染当前图像帧，如果开启相关参数(EnableExpressionLoop)，会同时自动获取识别后的人脸信息。
 
 ```c#
  private IEnumerator CallPluginAtEndOfFrames()

@@ -49,6 +49,7 @@ public class RenderSimple : MonoBehaviour {
                 currentDeviceName = device.name;
                 wtex = new WebCamTexture(currentDeviceName, cameraWidth, cameraHeight, cameraFrameRate);
                 wtex.Play();
+                FaceunityWorker.FixRotation(!device.isFrontFacing);
                 break;
             }
         }
@@ -72,6 +73,7 @@ public class RenderSimple : MonoBehaviour {
                 currentDeviceName = devices[0].name;
                 wtex = new WebCamTexture(currentDeviceName, cameraWidth, cameraHeight, cameraFrameRate);
                 wtex.Play();
+                FaceunityWorker.FixRotation(!devices[0].isFrontFacing);
             }
         }
 
