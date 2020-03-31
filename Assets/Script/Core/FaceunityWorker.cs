@@ -837,55 +837,6 @@ public class FaceunityWorker : MonoBehaviour
 #endif
     public static extern int fu_SetTongueTracking(int enable);
 
-    /**
-\brief Set a face detector parameter.
-\param detector is the detector context, currently it is allowed to set to NULL, i.e., globally set all contexts.
-\param name is the parameter name, it can be:
-        "use_new_cnn_detection": 1 if the new cnn-based detection method is used, 0 else
-        "other_face_detection_frame_step": if one face already exists, then we detect other faces not each frame, but with a step,default 10 frames
-        if use_new_cnn_detection == 1, then
-            "min_facesize_small", int[default=18]: minimum size to detect a small face; must be called **BEFORE** fuSetup
-            "min_facesize_big", int[default=27]: minimum size to detect a big face; must be called **BEFORE** fuSetup
-            "small_face_frame_step", int[default=5]: the frame step to detect a small face; it is time cost, thus we do not detect each frame
-            "use_cross_frame_speedup", int[default=0]: perform a half-cnn inference each frame to speedup
-            "enable_large_pose_detection", int[default=1]: enable rotated face detection up to 45^deg roll in each rotation mode.
-        else
-            "scaling_factor": the scaling across image pyramids, default 1.2f
-            "step_size": the step of each sliding window, default 2.f
-            "size_min": minimal face supported on 640x480 image, default 50.f
-            "size_max": maximal face supported on 640x480 image, default is a large value
-            "min_neighbors": algorithm internal, default 3.f
-            "min_required_variance": algorithm internal, default 15.f
-\param value points to the new parameter value, e.g., 
-        float scaling_factor=1.2f;
-        dde_facedet_set(ctx, "scaling_factor", &scaling_factor);
-        float size_min=100.f;
-        dde_facedet_set(ctx, "size_min", &size_min);
-*/
-#if UNITY_IOS && !UNITY_EDITOR
-    [DllImport("__Internal")]
-#else
-    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
-#endif
-    public static extern int fu_SetFaceDetParam([MarshalAs(UnmanagedType.LPStr)]string name, IntPtr value);
-
-
-    /**
-\brief Set the global face tracker parameter.
-\param name is the parameter name, it can be:
-	"mouth_expression_more_flexible": \in [0, 1], default=0; additionally make mouth expression more flexible.
-	"expression_calibration_strength": \in [0, 1], default=0.2; strenght of expression soft calibration.
-\param value points to the new parameter value, e.g., 
-	float mouth_expression_more_flexible=0.6f;
-	dde_facetrack_set("mouth_expression_more_flexible", &mouth_expression_more_flexible);
-*/
-#if UNITY_IOS && !UNITY_EDITOR
-    [DllImport("__Internal")]
-#else
-    [DllImport("faceplugin", CallingConvention = CallingConvention.Cdecl)]
-#endif
-    public static extern int fu_SetFaceTrackParam([MarshalAs(UnmanagedType.LPStr)]string name, IntPtr value);
-
     #endregion
 
     public enum FURuningMode
@@ -911,9 +862,9 @@ public class FaceunityWorker : MonoBehaviour
         FUAITYPE_HAIRSEGMENTATION = 1 << 2,
         FUAITYPE_HANDGESTURE = 1 << 3,
         FUAITYPE_TONGUETRACKING = 1 << 4,
-        FUAITYPE_FACELANDMARKS75 = 1 << 5,
-        FUAITYPE_FACELANDMARKS209 = 1 << 6,
-        FUAITYPE_FACELANDMARKS239 = 1 << 7,
+        FUAITYPE_FACELANDMARKS75 = 1 << 5,  //弃用
+        FUAITYPE_FACELANDMARKS209 = 1 << 6, //弃用
+        FUAITYPE_FACELANDMARKS239 = 1 << 7, //弃用
         FUAITYPE_HUMANPOSE2D = 1 << 8,
         FUAITYPE_BACKGROUNDSEGMENTATION_GREEN = 1 << 9,
         FUAITYPE_FACEPROCESSOR = 1 << 10
@@ -1042,7 +993,6 @@ public class FaceunityWorker : MonoBehaviour
     //public List<CFaceUnityCoefficientSet> m_projection_matrix = new List<CFaceUnityCoefficientSet>();//("projection_matrix",16); //the transform matrix from camera space to image space - 16 float
     //public List<CFaceUnityCoefficientSet> m_eye_rotation = new List<CFaceUnityCoefficientSet>();//("eye_rotation",4); //eye rotation quaternion - 4 float
     //public List<CFaceUnityCoefficientSet> m_face_rect = new List<CFaceUnityCoefficientSet>();//("face_rect",4); //the rectangle of tracked face in image space, (xmin,ymin,xmax,ymax) - 4 float
-    //public List<CFaceUnityCoefficientSet> m_failure_rate = new List<CFaceUnityCoefficientSet>();//("failure_rate",1); //the failure rate of face tracking, the less the more confident about tracking result - 1 float
     public List<CFaceUnityCoefficientSet> m_pupil_pos = new List<CFaceUnityCoefficientSet>();//("pupil_pos", 4);
 
     //public List<CFaceUnityCoefficientSet> m_armesh_vertex_num = new List<CFaceUnityCoefficientSet>();

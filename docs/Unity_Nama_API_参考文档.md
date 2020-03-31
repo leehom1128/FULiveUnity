@@ -21,7 +21,6 @@ SDK版本: 6.7.0
 	- 优化口红点位与效果，解决张嘴、正脸、低抬头、左右转头、抿嘴动作的口红溢色。
 	- 优化美瞳点位效果，美瞳效果更准确。
 	- 腮红效果优化，解决了仰头角度下腮红强拉扯问题。
-7. Nama库大小裁剪优化。
 
 2020-01-19 v6.6.0:
 
@@ -280,9 +279,9 @@ public enum FUAITYPE
     FUAITYPE_HAIRSEGMENTATION = 1 << 2,
     FUAITYPE_HANDGESTURE = 1 << 3,
     FUAITYPE_TONGUETRACKING = 1 << 4,
-    FUAITYPE_FACELANDMARKS75 = 1 << 5,
-    FUAITYPE_FACELANDMARKS209 = 1 << 6,
-    FUAITYPE_FACELANDMARKS239 = 1 << 7,
+    FUAITYPE_FACELANDMARKS75 = 1 << 5,	//废弃
+    FUAITYPE_FACELANDMARKS209 = 1 << 6,	//废弃
+    FUAITYPE_FACELANDMARKS239 = 1 << 7,	//废弃
     FUAITYPE_HUMANPOSE2D = 1 << 8,
     FUAITYPE_BACKGROUNDSEGMENTATION_GREEN = 1 << 9,
     FUAITYPE_FACEPROCESSOR = 1 << 10
@@ -587,7 +586,9 @@ __备注:__
 
 ------
 
-##### fu_SetFaceDetParam 函数
+##### ~~fu_SetFaceDetParam 函数~~
+
+**6.7版本该接口已废弃  **
 
 ```
 - 设置 `name == "use_new_cnn_detection"` ，且 `pvalue == 1` 则使用默认的CNN-Based人脸检测算法，否则 `pvalue == 0`则使用传统人脸检测算法。默认开启该模式。
@@ -625,6 +626,8 @@ __返回值:__
 __备注:__
 
 这个接口会**立即**生效。
+
+**6.7版本该接口已废弃  **
 
 ------
 
