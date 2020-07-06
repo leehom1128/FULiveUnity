@@ -9,12 +9,7 @@ namespace NatCamU.Core.Platforms {
 
     public static class NatCamDeviceNative {
 
-        private const string Assembly =
-#if UNITY_IOS
-        "__Internal";
-#else
-        "faceplugin";
-#endif
+        private const string Assembly = FaceunityWorker.unity_plugin_name;
 
 #if UNITY_IOS
 

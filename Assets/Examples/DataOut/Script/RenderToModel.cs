@@ -108,7 +108,7 @@ public class RenderToModel : MonoBehaviour
     //切换相机
     public void SwitchCamera(int newCamera = -1)
     {
-        FaceunityWorker.fu_OnCameraChange();
+        FaceunityWorker.fuOnCameraChange();
 
         if (onSwitchCamera != null)
             onSwitchCamera(true);
@@ -155,29 +155,40 @@ public class RenderToModel : MonoBehaviour
 #endif
     }
 
+    float currentFov = 0;
+    Vector2 currentResolution = Vector2.zero;
+    Orientation currentOrientation = Orientation.Rotation_0;
     public void SelfAdjusFov()
     {
         if (NatCam.Camera == null || camera3d == null)
             return;
-        Vector2 currentResolution = NatCam.Camera.PreviewResolution;
         float fov = camera3d.fieldOfView;
-        //Debug.Log(currentResolution);
+        Vector2 resolution = NatCam.Camera.PreviewResolution;
+        //Debug.Log(resolution);
         //Debug.LogFormat("Orientation:{0}", (int)DispatchUtility.Orientation);
+        Orientation orientation = DispatchUtility.Orientation;
 
-        if ((DispatchUtility.Orientation == Orientation.Rotation_0 || DispatchUtility.Orientation == Orientation.Rotation_180) && currentResolution.x < currentResolution.y)
+        if(currentFov!= fov || currentResolution != resolution || currentOrientation != orientation)
         {
-            float t = Mathf.Tan(fov / 2.0f * Mathf.Deg2Rad);
-            fov = 2.0f * Mathf.Atan2(currentResolution.x * t, currentResolution.y) * Mathf.Rad2Deg;
-        }
-        else if ((DispatchUtility.Orientation == Orientation.Rotation_90 || DispatchUtility.Orientation == Orientation.Rotation_270) && currentResolution.x > currentResolution.y)
-        {
-            float t = Mathf.Tan(fov / 2.0f * Mathf.Deg2Rad);
-            fov = 2.0f * Mathf.Atan2(currentResolution.y * t, currentResolution.x) * Mathf.Rad2Deg;
-        }
-        FaceunityWorker.fu_SetFaceProcessorFov(fov);
+            if ((DispatchUtility.Orientation == Orientation.Rotation_0 || DispatchUtility.Orientation == Orientation.Rotation_180) && resolution.x < resolution.y)
+            {
+                float t = Mathf.Tan(fov / 2.0f * Mathf.Deg2Rad);
+                fov = 2.0f * Mathf.Atan2(resolution.x * t, resolution.y) * Mathf.Rad2Deg;
+            }
+            else if ((DispatchUtility.Orientation == Orientation.Rotation_90 || DispatchUtility.Orientation == Orientation.Rotation_270) && resolution.x > resolution.y)
+            {
+                float t = Mathf.Tan(fov / 2.0f * Mathf.Deg2Rad);
+                fov = 2.0f * Mathf.Atan2(resolution.y * t, resolution.x) * Mathf.Rad2Deg;
+            }
+            FaceunityWorker.fuSetFaceProcessorFov(fov);
 
-        //Debug.LogFormat("fu_SetFaceProcessorFov:{0}", fov);
-        //Debug.LogFormat("fu_GetFaceProcessorFov:{0}", FaceunityWorker.fu_GetFaceProcessorFov());
+            currentFov = fov;
+            currentResolution = resolution;
+            currentOrientation = orientation;
+
+            //Debug.LogFormat("fu_SetFaceProcessorFov:{0}", fov);
+            //Debug.LogFormat("fu_GetFaceProcessorFov:{0}", FaceunityWorker.fu_GetFaceProcessorFov());
+        }
     }
 
     // 初始化摄像头 
@@ -269,7 +280,7 @@ public class RenderToModel : MonoBehaviour
                     p_img_ptr = img_handle.AddrOfPinnedObject();
                 }
                 tex.GetPixels32(webtexdata);
-                FaceunityWorker.SetImage(p_img_ptr,0, false, (int)NatCam.Camera.PreviewResolution.x, (int)NatCam.Camera.PreviewResolution.y);   //传输数据方法之一
+                FaceunityWorker.SetImage(p_img_ptr, 0, false, (int)NatCam.Camera.PreviewResolution.x, (int)NatCam.Camera.PreviewResolution.y);   //传输数据方法之一
             }
         }
 
@@ -292,12 +303,9 @@ public class RenderToModel : MonoBehaviour
                 //Debug.Log("ERROR!!!m_fu_texid: " + m_fu_texid);
         }
 #endif
-        //if (FaceunityWorker.instance.m_rotation_mode != null)
-        //{
-        //    var R = FaceunityWorker.instance.m_rotation_mode[0].m_data;
-        //    if (R != null)
-        //        txt.text = "rotation=" + R[0];
-        //}
+
+        if (NatCam.Camera)
+            txt.text = FaceunityWorker.FixRotationWithAcceleration(Input.acceleration, NatCam.Camera.Facing != Facing.Front);
     }
 
     void OnApplicationPause(bool isPause)
@@ -318,6 +326,8 @@ public class RenderToModel : MonoBehaviour
     //加载道具。RenderItem下的获取跟踪数据，详见文档
     public IEnumerator LoadItem(string path, int slotid = 0)
     {
+        if (!FaceunityWorker.instance.m_plugin_inited)
+            yield break;
         Debug.Log("LoadItem:" + path);
         WWW bundledata = new WWW(path);
         yield return bundledata;
@@ -325,7 +335,7 @@ public class RenderToModel : MonoBehaviour
         GCHandle hObject = GCHandle.Alloc(bundle_bytes, GCHandleType.Pinned);
         IntPtr pObject = hObject.AddrOfPinnedObject();
 
-        int itemid = FaceunityWorker.fu_CreateItemFromPackage(pObject, bundle_bytes.Length);
+        int itemid = FaceunityWorker.fuCreateItemFromPackage(pObject, bundle_bytes.Length);
         hObject.Free();
 
         if (itemid_tosdk[slotid] > 0)
@@ -333,15 +343,17 @@ public class RenderToModel : MonoBehaviour
 
         itemid_tosdk[slotid] = itemid;
 
-        FaceunityWorker.fu_setItemIds(p_itemsid, SLOTLENGTH, IntPtr.Zero);
+        FaceunityWorker.fu_SetItemIds(p_itemsid, SLOTLENGTH, IntPtr.Zero);
     }
 
     //加载道具。RenderItem下的获取跟踪数据，详见文档
     public bool UnLoadItem(int slotid = 0)
     {
+        if (!FaceunityWorker.instance.m_plugin_inited)
+            return false;
         if (slotid >= 0 && slotid < SLOTLENGTH)
         {
-            FaceunityWorker.fu_DestroyItem(itemid_tosdk[slotid]);
+            FaceunityWorker.fuDestroyItem(itemid_tosdk[slotid]);
             itemid_tosdk[slotid] = 0;
             Debug.LogFormat("UnLoadItem slotid = {0}", slotid);
             return true;

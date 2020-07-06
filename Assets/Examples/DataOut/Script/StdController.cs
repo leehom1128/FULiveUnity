@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Runtime.InteropServices;
 using NatCamU.Core;
+using NatCamU.Dispatch;
 
 public class StdController : MonoBehaviour
 {
@@ -62,7 +63,7 @@ public class StdController : MonoBehaviour
         {
             return;
         }
-        if (FaceunityWorker.fu_IsTracking() > 0)    //仅在跟踪到人脸的情况下更新
+        if (FaceunityWorker.instance.m_need_update_facenum > 0)    //仅在跟踪到人脸的情况下更新
         {
             //skinnedMeshRenderer.enabled = true;
         }
@@ -74,6 +75,7 @@ public class StdController : MonoBehaviour
 
         float[] R = FaceunityWorker.instance.m_rotation[faceid].m_data; //人脸旋转数据
         float[] P = FaceunityWorker.instance.m_translation[faceid].m_data;  //人脸位移数据
+        float[] E = FaceunityWorker.instance.m_expression_with_tongue[faceid].m_data; //人脸表情数据
 
         bool ifMirrored = NatCam.Camera.Facing == Facing.Front; //是否镜像
 #if (UNITY_ANDROID) && (!UNITY_EDITOR)
@@ -81,39 +83,63 @@ public class StdController : MonoBehaviour
 #elif (UNITY_IOS) && (!UNITY_EDITOR)
         ifMirrored=false;
 #endif
+
         if (ifMirrored)
         {
-            float[] data = FaceunityWorker.instance.m_expression_with_tongue[faceid].m_data;
             for (int j = 0; j < skinnedMeshRenderers.Length; j++)
             {
                 for (int i = 0; i < skinnedMeshRenderers[j].sharedMesh.blendShapeCount; i++)
                 {
-                    skinnedMeshRenderers[j].SetBlendShapeWeight(mirrorBlendShape[i], data[i] * 100);    //SDK输出表情系数数据为0~1，一般Unity的BlendShape系数为0~100，因此需要调整
+                    skinnedMeshRenderers[j].SetBlendShapeWeight(mirrorBlendShape[i], E[i] * 100);    //SDK输出表情系数数据为0~1，一般Unity的BlendShape系数为0~100，因此需要调整
                 }
             }
-            transform.localRotation = m_rotation0 * new Quaternion(R[0], R[1], -R[2], -R[3]);
+            transform.localRotation = m_rotation0 * PostProcessRotation(new Quaternion(-R[0], -R[1], R[2], R[3]));   //沿着yz平面镜像
             if (rtm.ifTrackPos == true)
-                transform.localPosition = new Vector3(-P[0], P[1], P[2]);//new Vector3(-P[0], P[1], P[2]);
+                transform.localPosition = PostProcessPositon(new Vector3(-P[0], P[1], P[2]));
             else
                 transform.localPosition = m_position0;
         }
         else
         {
-            float[] data = FaceunityWorker.instance.m_expression_with_tongue[faceid].m_data;
             for (int j = 0; j < skinnedMeshRenderers.Length; j++)
             {
                 for (int i = 0; i < skinnedMeshRenderers[j].sharedMesh.blendShapeCount; i++)
                 {
-                    skinnedMeshRenderers[j].SetBlendShapeWeight(i, data[i] * 100);
+                    skinnedMeshRenderers[j].SetBlendShapeWeight(i, E[i] * 100);
                 }
             }
-            transform.localRotation = m_rotation0 * new Quaternion(R[0], -R[1], R[2], -R[3]);
+            transform.localRotation = m_rotation0 * PostProcessRotation(new Quaternion(-R[0], R[1], -R[2], R[3]));   //坐标系转换
             if (rtm.ifTrackPos == true)
-                transform.localPosition = new Vector3(P[0], P[1], P[2]);//new Vector3(P[0], P[1], P[2]);
+                transform.localPosition = PostProcessPositon(new Vector3(P[0], P[1], P[2]));
             else
                 transform.localPosition = m_position0;
         }
         //Debug.Log("STDUpdate:localRotation="+ transform.localEulerAngles.x+","+ transform.localEulerAngles.y + "," + transform.localEulerAngles.z);
+    }
+
+    Quaternion PostProcessRotation(Quaternion r)
+    {
+#if UNITY_EDITOR || UNITY_STANDALONE
+        return Quaternion.AngleAxis(180, Vector3.forward) * r;
+#elif !UNITY_EDITOR && UNITY_ANDROID
+        return Quaternion.AngleAxis(90, Vector3.forward) * r;
+#elif !UNITY_EDITOR && UNITY_IOS
+        return Quaternion.AngleAxis(180, Vector3.forward) * r;
+#else
+        return r;
+#endif
+    }
+    Vector3 PostProcessPositon(Vector3 p)
+    {
+#if UNITY_EDITOR || UNITY_STANDALONE
+        return new Vector3(-p.x, -p.y, p.z);
+#elif !UNITY_EDITOR && UNITY_ANDROID
+        return new Vector3(p.y, -p.x, p.z);
+#elif !UNITY_EDITOR && UNITY_IOS
+        return new Vector3(-p.x, -p.y, p.z);
+#else
+        return p;
+#endif
     }
 
     //重置人脸的位置旋转
@@ -121,6 +147,6 @@ public class StdController : MonoBehaviour
     {
         transform.localPosition = m_position0;
         transform.localRotation = m_rotation0;
-        Debug.Log("ResetTransform:localRotation=" + transform.localEulerAngles.x + "," + transform.localEulerAngles.y + "," + transform.localEulerAngles.z);
+        //Debug.Log("ResetTransform:localRotation=" + transform.localEulerAngles.x + "," + transform.localEulerAngles.y + "," + transform.localEulerAngles.z);
     }
 }

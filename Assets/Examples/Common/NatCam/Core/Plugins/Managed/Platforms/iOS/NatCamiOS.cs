@@ -151,6 +151,11 @@ namespace NatCamU.Core.Platforms {
         {
             NatCamNative.SetFlipy(ifenable);
         }
+
+        public static int GetCameraDeviceCount()
+        {
+            return NatCamNative.GetCameraDeviceCount();
+        }
         #endregion
 
 

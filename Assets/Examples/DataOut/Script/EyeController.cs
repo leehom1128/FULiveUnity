@@ -10,7 +10,6 @@ public class EyeController : MonoBehaviour {
     Vector3 m_position0;    //眼球初始位置
     Renderer rend;  //眼球的Render
 
-    public float[] last_pupil_pos = new float[2];   //上一帧瞳孔的坐标
     public int faceid=0;    //人脸ID
 
     //初始化时记录原始信息
@@ -19,8 +18,6 @@ public class EyeController : MonoBehaviour {
         rend = GetComponent<Renderer>();
         m_rotation0 = transform.localRotation;
         m_position0 = transform.localPosition;
-        last_pupil_pos[0] = 0.0f;
-        last_pupil_pos[1] = 0.0f;
     }
 
     void Start () {
@@ -34,7 +31,7 @@ public class EyeController : MonoBehaviour {
         {
             return;
         }
-        if (FaceunityWorker.fu_IsTracking() > 0)    //仅在跟踪到人脸的情况下更新
+        if (FaceunityWorker.instance.m_need_update_facenum > 0)    //仅在跟踪到人脸的情况下更新
         {
             //rend.enabled = true;
         }
@@ -43,46 +40,29 @@ public class EyeController : MonoBehaviour {
             //rend.enabled = false;
             return;
         }
-
-        float[] pupil_pos = FaceunityWorker.instance.m_pupil_pos[faceid].m_data;
-        if(pupil_pos==null){return;}
-        //Debug.Log(pupil_pos[0] + "," + pupil_pos[1]);
+        
         transform.localRotation=m_rotation0;
         transform.localPosition=m_position0;
-
-        //计算眼球旋转向量
-        Vector3 rotate_from=new Vector3(0.0f,0.0f,-1.0f);
-        Vector3 rotate_to = (new Vector3(-pupil_pos[0] * 0.8f, pupil_pos[1] * 0.4f, -1.0f));
-        rotate_to.Normalize();
-        Vector3 axis=Vector3.Cross(rotate_from,rotate_to);
-        float angle = 0;
 
         bool ifMirrored = NatCam.Camera.Facing == Facing.Front;
 #if (UNITY_IOS) && (!UNITY_EDITOR)
         ifMirrored=false;
 #endif
 
-        //根据镜像情况计算眼球旋转角度（弧度制）
-        if (ifMirrored)
-        {
-            angle = Mathf.Atan2(axis.magnitude, Vector3.Dot(rotate_from, rotate_to)) / 3.1415926f * 180.0f;
-        }
-        else
-        {
-            angle = -Mathf.Atan2(axis.magnitude, Vector3.Dot(rotate_from, rotate_to)) / 3.1415926f * 180.0f;
-        }
+        var m_eye_rotation = FaceunityWorker.instance.m_eye_rotation[faceid].m_data;
+        var rotd = new Quaternion(m_eye_rotation[0], (ifMirrored ? 1.0f : -1.0f) * m_eye_rotation[1], m_eye_rotation[2], m_eye_rotation[3]);
 
+        RotateAround(transform, rend.bounds.center, rotd);
+    }
 
-        //float angle=-Mathf.Atan2(axis.magnitude, Vector3.Dot(rotate_from, rotate_to))/3.1415926f*180.0f;
-        //transform.rotation = Quaternion.Euler(pupil_pos[0]*100, -pupil_pos[1]*100, 0) * m_rotation0;
-        //transform.RotateAround(rend.bounds.center, new Vector3(1,0,0), (pupil_pos[1] - last_pupil_pos[1]) * 40);
-        //transform.RotateAround(rend.bounds.center, new Vector3(0,-1,0), (pupil_pos[0] - last_pupil_pos[0]) * 80);
-
-        //根据眼球mesh的包围盒中心旋转眼球
-        transform.RotateAround(rend.bounds.center,axis,angle);
-
-        last_pupil_pos[0] = pupil_pos[0];
-        last_pupil_pos[1] = pupil_pos[1];
-        //transform.localRotation = Quaternion.Euler(-pupil_pos[0] * 100, -pupil_pos[1] * 100, -1);
+    private void RotateAround(Transform t, Vector3 center, Quaternion rot)
+    {
+        Vector3 pos = t.position;
+        Vector3 dir = pos - center; // find current direction relative to center
+        dir = rot * dir; // rotate the direction
+        t.position = center + dir; // define new position
+                                   // rotate object to keep looking at the center:
+        Quaternion myRot = t.rotation;
+        t.rotation *= Quaternion.Inverse(myRot) * rot * myRot;
     }
 }

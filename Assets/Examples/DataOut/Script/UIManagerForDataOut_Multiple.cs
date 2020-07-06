@@ -41,21 +41,20 @@ public class UIManagerForDataOut_Multiple : MonoBehaviour {
         if (Input.GetKeyDown(KeyCode.Escape))
             Application.Quit();
 
-        if (FaceunityWorker.fu_IsTracking() > 0)
+        if (FaceunityWorker.instance.m_need_update_facenum > 0)
             Image_FaceDetect.SetActive(false);
         else
             Image_FaceDetect.SetActive(true);
 
-        //trueid与faceid之分：faceid为0~currentMaxface，不会区分不同人脸，而trueid为真正的人脸ID，会区分不同人脸
-        //通过faceid获取trueid
         for (int i=0;i< stcs.Length;i++)
         {
             marks[i] = false;
         }
         string tmps = "trueid:";
-        for (int i = 0; i < FaceunityWorker.instance.m_need_update_facenum; i++)
+        var face_true_id = FaceunityWorker.instance.face_true_id;
+        for (int i = 0; i < face_true_id.Count; i++)
         {
-            int trueid = (int)Mathf.Log(FaceunityWorker.fu_GetFaceIdentifier(i),2);
+            int trueid = face_true_id[i];
             tmps += trueid + ",";
             if (trueid < stcs.Length && trueid >= 0)
             {
@@ -70,7 +69,7 @@ public class UIManagerForDataOut_Multiple : MonoBehaviour {
                 stcs[i].gameObject.SetActive(false);
         }
 
-        text = "faceNum=" + FaceunityWorker.instance.m_need_update_facenum+"\n"+ tmps;
+        text = "faceNum=" + FaceunityWorker.instance.m_need_update_facenum + "\n" + tmps;
     }
 
     void RegisterUIFunc()

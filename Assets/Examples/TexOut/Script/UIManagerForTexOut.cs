@@ -126,7 +126,7 @@ public class UIManagerForTexOut : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape))
             Application.Quit();
 
-        if (FaceunityWorker.fu_IsTracking() > 0)
+        if (FaceunityWorker.instance.m_need_update_facenum > 0)
             Image_FaceDetect.SetActive(false);
         else
             Image_FaceDetect.SetActive(true);
@@ -136,9 +136,9 @@ public class UIManagerForTexOut : MonoBehaviour
     //顺便根据授权信息初始化相关道具
     IEnumerator Authentication()
     {
-        while (FaceunityWorker.jc_part_inited() == 0)
+        while (FaceunityWorker.fuIsLibraryInit() == 0)
             yield return Util._endOfFrame;
-        int code = FaceunityWorker.fu_GetModuleCode(0);
+        int code = FaceunityWorker.fuGetModuleCode(0);
         Debug.Log("fu_GetModuleCode:" + code);
         permissions = new bool[permissions_code.Length];
         for (int i = 0; i < permissions_code.Length; i++)

@@ -11,6 +11,7 @@ public class RenderSimple : MonoBehaviour {
     public int cameraWidth=1280;
     public int cameraHeight=720;
     public int cameraFrameRate=30;
+    bool currentDeviceisFrontFacing = false;
 
     WebCamTexture wtex; //Unity的外部相机类
     //byte[] img_bytes;
@@ -49,6 +50,7 @@ public class RenderSimple : MonoBehaviour {
                 currentDeviceName = device.name;
                 wtex = new WebCamTexture(currentDeviceName, cameraWidth, cameraHeight, cameraFrameRate);
                 wtex.Play();
+                currentDeviceisFrontFacing = device.isFrontFacing;
                 FaceunityWorker.FixRotation(!device.isFrontFacing);
                 break;
             }
@@ -73,6 +75,7 @@ public class RenderSimple : MonoBehaviour {
                 currentDeviceName = devices[0].name;
                 wtex = new WebCamTexture(currentDeviceName, cameraWidth, cameraHeight, cameraFrameRate);
                 wtex.Play();
+                currentDeviceisFrontFacing = devices[0].isFrontFacing;
                 FaceunityWorker.FixRotation(!devices[0].isFrontFacing);
             }
         }
@@ -121,6 +124,8 @@ public class RenderSimple : MonoBehaviour {
 
     void Update()
     {
+        FaceunityWorker.FixRotationWithAcceleration(Input.acceleration, !currentDeviceisFrontFacing);
+
         if (InputTex != null)
         {
             UpdateData(IntPtr.Zero, (int)InputTex.GetNativeTexturePtr(), InputTex.width, InputTex.height, UpdateDataMode.ImageTexId);
@@ -278,6 +283,8 @@ public class RenderSimple : MonoBehaviour {
 
     public IEnumerator LoadItem(string path, int slotid = 0)
     {
+        if (!FaceunityWorker.instance.m_plugin_inited)
+            yield break;
         Debug.Log("LoadItem:" + path);
         WWW bundledata = new WWW(path);
         yield return bundledata;
@@ -285,7 +292,7 @@ public class RenderSimple : MonoBehaviour {
         GCHandle hObject = GCHandle.Alloc(bundle_bytes, GCHandleType.Pinned);
         IntPtr pObject = hObject.AddrOfPinnedObject();
 
-        int itemid = FaceunityWorker.fu_CreateItemFromPackage(pObject, bundle_bytes.Length);
+        int itemid = FaceunityWorker.fuCreateItemFromPackage(pObject, bundle_bytes.Length);
         hObject.Free();
 
         if (itemid_tosdk[slotid] > 0)
@@ -293,16 +300,18 @@ public class RenderSimple : MonoBehaviour {
 
         itemid_tosdk[slotid] = itemid;
 
-        FaceunityWorker.fu_setItemIds(p_itemsid, SLOTLENGTH, IntPtr.Zero);
+        FaceunityWorker.fu_SetItemIds(p_itemsid, SLOTLENGTH, IntPtr.Zero);
 
         Debug.Log("LoadItem Finish");
     }
 
     public bool UnLoadItem(int slotid = 0)
     {
+        if (!FaceunityWorker.instance.m_plugin_inited)
+            return false;
         if (slotid >= 0 && slotid < SLOTLENGTH)
         {
-            FaceunityWorker.fu_DestroyItem(itemid_tosdk[slotid]);
+            FaceunityWorker.fuDestroyItem(itemid_tosdk[slotid]);
             itemid_tosdk[slotid] = 0;
             Debug.LogFormat("UnLoadItem slotid = {0}", slotid);
             return true;

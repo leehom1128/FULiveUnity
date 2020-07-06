@@ -152,6 +152,11 @@ namespace NatCamU.Core.Platforms {
         {
             Util.LogError("Flipy is not supported on legacy");
         }
+
+        public static int GetCameraDeviceCount()
+        {
+            return WebCamTexture.devices.Length;
+        }
         #endregion
 
 

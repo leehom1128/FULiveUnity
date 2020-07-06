@@ -1,11 +1,47 @@
 # Unity Nama C# API 参考文档
 级别：Public
-更新日期：2020-03-19
-SDK版本: 6.7.0
+更新日期：2020-06-30
+SDK版本: 7.0.0 
 
 ------
 
 ## 最新更新内容：
+
+2020-6-30 v7.0.0:
+
+1. 新增人体算法能力接口，包括人体检测、2D人体关键点（全身、半身）、人体3D骨骼（全身、半身）、手势识别、人像mask、头发mask、头部mask、动作识别等能力。
+2. 新增接口，详见接口说明
+   - fuGetLogLevel,获取当前日志级别。
+   - fuSetLogLevel,设置当前日志级别。
+   - fuOpenFileLog,打开文件日志，默认使用console日志。
+   - fuFaceProcessorSetMinFaceRatio，设置人脸检测距离的接口。
+   - fuSetTrackFaceAIType，设置fuTrackFace算法运行类型接口。
+   - fuSetCropState，设置裁剪状态。
+   - fuSetCropFreePixel，设置自由裁剪参数。
+   - fuSetFaceProcessorFov，设置FaceProcessor人脸算法模块跟踪fov。
+   - fuGetFaceProcessorFov，获取FaceProcessor人脸算法模块跟踪fov。
+   - fuHumanProcessorReset，重置HumanProcessor人体算法模块状态。
+   - fuHumanProcessorSetMaxHumans，设置HumanProcessor人体算法模块跟踪人体数。
+   - fuHumanProcessorGetNumResults，获取HumanProcessor人体算法模块跟踪人体数。
+   - fuHumanProcessorGetResultTrackId，获取HumanProcessor人体算法模块跟踪Id。
+   - fuHumanProcessorGetResultRect，获取HumanProcessor人体算法模块跟踪人体框。
+   - fuHumanProcessorGetResultJoint2ds，获取HumanProcessor人体算法模块跟踪人体2D关键点。
+   - fuHumanProcessorGetResultJoint3ds，获取HumanProcessor人体算法模块跟踪人体3D骨骼信息。
+   - fuHumanProcessorGetResultHumanMask，获取HumanProcessor人体算法模块全身mask。
+   - fuHumanProcessorGetResultActionType，获取HumanProcessor人体算法模块跟踪人体动作类型。
+   - fuHumanProcessorGetResultActionScore，获取HumanProcessor人体算法模块跟踪人体动作置信度。
+   - fuFaceProcessorGetResultHairMask，获取HumanProcessor人体算法模块头发mask。
+   - fuFaceProcessorGetResultHeadMask，获取HumanProcessor人体算法模块头部mask。
+   - fuHandDetectorGetResultNumHands，获取HandGesture手势算法模块跟踪手势数量。
+   - fuHandDetectorGetResultHandRect，获取HandGesture手势算法模块跟踪手势框。
+   - fuHandDetectorGetResultGestureType，获取HandGesture手势算法模块跟踪手势类别。
+   - fuHandDetectorGetResultHandScore，获取HandGesture手势算法模块跟踪手势置信度。
+3. 废弃接口
+   - fuSetStrictTracking
+   - fuSetASYNCTrackFace
+   - fuSetFaceTrackParam  
+   - fuSetDeviceOrientation  
+   - fuSetDefaultOrientation
 
 2020-03-19 v6.7.0:
 
@@ -74,9 +110,25 @@ SDK版本: 6.7.0
 
 Unity使用的SDK是在原始的Nama SDK上封装了一层GL调用层，这个封装使得Nama SDK的GL环境得以和Unity的GL环境同步，具体可以 [参考这里](https://docs.unity3d.com/Manual/NativePluginInterface.html)。
 
-以下文字中原始Nama SDK简称**Nama**，GL调用层简称**FacePlugin**，合称**UnityNamaSDK**。
+以下文字中原始Nama SDK简称**Nama**，GL调用层简称**UnityPlugin**，合称**UnityNamaSDK**。
 
-SDK相关的所有调用要求在同一个线程中顺序执行，不支持多线程。为了同步UnityNamaSDK和Unity的GL环境，部分接口调用后不会立即生效，而是等到当前Unity生命周期末尾，初始化完成后开启的每帧执行的协程会调用GL事件从而执行当前Unity生命周期中所调用的部分接口，具体会在API内容中说明。
+Nama所有渲染功能要求在Unity的GL线程中执行。为了同步Nama和Unity的GL环境，部分接口调用后不会立即生效，只是暂时把参数存储在UnityPlugin层中，等到代码逻辑执行GL.IssuePluginEvent指令后，Unity的GL线程真正调用Nama渲染指令后，先前部分接口设置的参数才会生效，这种接口在以下描述中会备注**延迟**生效。
+
+Nama7.0以后利用GL.IssuePluginEvent的eventID参数分开了Nama的各种渲染调用目前有：
+
+```c#
+public enum Nama_GL_Event_ID
+    {
+        FuSetup = 0,	//Nama初始化
+        NormalRender = 1,	//Nama渲染
+        ReleaseGLResources = 2,	//释放道具以外的所有GL资源
+        FuDestroyAllItems = 3,	//释放所有道具的GL资源
+    }
+//这样调用
+GL.IssuePluginEvent(fu_GetRenderEventFunc(), (int)Nama_GL_Event_ID.NormalRender);
+```
+
+Nama7.0后为了简化UnityPlugin逻辑，部分不需要在UnityPlugin层中缓存数据的接口改为直接从Nama中调用，这类接口特征就是以**fu_**开始，如，fu_IsLibraryInit，现在这类接口统一改成**fu**开始，如fuIsLibraryInit，dllimport也选择Nama的名字。
 
 如果需要用到SDK的绘制功能，则需要Unity开启OpenGL渲染模式，没有开启或开启不正确会导致崩溃。我们对OpenGL的环境要求为 GLES 2.0 以上。具体调用方式，可以参考FULiveUnity Demo。如果不需要使用SDK的绘制功能，可以咨询技术支持如何直接调用Nama。
 
@@ -104,7 +156,7 @@ __参数:__
 
 __返回值:__
 
-无
+返回0代表失败。返回1代表准备执行中，是否成功请在运行GL.IssuePluginEvent(fu_GetRenderEventFunc(), (int)Nama_GL_Event_ID.FuSetup) 后循环调用fuIsLibraryInit()来获取是否成功的信息。如初始化失败，可以通过 ```fuGetSystemError``` 获取错误代码。
 
 __备注:__
 
@@ -140,7 +192,7 @@ offline_bundle_sz：原始离线bundle的长度
 
 __返回值:__
 
-无
+返回0代表失败。返回1代表准备执行中，是否成功请在运行GL.IssuePluginEvent(fu_GetRenderEventFunc(), (int)Nama_GL_Event_ID.FuSetup) 后循环调用fuIsLibraryInit()来获取是否成功的信息。如初始化失败，可以通过 ```fuGetSystemError``` 获取错误代码。
 
 __备注:__
 
@@ -164,7 +216,7 @@ __参数:__
 
 __返回值:__
 
-无
+离线鉴权是否成功
 
 __备注:__
 
@@ -172,32 +224,12 @@ __备注:__
 
 ------
 
-##### jc_part_inited 函数
-返回值表示UnityNamaSDK初始化PART1是否成功。这个接口主要用于防止二次初始化UnityNamaSDK，这会导致程序崩溃。
+##### fuIsLibraryInit 函数
+
+返回值表示UnityNamaSDK初始化是否成功。
 
 ```c#
-public static extern int jc_part_inited();
-```
-
-__参数:__
-
-无
-
-__返回值:__
-
-当返回1表示成功，0表示失败。
-
-__备注:__
-
-这个接口会**立即**生效。
-
-------
-
-##### fu_GetNamaInited 函数
-返回值表示UnityNamaSDK初始化PART2是否成功。PART1和PART2均成功时，UnityNamaSDK才真正初始化成功。
-
-```c#
-public static extern int fu_GetNamaInited();
+public static extern int fuIsLibraryInit();
 ```
 
 __参数:__
@@ -214,34 +246,12 @@ __备注:__
 
 ------
 
-##### fu_IsLibraryInit 函数
-
-返回值表示UnityNamaSDK初始化PART2是否成功。PART1和PART2均成功时，UnityNamaSDK才真正初始化成功。
-
-```c#
-public static extern int fu_IsLibraryInit();
-```
-
-__参数:__
-
-无
-
-__返回值:__
-
-当返回1时表示成功，0表示失败。
-
-__备注:__
-
-这个接口会**立即**生效。
-
-------
-
-##### fu_LoadTongueModel 函数
+##### fuLoadTongueModel 函数
 
 加载舌头跟踪需要的数据文件
 
 ```c#
-public static extern int fu_LoadTongueModel(IntPtr databuf, int databuf_sz);
+public static extern int fuLoadTongueModel(IntPtr databuf, int databuf_sz);
 ```
 
 __参数:__
@@ -251,46 +261,74 @@ __参数:__
 
 __返回值:__
 
-无
+0为未加载，1为加载。
 
 __备注:__
 
 这个接口会**立即**生效。
 
 ------
+##### fuSetTrackFaceAIType  函数
+设置fuTrackFace算法运行类型接口
+```C
+/**
+ \brief Set AI type for fuTrackFace and fuTrackFaceWithTongue interface
+ \param ai_type, is a bit combination of FUAITYPE;
+ */
+FUNAMA_API void fuSetTrackFaceAIType(FUAITYPE ai_type);
+```
+__参数:__  
 
-##### fu_LoadAIModelFromPackage 函数
+*ai_type [in]*：aitype，详见FUAITYPE定义。
+
+```c#
+public enum FUAITYPE
+    {
+        FUAITYPE_BACKGROUNDSEGMENTATION = 1 << 1,//背景分割
+        FUAITYPE_HAIRSEGMENTATION = 1 << 2,     //头发分割，7.0.0可使用FUAITYPE_FACEPROCESSOR_HAIRSEGMENTATION
+        FUAITYPE_HANDGESTURE = 1 << 3,          //手势识别
+        FUAITYPE_TONGUETRACKING = 1 << 4,       //暂未使用
+        FUAITYPE_FACELANDMARKS75 = 1 << 5,      //废弃
+        FUAITYPE_FACELANDMARKS209 = 1 << 6,     //废弃
+        FUAITYPE_FACELANDMARKS239 = 1 << 7,     //废弃
+        FUAITYPE_HUMANPOSE2D = 1 << 8,          //2D身体点位，7.0.0可使用FUAITYPE_HUMAN_PROCESSOR_2D_DANCE
+        FUAITYPE_BACKGROUNDSEGMENTATION_GREEN = 1 << 9,//绿幕分割
+        FUAITYPE_FACEPROCESSOR = 1 << 10,				//人脸算法模块，默认带低质量高性能表情跟踪
+        FUAITYPE_FACEPROCESSOR_FACECAPTURE = 1 << 11,   //高质量表情跟踪
+        FUAITYPE_FACEPROCESSOR_HAIRSEGMENTATION = 1 << 12,  //头发分割
+        FUAITYPE_FACEPROCESSOR_HEADSEGMENTATION = 1 << 13,  //头部分割
+        FUAITYPE_HUMAN_PROCESSOR = 1 << 14,         //人体算法模块
+        FUAITYPE_HUMAN_PROCESSOR_DETECT = 1 << 15,  //人体检测
+        FUAITYPE_HUMAN_PROCESSOR_2D_SELFIE = 1 << 16,//2D半身点位
+        FUAITYPE_HUMAN_PROCESSOR_2D_DANCE = 1 << 17,//2D全身点位
+        FUAITYPE_HUMAN_PROCESSOR_3D_SELFIE = 1 << 18,//3D半身点位
+        FUAITYPE_HUMAN_PROCESSOR_3D_DANCE = 1 << 19,//3D全身点位
+        FUAITYPE_HUMAN_PROCESSOR_SEGMENTATION = 1 << 20 //人体分割
+    }
+```
+
+__备注:__ 
+这个接口会**立即**生效。
+
+------
+
+##### fuLoadAIModelFromPackage 函数
 
 加载AI运算需要的数据文件
 
 ```c#
-public static extern int fu_LoadAIModelFromPackage(IntPtr databuf, int databuf_sz, int _type);
+public static extern int fuLoadAIModelFromPackage(IntPtr databuf, int databuf_sz, FUAITYPE ai_type);
 ```
 
 __参数:__
 
 *databuf*:  tongue.bytes中读取的二进制数据的指针
 *databuf_sz*:  tongue.bytes的长度
-*_type*:  AI数据文件类型，有以下几类：
-```c#
-public enum FUAITYPE
-{
-    FUAITYPE_BACKGROUNDSEGMENTATION = 1 << 1,
-    FUAITYPE_HAIRSEGMENTATION = 1 << 2,
-    FUAITYPE_HANDGESTURE = 1 << 3,
-    FUAITYPE_TONGUETRACKING = 1 << 4,
-    FUAITYPE_FACELANDMARKS75 = 1 << 5,	//废弃
-    FUAITYPE_FACELANDMARKS209 = 1 << 6,	//废弃
-    FUAITYPE_FACELANDMARKS239 = 1 << 7,	//废弃
-    FUAITYPE_HUMANPOSE2D = 1 << 8,
-    FUAITYPE_BACKGROUNDSEGMENTATION_GREEN = 1 << 9,
-    FUAITYPE_FACEPROCESSOR = 1 << 10
-}
-```
+*ai_type*:  AI数据文件类型，详见上文
 
 __返回值:__
 
-无
+0为未加载，1为加载。
 
 __备注:__
 
@@ -298,21 +336,21 @@ __备注:__
 
 ------
 
-##### fu_ReleaseAIModel 函数
+##### fuReleaseAIModel 函数
 
 卸载AI运算需要的数据文件
 
 ```c#
-public static extern int fu_ReleaseAIModel(int _type);
+public static extern int fuReleaseAIModel(FUAITYPE ai_type);
 ```
 
 __参数:__
 
-*_type*:  AI数据文件类型
+*ai_type*:  AI数据文件类型，详见上文
 
 __返回值:__
 
-无
+1为已释放，0为未释放。
 
 __备注:__
 
@@ -320,21 +358,43 @@ __备注:__
 
 ------
 
-##### fu_IsAIModelLoaded 函数
+##### fuIsAIModelLoaded 函数
 
 查询对应类型的AI运算数据文件是否已加载
 
 ```c#
-public static extern int fu_IsAIModelLoaded(int _type);
+public static extern int fuIsAIModelLoaded(FUAITYPE ai_type);
 ```
 
 __参数:__
 
-*_type*:  AI数据文件类型
+*ai_type*:  AI数据文件类型，详见上文
 
 __返回值:__
 
 0为未加载，否则为已加载
+
+__备注:__
+
+这个接口会**立即**生效。
+
+------
+
+##### fuDestroyLibData 函数
+
+特殊函数，当不再需要Nama SDK时，可以释放由 ```fu_Setup```初始化所分配的人脸跟踪模块的内存，约30M左右。调用后，人脸跟踪以及道具绘制功能将失效，相关函数将失败。如需使用，需要重新调用 ```fu_Setup```进行初始化。
+
+```c#
+ public static extern void fuDestroyLibData();
+```
+
+__参数:__
+
+无
+
+__返回值:__
+
+无
 
 __备注:__
 
@@ -363,13 +423,24 @@ __参数:__
 *h*: 图像高
 
 ```
-flags: FU_ADM_FLAG_FLIP_X = 32;
-       FU_ADM_FLAG_FLIP_Y = 64; 翻转只翻转道具渲染，并不会翻转整个图像
+flags: 
+public enum FU_ADM_FLAG
+    {
+        FU_ADM_FLAG_NONE = 0,
+        FU_ADM_FLAG_EXTERNAL_OES_TEXTURE = 1,
+        FU_ADM_FLAG_ENABLE_READBACK = 2,
+        FU_ADM_FLAG_NV21_TEXTURE = 4,
+        FU_ADM_FLAG_I420_TEXTURE = 8,
+        FU_ADM_FLAG_I420_BUFFER = 16,
+        FU_ADM_FLAG_FLIP_X = 32,    //翻转只翻转道具渲染，并不会翻转整个图像
+        FU_ADM_FLAG_FLIP_Y = 64,
+        FU_ADM_FLAG_RGBA_BUFFER = 128
+    };
 ```
 
 __返回值:__
 
-无
+无意义
 
 __备注:__
 
@@ -395,7 +466,7 @@ __参数:__
 
 __返回值:__
 
-无
+无意义
 
 __备注:__
 
@@ -420,7 +491,7 @@ __参数:__
 
 __返回值:__
 
-无
+无意义
 
 __备注:__
 
@@ -445,7 +516,7 @@ __参数:__
 
 __返回值:__
 
-无
+无意义
 
 __备注:__
 
@@ -458,7 +529,7 @@ __备注:__
 设置UnityNamaSDK的运行模式
 
 ```c#
-public static extern int fu_SetRuningMode(int runningMode);
+public static extern void fu_SetRuningMode(FURuningMode runningMode);
 
 public enum FURuningMode
     {
@@ -478,7 +549,7 @@ __参数:__
 - FU_Mode_None：停止渲染
 - FU_Mode_RenderItems：开启人脸跟踪和渲染道具
 - FU_Mode_Beautification：只开启美颜
-- FU_Mode_Masked ：使用fu_setItemIds设置好Mask后，开启这个模式即可生效
+- FU_Mode_Masked ：使用fu_SetItemIds设置好Mask后，开启这个模式即可生效
 - FU_Mode_TrackFace：只开启人脸跟踪，速度最快
 ```
 
@@ -494,11 +565,21 @@ __备注:__
 
 ##### fu_GetRenderEventFunc 函数
 
-**SDK调用的核心逻辑** 这个函数返回的值配合GL.IssuePluginEvent即可运行SDK，具体原因请[参考这里](https://docs.unity3d.com/Manual/NativePluginInterface.html) 
+**SDK调用的核心逻辑** 这个函数返回的值配合GL.IssuePluginEvent即可运行SDK主逻辑，具体原因请[参考这里](https://docs.unity3d.com/Manual/NativePluginInterface.html) 
+
+Nama7.0以后利用GL.IssuePluginEvent的eventID参数分开了Nama的各种渲染调用
 
 ```c#
- public static extern IntPtr fu_GetRenderEventFunc();
- GL.IssuePluginEvent(fu_GetRenderEventFunc(), 1);	//调用示例
+public static extern IntPtr fu_GetRenderEventFunc();
+
+public enum Nama_GL_Event_ID
+    {
+        FuSetup = 0,
+        NormalRender = 1,
+        ReleaseGLResources = 2,
+        FuDestroyAllItems = 3,
+    }
+GL.IssuePluginEvent(fu_GetRenderEventFunc(), (int)Nama_GL_Event_ID.FuSetup)	//调用示例
 ```
 
 __参数:__
@@ -537,24 +618,24 @@ __备注:__
 
 ---
 
-##### fu_GetFaceInfo 函数
+##### fuGetFaceInfo 函数
 
 获取人脸跟踪信息。
 
 ```c#
- public static extern int fu_GetFaceInfo(int face_id, IntPtr ret, int szret, [MarshalAs(UnmanagedType.LPStr)]string name);
+ public static extern int fuGetFaceInfo(int face_id, [MarshalAs(UnmanagedType.LPStr)]string name, IntPtr ret, int szret);
 ```
 
 __参数:__
 
 *face_id*: 当前第几张人脸
+*name*: 需要获取的参数名字
 *ret*: 用于接收数据的数组的指针
 *szret*: 用于接收数据的数组的长度
-*name*: 需要获取的参数名字
 
 __返回值:__
 
-无
+返回 1 代表获取成功，信息通过 ret 返回。返回 0 代表获取失败。
 
 __备注:__
 
@@ -578,85 +659,17 @@ __参数:__
 
 __返回值:__
 
-无
+返回 1 代表成功，返回 0 代表失败。
 
 __备注:__
 
 这个接口会**延迟**生效。
 
-------
-
-##### ~~fu_SetFaceDetParam 函数~~
-
-**6.7版本该接口已废弃  **
-
-```
-- 设置 `name == "use_new_cnn_detection"` ，且 `pvalue == 1` 则使用默认的CNN-Based人脸检测算法，否则 `pvalue == 0`则使用传统人脸检测算法。默认开启该模式。
-- 设置 `name == "other_face_detection_frame_step"` ，如果当前状态已经检测到一张人脸后，可以通过设置该参数，每隔`step`帧再进行其他人脸检测，有助于提高性能，设置过大会导致延迟感明显。
-
-如果`name == "use_new_cnn_detection"` ，且 `pvalue == 1` 已经开启：
-- `name == "use_cross_frame_speedup"`，`pvalue==1`表示，开启交叉帧执行推理，每帧执行半个网络，下帧执行下半个网格，可提高性能。默认 `pvalue==0`关闭。
-- - `name == "enable_large_pose_detection"`，`pvalue==1`表示，开启正脸大角度(45度)检测优化。`pvalue==0`表示关闭。默认 `pvalue==1`开启。
-- `name == "small_face_frame_step"`，`pvalue`表示每隔多少帧加强小脸检测。极小脸检测非常耗费性能，不适合每帧都做。默认`pvalue==5`。
-- 检测小脸时，小脸也可以定义为范围。范围下限`name == "min_facesize_small"`，默认`pvalue==18`，表示最小脸为屏幕宽度的18%。范围上限`name == "min_facesize_big"`，默认`pvalue==27`，表示最小脸为屏幕宽度的27%。该参数必须在`fuSetup`前设置。
-
-否则，当`name == "use_new_cnn_detection"` ，且 `pvalue == 0`时：
-- `name == "scaling_factor"`，设置图像金字塔的缩放比，默认为1.2f。
-- `name == "step_size"`，滑动窗口的滑动间隔，默认 2.f。
-- `name == "size_min"`，最小人脸大小，多少像素。 默认 50.f 像素，参考640x480分辨率。
-- `name == "size_max"`，最大人脸大小，多少像素。 默认最大，参考640x480分辨率。
-- `name == "min_neighbors"`，内部参数, 默认 3.f
-- `name == "min_required_variance"`， 内部参数, 默认 15.f
-- `name == "is_mono"`，设置输入源是否是单目相机。
-```
-
-```c#
- public static extern int fu_SetFaceDetParam([MarshalAs(UnmanagedType.LPStr)]string name, IntPtr value);
-```
-
-__参数:__
-
-*name*: 参数名
-*value*: 参数指针
-
-__返回值:__
-
-无
-
-__备注:__
-
-这个接口会**立即**生效。
-
-**6.7版本该接口已废弃  **
-
-------
-
-##### fu_SetFaceTrackParam函数
-
-```
-- 设置 `name == "mouth_expression_more_flexible"` ，`pvalue = [0,1]`，默认 `pvalue = 0` ，从0到1，数值越大，嘴部表情越灵活。  
-```
-
-```c#
- public static extern int fu_SetFaceTrackParam([MarshalAs(UnmanagedType.LPStr)]string name, IntPtr value);
-```
-
-__参数:__
-
-*name*: 参数名
-*value*: 参数指针
-
-__返回值:__
-
-无
-
-__备注:__
-
-这个接口会**立即**生效。
-
 ---
 
-##### fu_OnDeviceLost 函数
+##### ~~fu_OnDeviceLost 函数~~
+
+已弃用
 
 重置Nama的GL渲染环境
 
@@ -676,14 +689,20 @@ __备注:__
 
 这个接口会**立即**生效。
 
+用这个代替：
+
+```c#
+GL.IssuePluginEvent(fu_GetRenderEventFunc(), (int)Nama_GL_Event_ID.ReleaseGLResources);
+```
+
 ------
 
-##### fu_OnCameraChange 函数
+##### fuOnCameraChange 函数
 
 重置Nama中的人脸跟踪功能（不涉及GL）
 
 ```c#
- public static extern void fu_OnCameraChange();
+ public static extern void fuOnCameraChange();
 ```
 
 __参数:__
@@ -700,9 +719,11 @@ __备注:__
 
 ------
 
-##### ClearImages 函数
+##### ~~ClearImages 函数~~
 
-重置FacePlugin的GL渲染环境
+已弃用
+
+重置UnityPlugin的GL渲染环境
 
 ```c#
  public static extern void ClearImages();
@@ -720,14 +741,21 @@ __备注:__
 
 这个接口会**立即**生效。
 
----
-
-##### fu_DestroyLibData 函数
-
-特殊函数，当不再需要Nama SDK时，可以释放由 ```fu_Setup```初始化所分配的人脸跟踪模块的内存，约30M左右。调用后，人脸跟踪以及道具绘制功能将失效，相关函数将失败。如需使用，需要重新调用 ```fu_Setup```进行初始化。
+用这个代替：
 
 ```c#
- public static extern void fu_DestroyLibData();
+GL.IssuePluginEvent(fu_GetRenderEventFunc(), (int)Nama_GL_Event_ID.ReleaseGLResources);
+```
+
+------
+
+##### ~~jc_part_inited 函数~~
+已弃用
+
+返回值表示UnityNamaSDK初始化PART1是否成功。这个接口主要用于防止二次初始化UnityNamaSDK，这会导致程序崩溃。
+
+```c#
+public static extern int jc_part_inited();
 ```
 
 __参数:__
@@ -736,7 +764,7 @@ __参数:__
 
 __返回值:__
 
-无
+当返回1表示成功，0表示失败。
 
 __备注:__
 
@@ -744,14 +772,37 @@ __备注:__
 
 ------
 
+##### ~~fu_GetNamaInited 函数~~
+已弃用
+
+返回值表示UnityNamaSDK初始化PART2是否成功。PART1和PART2均成功时，UnityNamaSDK才真正初始化成功。
+
+```c#
+public static extern int fu_GetNamaInited();
+```
+
+__参数:__
+
+无
+
+__返回值:__
+
+当返回1时表示成功，0表示失败。
+
+__备注:__
+
+这个接口会**立即**生效。
+
+---
+
 #### 2.3 加载销毁道具
 
-##### fu_CreateItemFromPackage 函数
+##### fuCreateItemFromPackage 函数
 
 这个接口用于加载UnityNamaSDK所适配的道具文件，如美颜，贴纸，Animoji等等
 
 ```c#
-public static extern int fu_CreateItemFromPackage(IntPtr databuf, int databuf_sz);
+public static extern int fuCreateItemFromPackage(IntPtr databuf, int databuf_sz);
 ```
 
 __参数:__
@@ -761,20 +812,22 @@ __参数:__
 
 __返回值:__
 
-无
+一个整数句柄，作为该道具在系统内的标识符。
 
 __备注:__
 
 这个接口会**立即**生效。
 
+这个函数可以用多线程调用以降低主线程被卡住的风险
+
 ------
 
-##### fu_DestroyItem 函数
+##### fuDestroyItem 函数
 
 销毁指定道具
 
 ```c#
-public static extern void fu_DestroyItem(int itemid);
+public static extern void fuDestroyItem(int itemid);
 ```
 
 __参数:__
@@ -791,7 +844,9 @@ __备注:__
 
 ------
 
-##### fu_DestroyAllItems 函数
+##### ~~fu_DestroyAllItems 函数~~
+
+已弃用
 
 销毁当前所有加载的道具
 
@@ -811,14 +866,20 @@ __备注:__
 
 这个接口会**立即**生效。
 
+用这个代替：
+
+```c#
+GL.IssuePluginEvent(fu_GetRenderEventFunc(), (int)Nama_GL_Event_ID.ReleaseGLResources);
+```
+
 ------
 
-##### fu_setItemIds 函数
+##### fu_SetItemIds 函数
 
 当加载完道具后，道具不会立即生效开始渲染，而是要通过这个接口输入要渲染的道具的ItemID来开启对应道具的渲染，如果不输入相应ItemID，对应的道具就不会渲染。
 
 ```c#
-public static extern int fu_setItemIds(IntPtr idxbuf, int idxbuf_sz, IntPtr mask);
+public static extern int fu_SetItemIds(IntPtr idxbuf, int idxbuf_sz, IntPtr mask);
 ```
 
 __参数:__
@@ -829,7 +890,7 @@ __参数:__
 
 __返回值:__
 
-无
+无意义
 
 __备注:__
 
@@ -837,12 +898,12 @@ __备注:__
 
 ------
 
-##### fu_ItemSetParamd 函数
+##### fuItemSetParamd 函数
 
 给道具设置参数（double）
 
 ```c#
-public static extern int fu_ItemSetParamd(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, double value);
+public static extern int fuItemSetParamd(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, double value);
 ```
 
 __参数:__
@@ -861,12 +922,12 @@ __备注:__
 
 ------
 
-##### fu_ItemSetParams 函数
+##### fuItemSetParams 函数
 
 给道具设置参数（string）
 
 ```c#
-public static extern int fu_ItemSetParams(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, [MarshalAs(UnmanagedType.LPStr)]string value);
+public static extern int fuItemSetParams(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, [MarshalAs(UnmanagedType.LPStr)]string value);
 ```
 
 __参数:__
@@ -885,12 +946,12 @@ __备注:__
 
 ------
 
-##### fu_ItemSetParamdv 函数
+##### fuItemSetParamdv 函数
 
 给道具设置参数（double数组）
 
 ```c#
-public static extern int fu_ItemSetParamdv(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, IntPtr value, int value_sz);
+public static extern int fuItemSetParamdv(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, IntPtr value, int value_sz);
 ```
 
 __参数:__
@@ -910,12 +971,12 @@ __备注:__
 
 ------
 
-##### fu_ItemSetParamu8v 函数
+##### fuItemSetParamu8v 函数
 
 给道具设置参数（u8数组）
 
 ```c#
-public static extern int fu_ItemSetParamu8v(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, IntPtr value, int value_sz);
+public static extern int fuItemSetParamu8v(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, IntPtr value, int value_sz);
 ```
 
 __参数:__
@@ -935,12 +996,12 @@ __备注:__
 
 ------
 
-##### fu_ItemSetParamu64 函数
+##### fuItemSetParamu64 函数
 
 给道具设置参数（u64数组）
 
 ```c#
-public static extern int fu_ItemSetParamu64(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, IntPtr value, int value_sz);
+public static extern int fuItemSetParamu64(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, IntPtr value, int value_sz);
 ```
 
 __参数:__
@@ -960,12 +1021,12 @@ __备注:__
 
 ------
 
-##### fu_ItemGetParamd 函数
+##### fuItemGetParamd 函数
 
 获取指定道具的某个参数（double）
 
 ```c#
-public static extern double fu_ItemGetParamd(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name);
+public static extern double fuItemGetParamd(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name);
 ```
 
 __参数:__
@@ -983,12 +1044,12 @@ __备注:__
 
 ------
 
-##### fu_ItemGetParams 函数
+##### fuItemGetParams 函数
 
 获取指定道具的某个参数（string）
 
 ```c#
-public static extern int fu_ItemGetParams(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, [MarshalAs(UnmanagedType.LPStr)]byte[] buf, int buf_sz);
+public static extern int fuItemGetParams(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, [MarshalAs(UnmanagedType.LPStr)]byte[] buf, int buf_sz);
 ```
 
 __参数:__
@@ -1008,12 +1069,12 @@ __备注:__
 
 ------
 
-##### fu_ItemGetParamdv 函数
+##### fuItemGetParamdv 函数
 
 获取指定道具的某个参数（double数组）
 
 ```c#
-public static extern int fu_ItemGetParamdv(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, IntPtr value, int value_sz);
+public static extern int fuItemGetParamdv(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, IntPtr value, int value_sz);
 ```
 
 __参数:__
@@ -1033,12 +1094,12 @@ __备注:__
 
 ------
 
-##### fu_ItemGetParamu8v 函数
+##### fuItemGetParamu8v 函数
 
 获取指定道具的某个参数（u8数组）
 
 ```c#
-public static extern int fu_ItemGetParamu8v(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, IntPtr value, int value_sz);
+public static extern int fuItemGetParamu8v(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, IntPtr value, int value_sz);
 ```
 
 __参数:__
@@ -1058,12 +1119,12 @@ __备注:__
 
 ------
 
-##### fu_ItemGetParamfv 函数
+##### fuItemGetParamfv 函数
 
 获取指定道具的某个参数（float数组）
 
 ```c#
-public static extern int fu_ItemGetParamfv(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, IntPtr value, int value_sz);
+public static extern int fuItemGetParamfv(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, IntPtr value, int value_sz);
 ```
 
 __参数:__
@@ -1083,12 +1144,12 @@ __备注:__
 
 ---
 
-##### fu_CreateTexForItem 函数
+##### fuCreateTexForItem 函数
 
 给道具设置纹理
 
 ```c#
-public static extern int fu_CreateTexForItem(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, IntPtr value, int width, int height);
+public static extern int fuCreateTexForItem(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name, IntPtr value, int width, int height);
 ```
 
 __参数:__
@@ -1109,12 +1170,12 @@ __备注:__
 
 ------
 
-##### fu_DeleteTexForItem 函数
+##### fuDeleteTexForItem 函数
 
 销毁指定道具的某个纹理
 
 ```c#
-public static extern int fu_DeleteTexForItem(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name);
+public static extern int fuDeleteTexForItem(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name);
 ```
 
 __参数:__
@@ -1136,12 +1197,12 @@ __备注:__
 
 #### 2.4 功能接口
 
-##### fu_GetModuleCode 函数
+##### fuGetModuleCode 函数
 
 获取证书鉴权结果，总共64bit的标志位。
 
 ```c#
-public static extern int fu_GetModuleCode(int i);
+public static extern int fuGetModuleCode(int i);
 ```
 
 __参数:__
@@ -1156,36 +1217,14 @@ __备注:__
 
 这个接口会**立即**生效。
 
----
-
-##### fu_SetExpressionCalibration 函数
-
-控制自动表情校正。
-
-```c#
-public static extern void fu_SetExpressionCalibration(int enable);
-```
-
-__参数:__
-
-*enable*:  0表示关闭自动校正，1表示开启自动校正
-
-__返回值:__
-
-无
-
-__备注:__
-
-这个接口会**立即**生效。
-
 ------
 
-##### fu_SetDefaultRotationMode 函数
+##### fuSetDefaultRotationMode 函数
 
 设置默认的RotationMode，即默认的渲染方向
 
 ```c#
-public static extern void fu_SetDefaultRotationMode(int i);
+public static extern void fuSetDefaultRotationMode(int i);
 ```
 
 __参数:__
@@ -1202,12 +1241,12 @@ __备注:__
 
 ------
 
-##### fu_GetCurrentRotationMode 函数
+##### fuGetCurrentRotationMode 函数
 
 获取默认的RotationMode，即默认的渲染方向
 
 ```c#
-public static extern int fu_GetCurrentRotationMode();
+public static extern int fuGetCurrentRotationMode();
 ```
 
 __参数:__
@@ -1224,12 +1263,14 @@ __备注:__
 
 ------
 
-##### fu_SetASYNCTrackFace 函数
+##### ~~fuSetASYNCTrackFace 函数~~
+
+已弃用
 
 开启异步跟踪功能，某些机型可以性能会提升，但是某些机型性能下降。
 
 ```c#
-public static extern int fu_SetASYNCTrackFace(int i);
+public static extern int fuSetASYNCTrackFace(int i);
 ```
 
 __参数:__
@@ -1238,7 +1279,7 @@ __参数:__
 
 __返回值:__
 
-无
+当返回1时表示成功，0表示失败。
 
 __备注:__
 
@@ -1251,7 +1292,7 @@ __备注:__
 设置MSAA抗锯齿功能的采样数。默认为0，处于关闭状态。
 
 ```c#
-public static extern int fu_SetMultiSamples(int samples);
+public static extern int fuSetMultiSamples(int samples);
 ```
 
 __参数:__
@@ -1269,53 +1310,9 @@ __备注:__
 
 ------
 
-##### fu_SetDefaultOrientation 函数
-
-设置默认的人脸检测方向，正确设置可以提高检测速度和性能
-
-```c#
- public static extern void fu_SetDefaultOrientation(int rmode);
-```
-
-__参数:__
-
-*rmode*: 0~3的整数，含义同fu_SetDefaultRotationMode
-
-__返回值:__
-
-无
-
-__备注:__
-
-这个接口会**立即**生效。
-
----
-
-##### fu_SetFocalLengthScale 函数
-
-设置Nama渲染FOV的Scale。
-
-```c#
- public static extern void fu_SetFocalLengthScale(float scale);
-```
-
-__参数:__
-
-*scale*: 这个数字需要大于0，用于调整Nama的FOV
-
-__返回值:__
-
-无
-
-__备注:__
-
-这个接口会**立即**生效。
-
-------
-
 ##### SetUseNatCam 函数
 
-UnityDemo使用了NatCam来提高相机效率，同时修改了其代码以便配合FacePlugin进一步提高效率，但是如果客户需要使用自己的相机插件，则需要调用这个接口来关闭FacePlugin中相关的优化代码，以防止出现异常。这个开关只在安卓平台生效，其他平台无需关心这个问题。
+UnityDemo使用了NatCam来提高相机效率，同时修改了其代码以便配合UnityPlugin进一步提高效率，但是如果客户需要使用自己的相机插件，则需要调用这个接口来关闭UnityPlugin中相关的优化代码，以防止出现异常。这个开关只在安卓平台生效，其他平台无需关心这个问题。
 
 ```c#
  public static extern void SetUseNatCam(int enable);
@@ -1349,7 +1346,7 @@ __参数:__
 
 __返回值:__
 
-无
+无意义
 
 __备注:__
 
@@ -1371,7 +1368,7 @@ __参数:__
 
 __返回值:__
 
-无
+无意义
 
 __备注:__
 
@@ -1381,7 +1378,7 @@ __备注:__
 
 ##### SetPauseRender 函数
 
-手动暂时屏蔽UnityNamaSDK的渲染，调用这个函数后UnityNamaSDK将暂时停止解析输入的图像数据，即时当前仍有图像数据输入。
+手动暂时屏蔽UnityNamaSDK的渲染，调用这个函数后UnityNamaSDK将暂时停止解析输入的图像数据，即使当前仍有图像数据输入。
 
 ```c#
  public static extern void SetPauseRender(bool ifpause);
@@ -1401,12 +1398,12 @@ __备注:__
 
 ------
 
-##### fu_IsTracking 函数
+##### fuIsTracking 函数
 
 获取当前解析完毕后图像中有几张人脸
 
 ```c#
- public static extern int fu_IsTracking();
+ public static extern int fuIsTracking();
 ```
 
 __参数:__
@@ -1415,7 +1412,7 @@ __参数:__
 
 __返回值:__
 
-人脸数，这个值受到fu_SetMaxFaces的影响
+人脸数，这个值受到fuSetMaxFaces的影响
 
 __备注:__
 
@@ -1423,12 +1420,12 @@ __备注:__
 
 ------
 
-##### fu_SetMaxFaces 函数
+##### fuSetMaxFaces 函数
 
 设置最多检测几张人脸
 
 ```c#
- public static extern int fu_SetMaxFaces(int num);
+ public static extern int fuSetMaxFaces(int num);
 ```
 
 __参数:__
@@ -1437,26 +1434,25 @@ __参数:__
 
 __返回值:__
 
-无
+设置之前的系统最大人脸数。
 
 __备注:__
 
 这个接口会**立即**生效。
-**这个接口在每次调用（GL.IssuePluginEvent(fu_GetRenderEventFunc(), 1);）之前调用一次。**
 
 ---
 
-##### fu_GetFaceIdentifier 函数
+##### fuGetFaceIdentifier 函数
 
 输入当前第N张脸，获取该张脸的独有ID。
 
 ```c#
- public static extern int fu_GetFaceIdentifier(int face_id);
+ public static extern int fuGetFaceIdentifier(int face_id);
 ```
 
 __参数:__
 
-*face_id*: fu_IsTracking()会返回当前总共有N张脸，这个数字需要满足(0 <= face_id < N)
+*face_id*: fuIsTracking()会返回当前总共有N张脸，这个数字需要满足(0 <= face_id < N)
 
 __返回值:__
 
@@ -1468,19 +1464,9 @@ __备注:__
 
 ------
 
-##### ~~fu_SetQualityTradeoff 函数~~
-
-**已弃用**
-
-```c#
- public static extern void fu_SetQualityTradeoff(float num);
-```
-
-------
-
 ##### fu_EnableLog 函数
 
-开启FacePlugin层的Log。PC平台需要自行开启Unity控制台，或者配合RegisterDebugCallback开启Unity内Log。
+开启UnityPlugin层的Log。PC平台需要自行开启Unity控制台，或者配合RegisterDebugCallback开启Unity内Log。
 
 ```c#
  public static extern void fu_EnableLog(bool isenable);
@@ -1498,14 +1484,95 @@ __备注:__
 
 这个接口会**立即**生效。
 
+------
+
+##### fuSetLogLevel 函数
+
+设置当前日志级别，默认INFO级别。设置FU_LOG_LEVEL_OFF时关闭全部日志，设置日志时大于等于当前级别的日志才能正常输出。PC平台需要自行开启Unity控制台。
+
+```c#
+public static extern int fuSetLogLevel(FULOGLEVEL level);
+public enum FULOGLEVEL
+    {
+        FU_LOG_LEVEL_TRACE = 0,     //调试日志，每帧多次
+        FU_LOG_LEVEL_DEBUG = 1,     //调试日志，每帧一次或多次信息
+        FU_LOG_LEVEL_INFO = 2,      //正常信息日志，程序运行过程中出现一次的信息，系统信息等
+        FU_LOG_LEVEL_WARN = 3,      //警告级日志
+        FU_LOG_LEVEL_ERROR = 4,     //错误级日志
+        FU_LOG_LEVEL_CRITICAL = 5,  //错误且影响程序正常运行日志
+        FU_LOG_LEVEL_OFF = 6        //关闭日志输出
+    }
+```
+
+__参数:__
+
+*level*: log等级
+
+__返回值:__
+
+1表示成功，0表示失败
+
+__备注:__
+
+这个接口会**立即**生效。
+
+------
+
+##### fuGetLogLevel 函数
+
+获取Nama的Log等级。
+
+```c#
+public static extern FULOGLEVEL fuGetLogLevel();
+```
+
+__参数:__
+
+无
+
+__返回值:__
+
+log等级
+
+__备注:__
+
+这个接口会**立即**生效。
+
+------
+##### fuOpenFileLog 函数
+打开文件日志，默认nullptr使用console日志。
+
+```C
+/**
+\brief open file log
+\param file_fullname - nullptr for default terminal, non-null for log into file. 
+\param max_file_size, max file size in byte. 
+\param max_files, max file num for rotating log. 
+\return zero for failed, one for success.
+*/
+public static extern int fuOpenFileLog([MarshalAs(UnmanagedType.LPStr)]string file_pullname, int max_file_size, int max_files);
+```
+__参数:__
+
+*file_pullname [in]*：日志文件名，全路径，由外部决定日志文件位置，如果为nullptr表示使用默认的console日志。
+*max_file_size [in]*：日志文件最大文件大小（单位为byte），超过将重置。
+*max_files [in]*：轮换日志文件数量，多个日志文件中进行轮转。
+__返回值:__
+
+1表示成功，0表示失败
+
+__备注:__ 
+
+这个接口会**立即**生效。 
+
 ---
 
-##### RegisterDebugCallback 函数
+##### fu_RegisterDebugCallback 函数
 
 配合fu_EnableLog使用，注册一个C#委托用于处理返回的Log信息，一般就直接使用Debug.Log打在UnityConsole里。
 
 ```c#
- private static extern void RegisterDebugCallback(DebugCallback callback);
+ private static extern void fu_RegisterDebugCallback(DebugCallback callback);
 ```
 
 __参数:__
@@ -1522,13 +1589,13 @@ __备注:__
 
 ---
 
-##### fu_GetVersion 函数
+##### fuGetVersion 函数
 
 获取Nama版本信息
 
 ```c#
- public static extern IntPtr fu_GetVersion();
- Marshal.PtrToStringAnsi(fu_GetVersion());	//调用示例
+ public static extern IntPtr fuGetVersion();
+ Marshal.PtrToStringAnsi(fuGetVersion());	//调用示例
 ```
 
 __参数:__
@@ -1545,12 +1612,12 @@ __备注:__
 
 ------
 
-##### fu_GetSystemError 函数
+##### fuGetSystemError 函数
 
 获取上一个Nama中发生的错误
 
 ```c#
- public static extern int fu_GetSystemError();
+ public static extern int fuGetSystemError();
 ```
 
 __参数:__
@@ -1596,13 +1663,13 @@ __备注:__
 
 ------
 
-##### fu_GetSystemErrorString 函数
+##### fuGetSystemErrorString 函数
 
 将错误代号转换成对应string
 
 ```c#
- public static extern IntPtr fu_GetSystemErrorString(int code);
- Marshal.PtrToStringAnsi(fu_GetSystemErrorString(fu_GetSystemError()));		//示例
+ public static extern IntPtr fuGetSystemErrorString(int code);
+ Marshal.PtrToStringAnsi(fuGetSystemErrorString(fu_GetSystemError()));		//示例
 ```
 
 __参数:__
@@ -1619,12 +1686,12 @@ __备注:__
 
 ---
 
-##### fu_SetCropState 函数
+##### fuSetCropState 函数
 
 是否开启和关闭裁剪功能，参数设为0关闭，设为1开启。
 
 ```c#
-public static extern int fu_SetCropState(int state);
+public static extern int fuSetCropState(int state);
 ```
 
 __参数:__
@@ -1641,12 +1708,12 @@ __备注:__
 
 ------
 
-##### fu_SetCropFreePixel 函数
+##### fuSetCropFreePixel 函数
 
 自由裁剪接口：x0,y0为裁剪后的起始坐标（裁剪前为（0,0）），x1,y1为裁剪后的终止坐标（裁剪前为（imageWidth,imageHeight））。
 
 ```c#
-public static extern int fu_SetCropFreePixel(int x0, int y0, int x1, int y1);
+public static extern int fuSetCropFreePixel(int x0, int y0, int x1, int y1);
 ```
 
 __参数:__
@@ -1664,13 +1731,102 @@ __备注:__
 
 ---
 
+##### fuSetFaceProcessorFov 函数
+
+设置人脸跟踪坐标空间的FOV，建议跟渲染空间同步，这样才能在AR模式中完美对应
+
+```c#
+public static extern void fuSetFaceProcessorFov(float fov);
+```
+
+__参数:__
+
+*fov*：短边fov
+
+__返回值:__
+
+无
+
+__备注:__
+
+这个接口会**立即**生效。
+
+默认值：FUAITYPE_FACEPROCESSOR_FACECAPTURE模式下8.6度(角度值)，FUAITYPE_FACEPROCESSOR模式下25度(角度值)，参数推荐范围[5°，60°]，距离默认参数过远可能导致效果下降。
+
+------
+
+##### fuGetFaceProcessorFov 函数
+
+获取人脸跟踪坐标空间的FOV
+
+```c#
+public static extern float fuGetFaceProcessorFov();
+```
+
+__参数:__
+
+无
+
+__返回值:__
+
+fov
+
+__备注:__
+
+这个接口会**立即**生效。
+
+------
+
+##### fuSetOutputResolution 函数
+
+设置输出纹理的分辨率
+
+```c#
+public static extern void fuSetOutputResolution(int w, int h);
+```
+
+__参数:__
+
+*w*：宽
+
+*h*：高
+
+__返回值:__
+
+无
+
+__备注:__
+
+这个接口会**立即**生效。
+
+---
+
+##### fuFaceProcessorSetMinFaceRatio  函数
+设置人脸检测距离的接口
+```C
+/**
+ \brief set ai model HumanProcessor's minium track face size.
+ \param ratio, ratio with min(w,h)，range (0.0,1.0].
+ */
+public static extern void fuFaceProcessorSetMinFaceRatio(float ratio);
+```
+__参数:__  
+
+*ratio [in]*：数值范围0.0至1.0，最小人脸的大小和输入图形宽高短边的比值。默认值0.2。
+
+__备注:__  
+
+这个接口会**立即**生效。
+
+------
+
 
 
 #### 2.5 C#端辅助接口
 
 ##### InitCFaceUnityCoefficientSet 函数
 
-实例化所有获取人脸信息的类， 这些实例内含了fu_GetFaceInfo，用于获取各种人脸信息。
+实例化所有获取人脸信息的类， 这些实例内含了fuGetFaceInfo，用于获取各种人脸信息。
 
 ```c#
  void InitCFaceUnityCoefficientSet(int maxface)
@@ -1736,7 +1892,7 @@ __备注:__
 
 ##### DebugMethod 函数
 
-配合RegisterDebugCallback使用，输入返回的Log信息
+配合fu_RegisterDebugCallback使用，输入返回的Log信息
 
 ```c#
  private static void DebugMethod(string message)
@@ -1847,7 +2003,7 @@ __备注:__
 
 ##### FixRotation 函数
 
-根据当前平台环境、相机是否镜像以及重力感应方向，自动设置道具和跟踪的默认方向，在Texout场景中需要每帧调用以适应重力感应，Dataout场景只需相机切换时调用。具体应用请看本函数在Demo中的引用。
+根据当前平台环境、眼睛注视方向，自动设置道具和跟踪的默认方向。具体应用请看本函数在Demo中的引用。
 
 ```c#
  public static void FixRotation(bool ifMirrored = false, FUAI_CAMERA_VIEW eyeViewRot = FUAI_CAMERA_VIEW.ROT_0)
@@ -1869,6 +2025,29 @@ __备注:__
 
 ---
 
+##### FixRotationWithAcceleration 函数
+
+根据当前平台环境、相机是否镜像以及重力感应方向，自动设置道具和跟踪的默认方向，在场景中需要每帧调用以适应重力感应。具体应用请看本函数在Demo中的引用。
+
+```c#
+ public static string FixRotationWithAcceleration(Vector3 g, bool ifMirrored = false)
+```
+
+__参数:__
+
+`g` 重力感应参数（Input.acceleration）
+`ifMirrored` 相机是否镜像
+
+
+__返回值:__
+
+当前设置的信息
+
+__备注:__
+
+这是一个C#函数，不是UnityNamaSDK接口
+
+---
 
 
 ### 3. 常见问题 
@@ -1877,5 +2056,7 @@ __备注:__
 
 C#中通常不会用到IntPtr这个类型，但是当需要和Native代码交互的时候，可以用这个类型代替指针的作用。
 
-获取IntPtr的方式很多，这里建议使用GCHandle来得到数组的指针，或者用Marshal.AllocHGlobal来新建一个，具体可以参考FULiveUnity Demo。
+获取IntPtr的方式很多，这里建议使用GCHandle来得到数组的指针，或者用Marshal.AllocHGlobal来新建一个，
+
+在确定没有内存增减，不需要长期被Native层持有的情况下直接输入数组名称也是可以的，具体可以参考FULiveUnity Demo。
 

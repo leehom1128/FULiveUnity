@@ -1,11 +1,66 @@
 # Demo运行说明文档-Unity 
 级别：Public
-更新日期：2020-03-19
-SDK版本: 6.7.0 
+更新日期：2020-06-30
+SDK版本: 7.0.0 
 
 ------
 
 ## 最新更新内容：
+
+2020-06-30 v7.0.0:
+
+- 新增人体算法能力，包括人体检测、2D人体关键点（全身、半身）、人体3D骨骼（全身、半身）、手势识别、人像mask、头发mask、头部mask、动作识别等能力。
+- 性能优化，优化美颜整体性能，中低端机尤为明显，相较于上一版本6.7.0平均提升30%。
+- 性能优化，优化美颜初始化耗时，解决中低端机进入长时间卡顿问题。
+- 美颜效果提升
+  - 修复嘴型功能抬头时上嘴唇失效问题。
+  - 修复口罩遮挡时，单输入亮眼会飘问题。
+  - 修复口罩遮挡时，白牙会有亮片。
+  - 修复去黑眼圈/去法令纹，近距离有分割线问题。
+  - 修复长鼻功能特殊机型上问题。
+  - 支持仅使用美颜滤镜时,关闭人脸检测功能。
+  - 优化人脸跟踪点位的稳定性。
+- 美妆效果提升
+  - 优化低头、侧脸时口红会飘问题。
+  - 优化正常睁眼时美瞳溢出问题。
+  - 修复闭眼仍然美瞳效果，美瞳溢出问题。
+  - 优化鼻子高光晃动问题。
+  - 优化眉毛抖动问题。
+- 优化表情跟踪稳定性，解决手机轻微晃动的时候抖动较严重问题，提升Animoji等表情跟踪效果。
+- 优化美发效果，使用新的人体算法能力中的头发mask。
+- 修复单纹理输入时画面模糊问题。
+- 修复Android单输入存在内存泄漏问题。
+- 修复多道具同时加载问题。
+- 新增接口，详见接口文档
+  - fuGetLogLevel,获取当前日志级别。
+  - fuSetLogLevel,设置当前日志级别。
+  - fuOpenFileLog,打开文件日志，默认使用console日志。
+  - fuFaceProcessorSetMinFaceRatio，设置人脸检测距离的接口。
+  - fuSetTrackFaceAIType，设置fuTrackFace算法运行类型接口。
+  - fuSetCropState，设置裁剪状态。
+  - fuSetCropFreePixel，设置自由裁剪参数。
+  - fuSetFaceProcessorFov，设置FaceProcessor人脸算法模块跟踪fov。
+  - fuGetFaceProcessorFov，获取FaceProcessor人脸算法模块跟踪fov。
+  - fuHumanProcessorReset，重置HumanProcessor人体算法模块状态。
+  - fuHumanProcessorSetMaxHumans，设置HumanProcessor人体算法模块跟踪人体数。
+  - fuHumanProcessorGetNumResults，获取HumanProcessor人体算法模块跟踪人体数。
+  - fuHumanProcessorGetResultTrackId，获取HumanProcessor人体算法模块跟踪Id。
+  - fuHumanProcessorGetResultRect，获取HumanProcessor人体算法模块跟踪人体框。
+  - fuHumanProcessorGetResultJoint2ds，获取HumanProcessor人体算法模块跟踪人体2D关键点。
+  - fuHumanProcessorGetResultJoint3ds，获取HumanProcessor人体算法模块跟踪人体3D骨骼信息。
+  - fuHumanProcessorGetResultHumanMask，获取HumanProcessor人体算法模块全身mask。
+  - fuHumanProcessorGetResultActionType，获取HumanProcessor人体算法模块跟踪人体动作类型。
+  - fuHumanProcessorGetResultActionScore，获取HumanProcessor人体算法模块跟踪人体动作置信度。
+  - fuFaceProcessorGetResultHairMask，获取HumanProcessor人体算法模块头发mask。
+  - fuFaceProcessorGetResultHeadMask，获取HumanProcessor人体算法模块头部mask。
+  - fuHandDetectorGetResultNumHands，获取HandGesture手势算法模块跟踪手势数量。
+  - fuHandDetectorGetResultHandRect，获取HandGesture手势算法模块跟踪手势框。
+  - fuHandDetectorGetResultGestureType，获取HandGesture手势算法模块跟踪手势类别。
+  - fuHandDetectorGetResultHandScore，获取HandGesture手势算法模块跟踪手势置信度。
+- 废弃接口
+  - fuSetStrictTracking
+  - fuSetASYNCTrackFace
+  - fuSetFaceTrackParam
 
 2020-03-19 v6.7.0:
 
@@ -85,10 +140,11 @@ __注3__: SDK 6.6.0 进行较大的架构调整 , 架构上拆分底层算法能
 
 工程案例更新：
 
+- 由于Nama7.0改动巨大，接口变动也较大，但是接口调用方式基本不变，接口变动详见Unity_Nama_API_参考文档
 - 由于Nama 6.6的内部机制更新，AI和渲染分离，现在Nama运行在FU_Mode_RenderItems模式下（渲染Nama道具）时，如果不加载任何道具，Nama也不会运行任何AI逻辑，此时无法进行人脸检测等操作，也无法拿到相关数据！！！因此本工程案例里在DataOut场景和Simple场景中都添加了自动加载一个空道具的逻辑，以应对出现的问题。
 - 当Nama运行在FU_Mode_TrackFace模式下时，无需加载任何道具，会自动跑人脸识别的AI逻辑
-- Nama6.6同时也带来了道具加载卸载机制的更新，新的道具加载卸载接口已经全部都是同步接口，调用后立即执行，没有异步没有协程，简化了道具加载卸载的逻辑复杂度。
-- 本次更新添加了一个C#封装函数以更新默认道具/跟踪方向，这个函数会根据当前平台环境、相机是否镜像以及重力感应方向，自动设置道具和跟踪的默认方向，在Texout场景中需要每帧调用以适应重力感应，Dataout场景只需相机切换时调用。具体描述请看API文档，具体应用请看本函数在Demo中的引用。
+- Nama6.6同时也带来了道具加载卸载机制的更新，新的道具加载卸载接口已经全部都是同步接口，调用后立即执行，没有异步没有协程，简化了道具加载卸载的逻辑复杂度。道具载入可以用多线程调用以降低主线程被卡住的风险（fuCreateItemFromPackage）
+- 本次更新添加了一个C#封装函数以更新默认道具/跟踪方向，这个函数会根据当前平台环境、相机是否镜像以及重力感应方向，自动设置道具和跟踪的默认方向，在场景中需要每帧调用以适应重力感应。具体描述请看API文档，具体应用请看本函数在Demo中的引用。
 
 ------
 ### 目录：
@@ -98,7 +154,7 @@ __注3__: SDK 6.6.0 进行较大的架构调整 , 架构上拆分底层算法能
 
 ------
 ### 1. 简介 
-本文档旨在说明如何将Faceunity Nama SDK的Unity Demo运行起来，体验Faceunity Nama SDK的功能。FULiveUnity 是集成了 Faceunity 面部跟踪、美颜、Animoji、道具贴纸、AR面具、换脸、表情识别、音乐滤镜、背景分割、手势识别、哈哈镜、人像光照以及人像驱动功能的Demo。Demo新增了一个展示Faceunity产品列表的主界面，新版Demo将根据客户证书权限来控制用户可以使用哪些产品。  
+本文档旨在说明如何将Faceunity Nama SDK的Unity Demo运行起来，体验Faceunity Nama SDK的功能。FULiveUnity 是集成了 Faceunity 面部跟踪、美颜、Animoji、道具贴纸、AR面具、表情识别、音乐滤镜、背景分割、手势识别、哈哈镜功能的Demo。Demo有一个展示Faceunity产品列表的主界面，Demo将根据客户证书权限来控制用户可以使用哪些产品。  
 
 ------
 ### 2. Demo文件结构
@@ -115,7 +171,7 @@ __注3__: SDK 6.6.0 进行较大的架构调整 , 架构上拆分底层算法能
         +Shader：渲染模型使用的Shader，仅供参考。
         +Textures：Demo的Logo图片。
         +UIImgs：一些公共UI图片。
-      +DataOut					// FacePlugin的数据输出模式，使用Unity进行内容渲染，使用了NatCam以提高效率。仅输出人脸的位置、旋转、表情系数等，以供Unity渲染。
+      +DataOut					// NamaSDK的数据输出模式，使用Unity进行内容渲染，使用了NatCam以提高效率。仅输出人脸的位置、旋转、表情系数等，以供Unity渲染。
       	+Models: 人头模型和对应材质纹理。
       	+Scene: Demo场景，demoDataOut 是人头模型渲染，demoDataOut_Multiple是多人模型渲染。
       	+Script: Demo的相关脚本。
@@ -124,29 +180,29 @@ __注3__: SDK 6.6.0 进行较大的架构调整 , 架构上拆分底层算法能
 		 -EyeController.cs: 负责控制眼睛的位置和旋转。
 		 -UIManagerForDataOut.cs: DataOut场景的UI控制器。
 		 -UIManagerForDataOut_Multiple.cs: DataOut_Multiple场景的UI控制器，也负责多人模型调度。
-      +Simple					//最简单的FacePlugin的使用案例，直接使用Unity自带的WebCamTexture以简化代码结构。
+      +Simple					//最简单的NamaSDK的使用案例，直接使用Unity自带的WebCamTexture以简化代码结构。
        +Scene: demoSimple是本例的场景。
 	   +Script: Demo的相关脚本。
 		 -RenderSimple.cs: 如果你需要输入其他渠道获得的图像数据，请参考这个函数。
 		 -UIManagerSimple.cs: 简单场景的UI控制器，注册了切换相机按钮，管理人脸检测标志。
-      +TexOut					//FacePlugin的纹理输出模式，使用Faceunity Nama SDK进行内容渲染，使用了NatCam以提高效率。直接输出本插件渲染好的数据，可以使用附带的二进制道具文件。
+      +TexOut					//NamaSDK的纹理输出模式，使用NamaSDK进行内容渲染，使用了NatCam以提高效率。直接输出本插件渲染好的数据，可以使用附带的二进制道具文件。
       	+Resources: 所有道具的二进制文件和对应的UI文件。
 	    +Scene: demoTexOut是本例的场景。
 	    +Script: Demo的相关脚本。
 		 -RenderToTexture.cs: 负责对接相机插件，输入输出图像数据，加载卸载道具。
 		 -UIManagerForTexOut.cs: 纹理输出模式的UI控制器，和RenderToTexture配合以展现所有道具的功能。
 		 -ItemConfig.cs: 道具的二进制文件和UI文件的路径等信息的配置文件。
-    +Plugins				//SDK文件目录
+    +Plugins				//NamaSDK文件目录
     +Script					//核心代码文件目录
-      -FaceunityWorker.cs：负责初始化faceunity插件并引入C++接口，初始化完成后每帧更新人脸跟踪数据
+      -FaceunityWorker.cs：负责初始化NamaSDK并引入C++接口，初始化完成后每帧更新人脸跟踪数据
     +StreamingAssets		//数据文件目录
-      -v3.bytes：SDK的数据文件，缺少该文件会导致初始化失败
       -ai_face_processor.bytes：初始化完成后必须加载的AI数据文件
       -ai_bgseg.bytes：背景分割AI数据文件
       -ai_bgseg_green.bytes：带绿幕的背景分割AI数据文件
       -ai_gesture.bytes：手势跟踪AI数据文件
       -ai_hairseg.bytes：头发分割AI数据文件
       -ai_humanpose.bytes：人体姿态跟踪AI数据文件
+      -ai_human_processor.bytes：人体姿态跟踪AI数据文件
       -tongue.bytes：舌头跟踪AI数据文件
       -EmptyItem.bytes：空道具，FU_Mode_RenderItems模式下，如果不想加载其他道具，则加载这个，以获取人脸跟踪数据
   +docs					//文档目录
@@ -165,7 +221,7 @@ Windows、Android、iOS（9.0以上系统）、Mac
 ```
 ##### 3.1.2 开发环境
 ```
-Unity5.4.6f3 及以上
+Unity5.6.7f1 及以上
 ```
 
 #### 3.2 准备工作 
@@ -194,3 +250,4 @@ Unity5.4.6f3 及以上
   - Assets\Plugins
   - Assets\Examples\Common\NatCam\Core\Plugins
 ![](imgs\img2.jpg)
+- iOS平台编译Link可能报错，缺少某些framework，请手动添加CoreML.framework以及Metal.framework

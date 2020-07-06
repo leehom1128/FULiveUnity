@@ -36,7 +36,7 @@ public class UIManagerSimple : MonoBehaviour {
         if (Input.GetKeyDown(KeyCode.Escape))
             Application.Quit();
 
-        if (FaceunityWorker.fu_IsTracking() > 0)
+        if (FaceunityWorker.instance.m_need_update_facenum > 0)
             Image_FaceDetect.SetActive(false);
         else
             Image_FaceDetect.SetActive(true);

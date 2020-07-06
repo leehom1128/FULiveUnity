@@ -1,4 +1,6 @@
-﻿/* 
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+/* 
 *   NatCam Core
 *	Image Transformation Shader
 *	Built on algorithms from http://forum.unity3d.com/threads/rotation-of-texture-uvs-directly-from-a-shader.150482/
@@ -98,7 +100,7 @@ Shader "Hidden/NatCam/Transform2D" {
 
 			v2f vert (appdata_t v) {
 				v2f o;
-				o.vertex = mul(UNITY_MATRIX_MVP, v.vertex);
+				o.vertex = UnityObjectToClipPos(v.vertex);
 				o.uv = ViewUV(RotateUV(TRANSFORM_TEX(v.texcoord, _MainTex)));
 				o.color = v.color * _Color;
 				return o;

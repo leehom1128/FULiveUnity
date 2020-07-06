@@ -7,9 +7,13 @@ EditorBuildSettings:
   m_Scenes:
   - enabled: 1
     path: Assets/Examples/TexOut/Scene/demoTexOut.unity
+    guid: b900bbc367633b5418b4fe275e1d0435
   - enabled: 0
     path: Assets/Examples/Simple/Scene/demoSimple.unity
+    guid: 460a692966cc86b4db9aeaaf93b31959
   - enabled: 0
     path: Assets/Examples/DataOut/Scene/demoDataOut.unity
+    guid: 54c6d439f5221734db88d26a29e9ee96
   - enabled: 0
     path: Assets/Examples/DataOut/Scene/demoDataOut_Multiple.unity
+    guid: 8ac939d86000be4409a6b678c114eafe

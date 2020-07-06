@@ -10,12 +10,7 @@ namespace NatCamU.Core.Platforms {
 
     public static partial class NatCamNative {
 
-        private const string CoreAssembly =
-#if UNITY_IOS
-        "__Internal";
-#else
-        "faceplugin";
-#endif
+        private const string CoreAssembly = FaceunityWorker.unity_plugin_name;
 
         #region ---Delegates---
         public delegate void StartCallback (IntPtr texPtr, int width, int height);
@@ -55,6 +50,8 @@ namespace NatCamU.Core.Platforms {
         public static extern void SetFlipx (bool ifenable);
         [DllImport(CoreAssembly)]
         public static extern void SetFlipy (bool ifenable);
+        [DllImport(CoreAssembly)]
+        public static extern int GetCameraDeviceCount ();
         #endregion
 
         #region --Utility--
@@ -78,6 +75,7 @@ namespace NatCamU.Core.Platforms {
         public static void SetOrientation (byte orientation) {}
         public static void SetFlipx(bool ifenable) {}
         public static void SetFlipy(bool ifenable) {}
+        public static int GetCameraDeviceCount() { return 0; }
         public static void OnPause (bool paused) {}
         public static void SetVerboseMode (bool verbose) {}
 #endif

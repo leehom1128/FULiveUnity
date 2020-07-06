@@ -291,7 +291,7 @@ namespace NatCamU.Core {
         }
 
         static DeviceCamera () {
-            int cameraCount = WebCamTexture.devices.Length;
+            int cameraCount = NatCam.DeviceCount;
             DeviceCamera[] cameras = new DeviceCamera[cameraCount];
             for (int i = 0; i < cameraCount; i++) cameras[i] = new DeviceCamera(i);
             Cameras = new ReadOnlyCollection<DeviceCamera>(cameras);

@@ -50,6 +50,7 @@ namespace NatCamU.Core {
         /// </summary>
         [CoreDoc(3), CoreRef(0, 1, 2)]
         public static readonly INatCam Implementation;
+        public static readonly int DeviceCount;
         /// <summary>
         /// The camera preview as a Texture
         /// </summary>
@@ -152,30 +153,39 @@ namespace NatCamU.Core {
 
         static NatCam () {
             // Create implementation for this platform
-            Implementation = 
-            #if UNITY_EDITOR_OSX // Coming in NatCam 2.0
-            new NatCamLegacy();
-            #elif UNITY_EDITOR_WIN // Coming in NatCam 2.0
-            new NatCamLegacy();
-            #elif UNITY_STANDALONE_OSX // Coming in NatCam 2.0
-            new NatCamLegacy();
-            #elif UNITY_STANDALONE_WIN // Coming in NatCam 2.0
-            new NatCamLegacy();
-            #elif UNITY_IOS
-				//new NatCamLegacy();
-            new NatCamiOS();
-            #elif UNITY_ANDROID
-            new NatCamAndroid();
-            #elif UNITY_WSA
-            new NatCamLegacy();
-            #elif UNITY_WEBGL
-            new NatCamLegacy();
-            #else
-            new NatCamLegacy();
-            #endif
+#if UNITY_EDITOR_OSX
+            Implementation = new NatCamLegacy();
+            DeviceCount = NatCamLegacy.GetCameraDeviceCount();
+#elif UNITY_EDITOR_WIN
+            Implementation = new NatCamLegacy();
+            DeviceCount = NatCamLegacy.GetCameraDeviceCount();
+#elif UNITY_STANDALONE_OSX
+            Implementation = new NatCamLegacy();
+            DeviceCount = NatCamLegacy.GetCameraDeviceCount();
+#elif UNITY_STANDALONE_WIN
+            Implementation = new NatCamLegacy();
+            DeviceCount = NatCamLegacy.GetCameraDeviceCount();
+#elif UNITY_IOS
+			//Implementation = new NatCamLegacy();
+            Implementation = new NatCamiOS();
+            DeviceCount = NatCamiOS.GetCameraDeviceCount();
+#elif UNITY_ANDROID
+            Implementation = new NatCamAndroid();
+            DeviceCount = NatCamAndroid.GetCameraDeviceCount();
+#elif UNITY_WSA
+            Implementation = new NatCamLegacy();
+            DeviceCount = NatCamLegacy.GetCameraDeviceCount();
+#elif UNITY_WEBGL
+            Implementation = new NatCamLegacy();
+            DeviceCount = NatCamLegacy.GetCameraDeviceCount();
+#else
+            Implementation = new NatCamLegacy();
+            DeviceCount = NatCamLegacy.GetCameraDeviceCount();
+#endif
             // Quit when app dies
             DispatchUtility.onQuit += Release;
         }
+
         #endregion
     }
 }
