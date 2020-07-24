@@ -85,7 +85,7 @@ public class RenderToTexture : MonoBehaviour
     public Text txt;
 
     /**\brief 调整输入的纹理的旋转和镜像，用以下三个参数可以表达一个纹理任意方向的旋转和镜像的结果（2^3=8种）\param tex_origin 原始的纹理\param SwichXY  是否调换纹理的UV的X轴和Y轴，即沿着对角线翻转\param flipx    是否翻转X轴\param flipy    是否翻转Y轴\return 计算好的纹理    */
-    public Texture2D AdjustTex(Texture2D tex_origin,int SwichXY, int flipx, int flipy)
+    public Texture2D AdjustTex(Texture2D tex_origin, int SwichXY, int flipx, int flipy)
     {
         int w = 0;
         int h = 0;
@@ -155,7 +155,7 @@ public class RenderToTexture : MonoBehaviour
     IEnumerator delaySetItemMirror()
     {
         yield return Util._endOfFrame;
-        for(int i=0;i< SLOTLENGTH;i++)
+        for (int i = 0; i < SLOTLENGTH; i++)
         {
             SetItemMirror(i);
         }
@@ -305,7 +305,7 @@ public class RenderToTexture : MonoBehaviour
             p_itemsid = itemid_handle.AddrOfPinnedObject();
 
             slot_items = new slot_item[SLOTLENGTH];
-            for(int i=0;i< SLOTLENGTH;i++)
+            for (int i = 0; i < SLOTLENGTH; i++)
             {
                 slot_items[i].Reset();
             }
@@ -353,7 +353,7 @@ public class RenderToTexture : MonoBehaviour
                 //    img_bytes[4 * i + 2] = webtexdata[i].r;
                 //    img_bytes[4 * i + 3] = 1;
                 //}
-                FaceunityWorker.SetImage(p_img_ptr,(int)FaceunityWorker.FU_ADM_FLAG.FU_ADM_FLAG_FLIP_X, false, (int)NatCam.Camera.PreviewResolution.x, (int)NatCam.Camera.PreviewResolution.y);   //传输数据方法之一
+                FaceunityWorker.SetImage(p_img_ptr, (int)FaceunityWorker.FU_ADM_FLAG.FU_ADM_FLAG_FLIP_X, false, (int)NatCam.Camera.PreviewResolution.x, (int)NatCam.Camera.PreviewResolution.y);   //传输数据方法之一
             }
         }
 
@@ -377,7 +377,7 @@ public class RenderToTexture : MonoBehaviour
 #endif
 
         //txt.text = Input.acceleration.ToString();
-        if(NatCam.Camera)
+        if (NatCam.Camera)
             FaceunityWorker.FixRotationWithAcceleration(Input.acceleration, NatCam.Camera.Facing != Facing.Front);
     }
 
@@ -402,7 +402,7 @@ public class RenderToTexture : MonoBehaviour
     //加载道具完毕的委托
     public delegate void LoadItemCallback(Item item);
     /**\brief 封装过的加载道具用的接口，配合slot的概念和item这个struct控制多个不同类型的道具的加载卸载\param item 要加载的道具的item，封装过的道具信息集合，方便业务逻辑，详见itemconfig\param slotid  道具要加载的位置（slot），默认值为0，即slot数组的第0位\param cb  加载道具完毕后会自动执行的回调，可以为空\return 无*/
-    public IEnumerator LoadItem(Item item, int slotid = 0, LoadItemCallback cb=null)
+    public IEnumerator LoadItem(Item item, int slotid = 0, LoadItemCallback cb = null)
     {
         if (!FaceunityWorker.instance.m_plugin_inited)
             yield break;
@@ -424,7 +424,10 @@ public class RenderToTexture : MonoBehaviour
                 //多线程载入，可以防止主线程被卡住，但是会引起一些UI逻辑相关的问题，暂时关闭
                 //yield return Loom.RunAsync_Coroutine(() =>
                 //{
-                    itemid = FaceunityWorker.fuCreateItemFromPackage(pObject, bundle_bytes.Length);
+                itemid = FaceunityWorker.fuCreateItemFromPackage(pObject, bundle_bytes.Length);
+                var errorcode = FaceunityWorker.fuGetSystemError();
+                if (errorcode != 0)
+                    Debug.LogErrorFormat("errorcode:{0}, {1}", errorcode, Marshal.PtrToStringAnsi(FaceunityWorker.fuGetSystemErrorString(errorcode)));
                 //});
 
                 hObject.Free();
@@ -439,7 +442,7 @@ public class RenderToTexture : MonoBehaviour
                 FaceunityWorker.fu_SetItemIds(p_itemsid, SLOTLENGTH, IntPtr.Zero);
                 Debug.Log("载入Item：" + item.name + " @slotid=" + slotid);
             }
-            else if(tempslot != slotid)    //道具已载入，但是不在请求的slot槽内
+            else if (tempslot != slotid)    //道具已载入，但是不在请求的slot槽内
             {
                 UnLoadItem(slotid);
 
@@ -450,18 +453,18 @@ public class RenderToTexture : MonoBehaviour
                 slot_items[tempslot].Reset();
 
                 FaceunityWorker.fu_SetItemIds(p_itemsid, SLOTLENGTH, IntPtr.Zero);
-                Debug.Log("移动Item：" + item.name + " from tempslot=" + tempslot + " to slotid="+ slotid);
+                Debug.Log("移动Item：" + item.name + " from tempslot=" + tempslot + " to slotid=" + slotid);
             }
             else    //tempslot == slotid 即重复载入同一个道具进同一个slot槽，直接跳过
             {
-                Debug.Log("重复载入Item："+ item.name +"  slotid="+ slotid);
+                Debug.Log("重复载入Item：" + item.name + "  slotid=" + slotid);
             }
 
             SetItemMirror(slotid);
 
             if (cb != null)
                 cb(item);//触发载入道具完成事件
-            
+
             LoadingItem = false;
         }
     }
@@ -489,6 +492,9 @@ public class RenderToTexture : MonoBehaviour
                 //yield return Loom.RunAsync_Coroutine(() =>
                 //{
                 itemid = FaceunityWorker.fuCreateItemFromPackage(pObject, bundle_bytes.Length);
+                var errorcode = FaceunityWorker.fuGetSystemError();
+                if (errorcode != 0)
+                    Debug.LogErrorFormat("errorcode:{0}, {1}", errorcode, Marshal.PtrToStringAnsi(FaceunityWorker.fuGetSystemErrorString(errorcode)));
                 //});
 
                 hObject.Free();
@@ -533,7 +539,7 @@ public class RenderToTexture : MonoBehaviour
     //输入道具名字返回道具ID
     public int GetItemIDbyName(string name)
     {
-        for(int i=0;i< SLOTLENGTH; i++)
+        for (int i = 0; i < SLOTLENGTH; i++)
         {
             if (string.Equals(slot_items[i].name, name))
                 return slot_items[i].id;
@@ -573,9 +579,9 @@ public class RenderToTexture : MonoBehaviour
     {
         if (!FaceunityWorker.instance.m_plugin_inited)
             return false;
-        if (slotid >= 0 && slotid< SLOTLENGTH && slot_items[slotid].id>0)
+        if (slotid >= 0 && slotid < SLOTLENGTH && slot_items[slotid].id > 0)
         {
-            Debug.Log("UnLoadItem name=" + slot_items[slotid].name+ " slotid="+ slotid);
+            Debug.Log("UnLoadItem name=" + slot_items[slotid].name + " slotid=" + slotid);
             FaceunityWorker.fuDestroyItem(slot_items[slotid].id);
             itemid_tosdk[slotid] = 0;
             slot_items[slotid].id = 0;
@@ -607,7 +613,7 @@ public class RenderToTexture : MonoBehaviour
     }
 
     /**\brief 输入一张图片给道具当成纹理用\param slotid 道具在slot数组中的index\param paramdname  关联图片的关键词\param value  图片的buffer的指针\param width  图片宽\param height  图片高\return 无*/
-    public void CreateTexForItem(int slotid, string paramdname, IntPtr value,int width,int height)
+    public void CreateTexForItem(int slotid, string paramdname, IntPtr value, int width, int height)
     {
         if (slotid >= 0 && slotid < SLOTLENGTH)
         {
@@ -639,7 +645,7 @@ public class RenderToTexture : MonoBehaviour
     /**\brief 给道具设置一个数组\param slotid 道具在slot数组中的index\param paramdname  关联数组的关键词\param value  要设置的数组\return 无*/
     public void SetItemParamdv(int slotid, string paramdname, double[] value)
     {
-        if (slotid >= 0 && slotid < SLOTLENGTH && value!=null && value.Length>0)
+        if (slotid >= 0 && slotid < SLOTLENGTH && value != null && value.Length > 0)
         {
             GCHandle vgc = GCHandle.Alloc(value, GCHandleType.Pinned);
             IntPtr vptr = vgc.AddrOfPinnedObject();
@@ -657,7 +663,7 @@ public class RenderToTexture : MonoBehaviour
     /**\brief 给道具设置一个double参数\param slotid 道具在slot数组中的index\param paramdname  关联参数的关键词\param value  要设置的参数\return 无*/
     public void SetItemParamd(int slotid, string paramdname, double value)
     {
-        if (slotid >= 0 && slotid< SLOTLENGTH)
+        if (slotid >= 0 && slotid < SLOTLENGTH)
         {
             FaceunityWorker.fuItemSetParamd(slot_items[slotid].id, paramdname, value);
         }
@@ -699,7 +705,7 @@ public class RenderToTexture : MonoBehaviour
     /**\brief 获取道具中的某个string参数值\param itemname 道具的名字\param paramdname  关联参数的关键词\return string参数值*/
     public string GetItemParams(string itemname, string paramdname)
     {
-        return GetItemParams(GetSlotIDbyName(itemname),paramdname);
+        return GetItemParams(GetSlotIDbyName(itemname), paramdname);
     }
 
     /**\brief 获取道具中的某个string参数值\param slotid 道具在slot数组中的index\param paramdname  关联参数的关键词\return string参数值*/

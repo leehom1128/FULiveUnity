@@ -1,41 +1,56 @@
 # Unity Nama C# API 参考文档
 级别：Public
-更新日期：2020-06-30
-SDK版本: 7.0.0 
+更新日期：2020-07-24
+SDK版本: 7.0.1 
 
 ------
 
 ## 最新更新内容：
+
+2020-7-24 v7.0.1:
+
+1. 新增接口fuHumanProcessorSetBonemap
+2. 新增接口fuHumanProcessorGetResultTransformArray
+3. 新增接口fuHumanProcessorGetResultModelMatrix
+4. 修复fuGetSestemError问题。
+5. 修复fuSetMaxFaces，在释放AI模型后，设置失效问题。
+6. 修复Android非高通机型，OES输入问题。
+7. 修复美妆远距离嘴部黑框问题。
+8. 修复美体美颜共存不支持问题。
 
 2020-6-30 v7.0.0:
 
 1. 新增人体算法能力接口，包括人体检测、2D人体关键点（全身、半身）、人体3D骨骼（全身、半身）、手势识别、人像mask、头发mask、头部mask、动作识别等能力。
 2. 新增接口，详见接口说明
    - fuGetLogLevel,获取当前日志级别。
-   - fuSetLogLevel,设置当前日志级别。
-   - fuOpenFileLog,打开文件日志，默认使用console日志。
-   - fuFaceProcessorSetMinFaceRatio，设置人脸检测距离的接口。
-   - fuSetTrackFaceAIType，设置fuTrackFace算法运行类型接口。
-   - fuSetCropState，设置裁剪状态。
-   - fuSetCropFreePixel，设置自由裁剪参数。
-   - fuSetFaceProcessorFov，设置FaceProcessor人脸算法模块跟踪fov。
-   - fuGetFaceProcessorFov，获取FaceProcessor人脸算法模块跟踪fov。
-   - fuHumanProcessorReset，重置HumanProcessor人体算法模块状态。
-   - fuHumanProcessorSetMaxHumans，设置HumanProcessor人体算法模块跟踪人体数。
-   - fuHumanProcessorGetNumResults，获取HumanProcessor人体算法模块跟踪人体数。
-   - fuHumanProcessorGetResultTrackId，获取HumanProcessor人体算法模块跟踪Id。
-   - fuHumanProcessorGetResultRect，获取HumanProcessor人体算法模块跟踪人体框。
-   - fuHumanProcessorGetResultJoint2ds，获取HumanProcessor人体算法模块跟踪人体2D关键点。
-   - fuHumanProcessorGetResultJoint3ds，获取HumanProcessor人体算法模块跟踪人体3D骨骼信息。
-   - fuHumanProcessorGetResultHumanMask，获取HumanProcessor人体算法模块全身mask。
-   - fuHumanProcessorGetResultActionType，获取HumanProcessor人体算法模块跟踪人体动作类型。
-   - fuHumanProcessorGetResultActionScore，获取HumanProcessor人体算法模块跟踪人体动作置信度。
-   - fuFaceProcessorGetResultHairMask，获取HumanProcessor人体算法模块头发mask。
-   - fuFaceProcessorGetResultHeadMask，获取HumanProcessor人体算法模块头部mask。
-   - fuHandDetectorGetResultNumHands，获取HandGesture手势算法模块跟踪手势数量。
-   - fuHandDetectorGetResultHandRect，获取HandGesture手势算法模块跟踪手势框。
-   - fuHandDetectorGetResultGestureType，获取HandGesture手势算法模块跟踪手势类别。
-   - fuHandDetectorGetResultHandScore，获取HandGesture手势算法模块跟踪手势置信度。
+     - fuSetLogLevel,设置当前日志级别。
+     - fuOpenFileLog,打开文件日志，默认使用console日志。
+     - fuFaceProcessorSetMinFaceRatio，设置人脸检测距离的接口。
+     - fuSetTrackFaceAIType，设置fuTrackFace算法运行类型接口。
+     - fuSetCropState，设置裁剪状态。
+     - fuSetCropFreePixel，设置自由裁剪参数。
+     - fuSetFaceProcessorFov，设置FaceProcessor人脸算法模块跟踪fov。
+     - fuGetFaceProcessorFov，获取FaceProcessor人脸算法模块跟踪fov。
+     - fuHumanProcessorReset，重置HumanProcessor人体算法模块状态。
+     - fuHumanProcessorSetMaxHumans，设置HumanProcessor人体算法模块跟踪人体数。
+     - fuHumanProcessorGetNumResults，获取HumanProcessor人体算法模块跟踪人体数。
+     - fuHumanProcessorGetResultTrackId，获取HumanProcessor人体算法模块跟踪Id。
+     - fuHumanProcessorGetResultRect，获取HumanProcessor人体算法模块跟踪人体框。
+     - fuHumanProcessorGetResultJoint2ds，获取HumanProcessor人体算法模块跟踪人体2D关键点。
+     - fuHumanProcessorGetResultJoint3ds，获取HumanProcessor人体算法模块跟踪人体3D关键点。
+     - fuHumanProcessorSetBonemap，设置HumanProcessor人体算法模块，3D骨骼拓扑结构信息。
+     - fuHumanProcessorGetResultTransformArray， 获取HumanProcessor人体算法模块跟踪人体3D骨骼信息。
+     - fuHumanProcessorGetResultModelMatrix， 获取HumanProcessor人体算法模块跟踪人体3D骨骼，根节点模型变化矩阵。
+   
+     - fuHumanProcessorGetResultHumanMask，获取HumanProcessor人体算法模块全身mask。
+     - fuHumanProcessorGetResultActionType，获取HumanProcessor人体算法模块跟踪人体动作类型。
+     - fuHumanProcessorGetResultActionScore，获取HumanProcessor人体算法模块跟踪人体动作置信度。
+     - fuFaceProcessorGetResultHairMask，获取HumanProcessor人体算法模块头发mask。
+     - fuFaceProcessorGetResultHeadMask，获取HumanProcessor人体算法模块头部mask。
+     - fuHandDetectorGetResultNumHands，获取HandGesture手势算法模块跟踪手势数量。
+     - fuHandDetectorGetResultHandRect，获取HandGesture手势算法模块跟踪手势框。
+     - fuHandDetectorGetResultGestureType，获取HandGesture手势算法模块跟踪手势类别。
+     - fuHandDetectorGetResultHandScore，获取HandGesture手势算法模块跟踪手势置信度。
 3. 废弃接口
    - fuSetStrictTracking
    - fuSetASYNCTrackFace

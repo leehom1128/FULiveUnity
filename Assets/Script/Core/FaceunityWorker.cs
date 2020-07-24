@@ -793,6 +793,7 @@ public class FaceunityWorker : MonoBehaviour
     }
 
     public SETUPMODE SetupMode = SETUPMODE.Normal;
+    public bool EnableGetNamaSystemError = false;
 
     [HideInInspector]
     public int m_need_update_facenum = 0;
@@ -1029,7 +1030,9 @@ public class FaceunityWorker : MonoBehaviour
                     if (OnInitOK != null)
                         OnInitOK(this, null);//触发初始化完成事件
 
-                    //Debug.Log("错误:" + fu_GetSystemError() +","+ Marshal.PtrToStringAnsi(fu_GetSystemErrorString(fu_GetSystemError())));
+                    var errorcode = fuGetSystemError();
+                    if (errorcode != 0)
+                        Debug.LogErrorFormat("errorcode:{0}, {1}", errorcode, Marshal.PtrToStringAnsi(fuGetSystemErrorString(errorcode)));
                     Debug.Log("Nama Version:" + Marshal.PtrToStringAnsi(fuGetVersion()));
 
                     yield return CallPluginAtEndOfFrames();
@@ -1052,6 +1055,13 @@ public class FaceunityWorker : MonoBehaviour
             ////////////////////////////////
             fuSetMaxFaces(MAXFACE);
             GL.IssuePluginEvent(fu_GetRenderEventFunc(), (int)Nama_GL_Event_ID.NormalRender);// cal for sdk render
+
+            if (EnableGetNamaSystemError)
+            {
+                var errorcode = fuGetSystemError();
+                if (errorcode != 0)
+                    Debug.LogErrorFormat("errorcode:{0}, {1}", errorcode, Marshal.PtrToStringAnsi(fuGetSystemErrorString(errorcode)));
+            }
 
             int num = fuIsTracking();
             m_need_update_facenum = num < MAXFACE ? num : MAXFACE;
