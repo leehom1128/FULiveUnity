@@ -229,6 +229,8 @@ public class FaceunityWorker : MonoBehaviour
 */
     [DllImport(unity_plugin_name, CallingConvention = CallingConvention.Cdecl)]
     public static extern void fu_EnableLog(bool isenable);
+    //[DllImport(unity_plugin_name, CallingConvention = CallingConvention.Cdecl)]
+    //public static extern void fu_EnableLogConsole(bool isenable);
 
     /**
  * FURuningMode为FU_Mode_RenderItems的时候，加载EmptyItem.bytes，才能开启人脸跟踪。
@@ -561,6 +563,13 @@ public class FaceunityWorker : MonoBehaviour
 
 
 
+    [DllImport(nama_name, CallingConvention = CallingConvention.Cdecl)]
+    public static extern int fuHumanProcessorGetNumResults();
+    [DllImport(nama_name, CallingConvention = CallingConvention.Cdecl)]
+    public static extern IntPtr fuHumanProcessorGetResultJoint3ds(int index, int[] size);
+
+
+
     #endregion
 
     public enum FU_ADM_FLAG
@@ -874,17 +883,20 @@ public class FaceunityWorker : MonoBehaviour
     {
         if (EnvironmentCheck())
         {
+
+//#if UNITY_EDITOR && !UNITY_IOS
+//            fu_RegisterDebugCallback(new DebugCallback(DebugMethod));
+//#endif
+            fu_EnableLog(false);
+            //fu_EnableLogConsole(true);
+            fuSetLogLevel(FULOGLEVEL.FU_LOG_LEVEL_OFF);
+            //fuOpenFileLog(Application.persistentDataPath + "/Log/log.txt", 10000000, 10);
+
             Debug.Log("fuIsLibraryInit:   " + fuIsLibraryInit());
             if (m_plugin_inited == false)
             {
                 Debug.LogFormat("FaceunityWorker Init");
-#if UNITY_EDITOR && !UNITY_IOS
-                fu_RegisterDebugCallback(new DebugCallback(DebugMethod));
-#endif
-                fu_EnableLog(false);
-                fuSetLogLevel(FULOGLEVEL.FU_LOG_LEVEL_OFF);
-                //fuOpenFileLog(Application.persistentDataPath + "/Log/log.txt", 10000000, 10);
-
+                
                 //fu_Setup init nama sdk
                 if (fuIsLibraryInit() == 0)  //防止Editor下二次Play导致崩溃的bug
                 {
@@ -1006,7 +1018,8 @@ public class FaceunityWorker : MonoBehaviour
                             //yield return LoadAIBundle("ai_bgseg_green.bytes", FUAITYPE.FUAITYPE_BACKGROUNDSEGMENTATION_GREEN);
                             yield return LoadAIBundle("ai_gesture.bytes", FUAITYPE.FUAITYPE_HANDGESTURE);
                             //yield return LoadAIBundle("ai_hairseg.bytes", FUAITYPE.FUAITYPE_HAIRSEGMENTATION); 
-                            //yield return LoadAIBundle("ai_humanpose.bytes", FUAITYPE.FUAITYPE_HUMANPOSE2D);
+                            //yield return LoadAIBundle("ai_human_processor.bytes", FUAITYPE.FUAITYPE_HUMAN_PROCESSOR);
+                            //yield return LoadAIBundle("ai_human_processor_pc.bytes", FUAITYPE.FUAITYPE_HUMAN_PROCESSOR);
                             yield return LoadTongueBundle("tongue.bytes");
 
                             m_plugin_inited = true;

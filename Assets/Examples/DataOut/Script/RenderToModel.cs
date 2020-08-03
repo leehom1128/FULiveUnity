@@ -253,7 +253,13 @@ public class RenderToModel : MonoBehaviour
     {
         baseRotation = RawImg_BackGroud.rectTransform.rotation;
         StartCoroutine("InitCamera");
-        StartCoroutine(LoadItem(Util.GetStreamingAssetsPath() + "/faceunity/EmptyItem.bytes"));
+        StartCoroutine(LoadEmptyItem());
+    }
+
+    IEnumerator LoadEmptyItem()
+    {
+        yield return LoadItem(Util.GetStreamingAssetsPath() + "/faceunity/EmptyItem.bytes");
+        SetItemParamd(0, "aitype", (double)FaceunityWorker.FUAITYPE.FUAITYPE_FACEPROCESSOR_FACECAPTURE);
     }
 
     //当前环境是PC或者MAC的时候，在这里向SDK输入数据并获取SDK输出的纹理
@@ -360,6 +366,14 @@ public class RenderToModel : MonoBehaviour
         }
         Debug.LogError("UnLoadItem Faild!!!");
         return false;
+    }
+
+    public void SetItemParamd(int slotid, string paramdname, double value)
+    {
+        if (slotid >= 0 && slotid < SLOTLENGTH)
+        {
+            FaceunityWorker.fuItemSetParamd(itemid_tosdk[slotid], paramdname, value);
+        }
     }
 
     private void OnApplicationQuit()

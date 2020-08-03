@@ -108,7 +108,13 @@ public class RenderSimple : MonoBehaviour {
     void InitApplication(object source, EventArgs e)
     {
         StartCoroutine(InitCamera());
-        StartCoroutine(LoadItem(Util.GetStreamingAssetsPath() + "/faceunity/EmptyItem.bytes"));
+        StartCoroutine(LoadEmptyItem());
+    }
+
+    IEnumerator LoadEmptyItem()
+    {
+        yield return LoadItem(Util.GetStreamingAssetsPath() + "/faceunity/EmptyItem.bytes");
+        SetItemParamd(0, "aitype", (double)FaceunityWorker.FUAITYPE.FUAITYPE_FACEPROCESSOR);
     }
 
     //四种数据输入格式，详见文档
@@ -237,6 +243,8 @@ public class RenderSimple : MonoBehaviour {
                 m_tex_created = true;
             }
         }
+        
+        //GetJoint3ds();
     }
 
     // untested function，将ARGB转化成NV21，仅用来测试
@@ -318,5 +326,47 @@ public class RenderSimple : MonoBehaviour {
         }
         Debug.LogError("UnLoadItem Faild!!!");
         return false;
+    }
+
+    public void SetItemParamd(int slotid, string paramdname, double value)
+    {
+        if (slotid >= 0 && slotid < SLOTLENGTH)
+        {
+            FaceunityWorker.fuItemSetParamd(itemid_tosdk[slotid], paramdname, value);
+        }
+    }
+
+    float[] joint3ds;
+    int[] m_joint3dsLength = new int[1];
+
+    private float[] GetJoint3ds()
+    {
+        // 获取当前人数
+        int index = FaceunityWorker.fuHumanProcessorGetNumResults();
+        if (index > 0)
+        {
+            Debug.LogFormat("检测到人体！index={0}", index);
+            IntPtr result = FaceunityWorker.fuHumanProcessorGetResultJoint3ds(0, m_joint3dsLength);
+            int length = m_joint3dsLength[0];
+            if (length > 0)
+            {
+                if (joint3ds == null || joint3ds.Length != length)
+                {
+                    joint3ds = new float[length];
+                }
+                Marshal.Copy(result, joint3ds, 0, length);
+                Debug.LogFormat("joint3ds.Length = {0}, joint3ds[0]={1}, joint3ds[1]={2}", joint3ds.Length, joint3ds[0], joint3ds[1]);
+                return joint3ds;
+            }
+            else
+            {
+                Debug.LogFormat("空的, length={0}", length);
+            }
+        }
+        else
+        {
+            Debug.Log("没身体");
+        }
+        return null;
     }
 }

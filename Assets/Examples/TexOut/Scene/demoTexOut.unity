@@ -374,7 +374,9 @@ MonoBehaviour:
   LICENSE: 
   OfflineBundleName: 
   SetupMode: 0
+  EnableGetNamaSystemError: 0
   m_need_update_facenum: 0
+  face_true_id: 
 --- !u!4 &51551130
 Transform:
   m_ObjectHideFlags: 0
