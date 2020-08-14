@@ -22,7 +22,7 @@ namespace NatCamU.Core {
         [CoreDoc(11)]
         public Facing Facing {
             get {
-                return Device.IsRearFacing(this) ? Facing.Rear : Facing.Front;
+                return facing;
             }
         }
         /// <summary>
@@ -199,6 +199,7 @@ namespace NatCamU.Core {
 
         #region --Op vars--
         private readonly int index;
+        private readonly Facing facing;
         #endregion
 
 
@@ -288,6 +289,7 @@ namespace NatCamU.Core {
 
         private DeviceCamera (int i) {
             index = i;
+            facing = Device.IsRearFacing(this) ? Facing.Rear : Facing.Front;
         }
 
         static DeviceCamera () {
