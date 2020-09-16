@@ -229,8 +229,8 @@ public class FaceunityWorker : MonoBehaviour
 */
     [DllImport(unity_plugin_name, CallingConvention = CallingConvention.Cdecl)]
     public static extern void fu_EnableLog(bool isenable);
-    //[DllImport(unity_plugin_name, CallingConvention = CallingConvention.Cdecl)]
-    //public static extern void fu_EnableLogConsole(bool isenable);
+    [DllImport(unity_plugin_name, CallingConvention = CallingConvention.Cdecl)]
+    public static extern void fu_EnableLogConsole(bool isenable);
 
     /**
  * FURuningMode为FU_Mode_RenderItems的时候，加载EmptyItem.bytes，才能开启人脸跟踪。
@@ -604,26 +604,28 @@ public class FaceunityWorker : MonoBehaviour
 
     public enum FUAITYPE
     {
-        FUAITYPE_BACKGROUNDSEGMENTATION = 1 << 1,//背景分割
-        FUAITYPE_HAIRSEGMENTATION = 1 << 2,     //头发分割，7.0.0可使用FUAITYPE_FACEPROCESSOR_HAIRSEGMENTATION
-        FUAITYPE_HANDGESTURE = 1 << 3,          //手势识别
-        FUAITYPE_TONGUETRACKING = 1 << 4,       //暂未使用
-        FUAITYPE_FACELANDMARKS75 = 1 << 5,      //废弃
-        FUAITYPE_FACELANDMARKS209 = 1 << 6,     //废弃
-        FUAITYPE_FACELANDMARKS239 = 1 << 7,     //废弃
-        FUAITYPE_HUMANPOSE2D = 1 << 8,          //2D身体点位，7.0.FUAITYPE_HUMAN_PROCESSOR_2D_DANCE
-        FUAITYPE_BACKGROUNDSEGMENTATION_GREEN = 1 << 9,//绿幕分割
-        FUAITYPE_FACEPROCESSOR = 1 << 10,				//人脸算法模块，默认带低质量高性能表情跟踪
-        FUAITYPE_FACEPROCESSOR_FACECAPTURE = 1 << 11,   //高质量表情跟踪
-        FUAITYPE_FACEPROCESSOR_HAIRSEGMENTATION = 1 << 12,  //头发分割
-        FUAITYPE_FACEPROCESSOR_HEADSEGMENTATION = 1 << 13,  //头部分割
-        FUAITYPE_HUMAN_PROCESSOR = 1 << 14,         //人体算法模块
-        FUAITYPE_HUMAN_PROCESSOR_DETECT = 1 << 15,  //人体检测
-        FUAITYPE_HUMAN_PROCESSOR_2D_SELFIE = 1 << 16,//2D半身点位
-        FUAITYPE_HUMAN_PROCESSOR_2D_DANCE = 1 << 17,//2D全身点位
-        FUAITYPE_HUMAN_PROCESSOR_3D_SELFIE = 1 << 18,//3D半身点位
-        FUAITYPE_HUMAN_PROCESSOR_3D_DANCE = 1 << 19,//3D全身点位
-        FUAITYPE_HUMAN_PROCESSOR_SEGMENTATION = 1 << 20 //人体分割
+        FUAITYPE_NONE = 0,
+        FUAITYPE_BACKGROUNDSEGMENTATION = 1 << 1,
+        FUAITYPE_HAIRSEGMENTATION = 1 << 2,
+        FUAITYPE_HANDGESTURE = 1 << 3,
+        FUAITYPE_TONGUETRACKING = 1 << 4,
+        FUAITYPE_FACELANDMARKS75 = 1 << 5,
+        FUAITYPE_FACELANDMARKS209 = 1 << 6,
+        FUAITYPE_FACELANDMARKS239 = 1 << 7,
+        FUAITYPE_HUMANPOSE2D = 1 << 8,
+        FUAITYPE_BACKGROUNDSEGMENTATION_GREEN = 1 << 9,
+        FUAITYPE_FACEPROCESSOR = 1 << 10,
+        FUAITYPE_FACEPROCESSOR_FACECAPTURE = 1 << 11,
+        FUAITYPE_FACEPROCESSOR_FACECAPTURE_TONGUETRACKING = 1 << 12,
+        FUAITYPE_FACEPROCESSOR_HAIRSEGMENTATION = 1 << 13,
+        FUAITYPE_FACEPROCESSOR_HEADSEGMENTATION = 1 << 14,
+        FUAITYPE_HUMAN_PROCESSOR = 1 << 15,
+        FUAITYPE_HUMAN_PROCESSOR_DETECT = 1 << 16,
+        FUAITYPE_HUMAN_PROCESSOR_2D_SELFIE = 1 << 17,
+        FUAITYPE_HUMAN_PROCESSOR_2D_DANCE = 1 << 18,
+        FUAITYPE_HUMAN_PROCESSOR_3D_SELFIE = 1 << 19,
+        FUAITYPE_HUMAN_PROCESSOR_3D_DANCE = 1 << 20,
+        FUAITYPE_HUMAN_PROCESSOR_SEGMENTATION = 1 << 21
     }
 
     public enum FUAI_CAMERA_VIEW
@@ -1014,7 +1016,7 @@ public class FaceunityWorker : MonoBehaviour
                             //    m_v3data_handle.Free();
 
                             yield return LoadAIBundle("ai_face_processor.bytes", FUAITYPE.FUAITYPE_FACEPROCESSOR);
-                            yield return LoadAIBundle("ai_bgseg.bytes", FUAITYPE.FUAITYPE_BACKGROUNDSEGMENTATION);
+                            //yield return LoadAIBundle("ai_bgseg.bytes", FUAITYPE.FUAITYPE_BACKGROUNDSEGMENTATION);
                             //yield return LoadAIBundle("ai_bgseg_green.bytes", FUAITYPE.FUAITYPE_BACKGROUNDSEGMENTATION_GREEN);
                             yield return LoadAIBundle("ai_gesture.bytes", FUAITYPE.FUAITYPE_HANDGESTURE);
                             //yield return LoadAIBundle("ai_hairseg.bytes", FUAITYPE.FUAITYPE_HAIRSEGMENTATION); 

@@ -271,3 +271,5 @@ Unity5.6.7f1 及以上
   - Assets\Examples\Common\NatCam\Core\Plugins
 ![](imgs\img2.jpg)
 - iOS平台编译Link可能报错，缺少某些framework，请手动添加CoreML.framework以及Metal.framework
+- 使用本SDK版本7.1.2以后时，iOS平台请在Xcode工程中关闭BitCode
+
