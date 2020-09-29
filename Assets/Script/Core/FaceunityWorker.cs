@@ -1018,10 +1018,14 @@ public class FaceunityWorker : MonoBehaviour
                             yield return LoadAIBundle("ai_face_processor.bytes", FUAITYPE.FUAITYPE_FACEPROCESSOR);
                             //yield return LoadAIBundle("ai_bgseg.bytes", FUAITYPE.FUAITYPE_BACKGROUNDSEGMENTATION);
                             //yield return LoadAIBundle("ai_bgseg_green.bytes", FUAITYPE.FUAITYPE_BACKGROUNDSEGMENTATION_GREEN);
-                            yield return LoadAIBundle("ai_gesture.bytes", FUAITYPE.FUAITYPE_HANDGESTURE);
                             //yield return LoadAIBundle("ai_hairseg.bytes", FUAITYPE.FUAITYPE_HAIRSEGMENTATION); 
-                            //yield return LoadAIBundle("ai_human_processor.bytes", FUAITYPE.FUAITYPE_HUMAN_PROCESSOR);
-                            //yield return LoadAIBundle("ai_human_processor_pc.bytes", FUAITYPE.FUAITYPE_HUMAN_PROCESSOR);
+#if UNITY_EDITOR || UNITY_STANDALONE
+                            yield return LoadAIBundle("ai_hand_processor_pc.bytes", FUAITYPE.FUAITYPE_HANDGESTURE);
+                            yield return LoadAIBundle("ai_human_processor_pc.bytes", FUAITYPE.FUAITYPE_HUMAN_PROCESSOR);
+#else
+                            yield return LoadAIBundle("ai_hand_processor.bytes", FUAITYPE.FUAITYPE_HANDGESTURE);
+                            yield return LoadAIBundle("ai_human_processor.bytes", FUAITYPE.FUAITYPE_HUMAN_PROCESSOR);
+#endif
                             yield return LoadTongueBundle("tongue.bytes");
 
                             m_plugin_inited = true;

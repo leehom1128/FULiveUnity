@@ -1,6 +1,11 @@
 fileFormatVersion: 2
-guid: 829724b1b8030a442a0ce3429d205077
-timeCreated: 1600155505
+<<<<<<<< HEAD:Assets/StreamingAssets/faceunity/ai_face_processor_pc.bytes.meta
+guid: 7e5d9f758650e3d478c88e410d04179e
+timeCreated: 1600072555
+========
+guid: 46e745b9e797c6b47b47b94edd01748d
+timeCreated: 1600153198
+>>>>>>>> d3aadc7ede6c45c0c72c485ff6389f6cafbecc48:Assets/StreamingAssets/faceunity/ai_gesture.bytes.meta
 licenseType: Free
 DefaultImporter:
   userData: 

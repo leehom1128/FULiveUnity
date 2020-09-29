@@ -122,6 +122,7 @@ GameObject:
   - component: {fileID: 51551131}
   - component: {fileID: 51551132}
   - component: {fileID: 51551133}
+  - component: {fileID: 51551134}
   m_Layer: 0
   m_Name: Faceunity Worker
   m_TagString: Untagged
@@ -184,12 +185,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2543c9d2a3876ef4c89daabf99d04d96, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  inputSource: 1
   currentDeviceName: 
   cameraWidth: 1280
   cameraHeight: 720
   cameraFrameRate: 30
   RawImg_BackGroud: {fileID: 1792170471}
   InputTex: {fileID: 0}
+  InputRenderTexture: {fileID: 8400000, guid: eb5dbc14589fcac4e9cc2946484f23d1, type: 2}
+  LoadBundleName: 
   updateDataMode: 2
 --- !u!114 &51551133
 MonoBehaviour:
@@ -204,6 +208,35 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Btn_Switch: {fileID: 1724314696}
   Image_FaceDetect: {fileID: 1634910543}
+--- !u!328 &51551134
+VideoPlayer:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 51551128}
+  m_Enabled: 1
+  m_VideoClip: {fileID: 0}
+  m_TargetCameraAlpha: 1
+  m_TargetCamera: {fileID: 0}
+  m_TargetTexture: {fileID: 8400000, guid: eb5dbc14589fcac4e9cc2946484f23d1, type: 2}
+  m_TargetMaterialRenderer: {fileID: 0}
+  m_TargetMaterialProperty: _MainTex
+  m_RenderMode: 2
+  m_AspectRatio: 2
+  m_DataSource: 0
+  m_PlaybackSpeed: 1
+  m_AudioOutputMode: 0
+  m_TargetAudioSources: []
+  m_DirectAudioVolumes: []
+  m_Url: 
+  m_EnabledAudioTracks: 
+  m_DirectAudioMutes: 
+  m_ControlledAudioTrackCount: 0
+  m_PlayOnAwake: 1
+  m_SkipOnDrop: 1
+  m_Looping: 1
+  m_WaitForFirstFrame: 1
+  m_FrameReadyEventEnabled: 0
 --- !u!1 &517978778
 GameObject:
   m_ObjectHideFlags: 0

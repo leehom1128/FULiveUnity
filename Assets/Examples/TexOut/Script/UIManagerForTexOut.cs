@@ -126,10 +126,10 @@ public class UIManagerForTexOut : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape))
             Application.Quit();
 
-        if (FaceunityWorker.instance.m_need_update_facenum > 0)
-            Image_FaceDetect.SetActive(false);
-        else
-            Image_FaceDetect.SetActive(true);
+        //if (FaceunityWorker.instance.m_need_update_facenum > 0)
+        //    Image_FaceDetect.SetActive(false);
+        //else
+        //    Image_FaceDetect.SetActive(true);
     }
 
     //获取License授权信息，这里只是根据SDK用License初始化后的结果，来控制不同类型道具的UI的开启关闭，具体权限分类请咨询技术支持

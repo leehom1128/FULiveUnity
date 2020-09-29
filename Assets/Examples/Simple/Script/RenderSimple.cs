@@ -3,8 +3,20 @@ using System.Collections;
 using UnityEngine.UI;
 using System;
 using System.Runtime.InteropServices;
+using UnityEngine.Video;
 
 public class RenderSimple : MonoBehaviour {
+
+    public enum InputSource
+    {
+        None = 0,
+        Camera,
+        Image,
+        Video
+    }
+
+    public InputSource inputSource = InputSource.Camera;
+    private InputSource currentInputSource = InputSource.Camera;
 
     //摄像头参数(INPUT)
     public string currentDeviceName;
@@ -33,28 +45,43 @@ public class RenderSimple : MonoBehaviour {
     //渲染显示UI
     public RawImage RawImg_BackGroud;   //用来显示相机结果的UI控件
     public Texture2D InputTex;  //通过纹理来往SDK内部传输数据
+    public RenderTexture InputRenderTexture;
+    public string LoadBundleName;
 
     const int SLOTLENGTH = 1;
     int[] itemid_tosdk;
     GCHandle itemid_handle;
     IntPtr p_itemsid;
 
+    public void OnValidate()
+    {
+        if(Application.isPlaying && currentInputSource!= inputSource)
+        {
+            if(inputSource == InputSource.Camera)
+            {
+                StartCoroutine(InitCamera());
+            }
+            currentInputSource = inputSource;
+        }
+    }
+
     //切换相机
     public void SwitchCamera()
     {
-        foreach (WebCamDevice device in WebCamTexture.devices)
-        {
-            if (currentDeviceName != device.name)
+        if (currentInputSource == InputSource.Camera)
+            foreach (WebCamDevice device in WebCamTexture.devices)
             {
-                if (wtex != null && wtex.isPlaying) wtex.Stop();
-                currentDeviceName = device.name;
-                wtex = new WebCamTexture(currentDeviceName, cameraWidth, cameraHeight, cameraFrameRate);
-                wtex.Play();
-                currentDeviceisFrontFacing = device.isFrontFacing;
-                FaceunityWorker.FixRotation(!device.isFrontFacing);
-                break;
+                if (currentDeviceName != device.name)
+                {
+                    if (wtex != null && wtex.isPlaying) wtex.Stop();
+                    currentDeviceName = device.name;
+                    wtex = new WebCamTexture(currentDeviceName, cameraWidth, cameraHeight, cameraFrameRate);
+                    wtex.Play();
+                    currentDeviceisFrontFacing = device.isFrontFacing;
+                    FaceunityWorker.FixRotation(!device.isFrontFacing);
+                    break;
+                }
             }
-        }
     }
 
 
@@ -62,34 +89,38 @@ public class RenderSimple : MonoBehaviour {
     // 初始化摄像头 
     public IEnumerator InitCamera()
     {
-        yield return Application.RequestUserAuthorization(UserAuthorization.WebCam);
-        if (Application.HasUserAuthorization(UserAuthorization.WebCam))
+        if (currentInputSource == InputSource.Camera)
         {
-            WebCamDevice[] devices = WebCamTexture.devices;
-            if (devices == null)
+            yield return Application.RequestUserAuthorization(UserAuthorization.WebCam);
+            if (Application.HasUserAuthorization(UserAuthorization.WebCam))
             {
-                Debug.Log("No Camera detected!");
+                WebCamDevice[] devices = WebCamTexture.devices;
+                if (devices == null)
+                {
+                    Debug.Log("No Camera detected!");
+                }
+                else
+                {
+                    currentDeviceName = devices[0].name;
+                    wtex = new WebCamTexture(currentDeviceName, cameraWidth, cameraHeight, cameraFrameRate);
+                    wtex.Play();
+                    currentDeviceisFrontFacing = devices[0].isFrontFacing;
+                    FaceunityWorker.FixRotation(!devices[0].isFrontFacing);
+                }
             }
-            else
-            {
-                currentDeviceName = devices[0].name;
-                wtex = new WebCamTexture(currentDeviceName, cameraWidth, cameraHeight, cameraFrameRate);
-                wtex.Play();
-                currentDeviceisFrontFacing = devices[0].isFrontFacing;
-                FaceunityWorker.FixRotation(!devices[0].isFrontFacing);
-            }
+
+            if (img_handle.IsAllocated)
+                img_handle.Free();
+            webtexdata = new Color32[wtex.width * wtex.height];
+            img_handle = GCHandle.Alloc(webtexdata, GCHandleType.Pinned);
+            p_img_ptr = img_handle.AddrOfPinnedObject();
+
+            if (img_nv21_handle.IsAllocated)
+                img_nv21_handle.Free();
+            img_nv21 = new byte[wtex.width * wtex.height * 3 / 2];
+            img_nv21_handle = GCHandle.Alloc(img_nv21, GCHandleType.Pinned);
+            p_img_nv21_ptr = img_nv21_handle.AddrOfPinnedObject();
         }
-
-
-        if (img_handle.IsAllocated)
-            img_handle.Free();
-        webtexdata = new Color32[wtex.width * wtex.height];
-        img_handle = GCHandle.Alloc(webtexdata, GCHandleType.Pinned);
-        p_img_ptr = img_handle.AddrOfPinnedObject();
-
-        img_nv21 = new byte[wtex.width * wtex.height * 3 / 2];
-        img_nv21_handle = GCHandle.Alloc(img_nv21, GCHandleType.Pinned);
-        p_img_nv21_ptr = img_nv21_handle.AddrOfPinnedObject();
     }
 
     //当SDK初始化完毕后执行事件，即初始化相机
@@ -106,15 +137,20 @@ public class RenderSimple : MonoBehaviour {
 
     //初始化相机
     void InitApplication(object source, EventArgs e)
-    {
+    { 
         StartCoroutine(InitCamera());
         StartCoroutine(LoadEmptyItem());
     }
 
     IEnumerator LoadEmptyItem()
     {
-        yield return LoadItem(Util.GetStreamingAssetsPath() + "/faceunity/EmptyItem.bytes");
-        SetItemParamd(0, "aitype", (double)FaceunityWorker.FUAITYPE.FUAITYPE_FACEPROCESSOR);
+        if (string.IsNullOrEmpty(LoadBundleName))
+        {
+            yield return LoadItem(Util.GetStreamingAssetsPath() + "/faceunity/EmptyItem.bytes");
+            SetItemParamd(0, "aitype", (double)FaceunityWorker.FUAITYPE.FUAITYPE_FACEPROCESSOR);
+        }
+        else
+            yield return LoadItem(Util.GetStreamingAssetsPath() + "/faceunity/" + LoadBundleName + ".bytes");
     }
 
     //四种数据输入格式，详见文档
@@ -132,13 +168,19 @@ public class RenderSimple : MonoBehaviour {
     {
         FaceunityWorker.FixRotationWithAcceleration(Input.acceleration, !currentDeviceisFrontFacing);
 
-        if (InputTex != null)
+        if (currentInputSource == InputSource.Video && InputRenderTexture != null)
+        {
+            UpdateData(IntPtr.Zero, (int)InputRenderTexture.GetNativeTexturePtr(), InputRenderTexture.width, InputRenderTexture.height, UpdateDataMode.ImageTexId);
+            return;
+        }
+
+        if (currentInputSource == InputSource.Image && InputTex != null)
         {
             UpdateData(IntPtr.Zero, (int)InputTex.GetNativeTexturePtr(), InputTex.width, InputTex.height, UpdateDataMode.ImageTexId);
             return;
         }
 		
-        if (wtex != null && wtex.isPlaying)
+        if (currentInputSource == InputSource.Camera && wtex != null && wtex.isPlaying)
         {
             if (wtex.didUpdateThisFrame)
             {

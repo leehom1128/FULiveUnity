@@ -1,13 +1,30 @@
 # Unity Nama C# API 参考文档
 级别：Public
-更新日期：2020-07-29
-SDK版本: 7.1.0
+更新日期：2020-09-24
+SDK版本: 7.2.0
 
 ------
 
 ## 最新更新内容：
 
+2020-09-24 v7.2.0:
+
+- 新增绿幕抠像功能，支持替换图片、视频背景等，详见绿幕抠像功能文档。
+- 美颜模块新增瘦颧骨、瘦下颌骨功能。
+- 优化美颜性能以及功耗，优化集成入第三方推流服务时易发热掉帧问题。
+- 优化手势识别功能的效果以及性能，提升识别稳定性和手势跟随性效果，优化手势识别时cpu占有率。
+- 优化PC版各个功能性能，帧率提升显著。美发、美体、背景分割帧率提升30%以上，美颜、Animoji、美妆、手势等功能也有10%以上的帧率提升。
+- 优化包增量，SDK分为lite版，和全功能版本。lite版体积更小，包含人脸相关的功能(海报换脸除外)。
+- 优化人脸跟踪稳定性，提升贴纸的稳定性。
+- 提供独立核心算法SDK，接口文档详见算法SDK文档([FUAI_C_API_参考文档.md](./FUAI_C_API_参考文档.md))。
+- fuGetFaceInfo接口新增三个参数，分别为：舌头方向(tongue_direction)，表情识别(expression_type)，头部旋转信息欧拉角参数(rotation_euler)。
+- 新增fuOnDeviceLostSafe函数，详见接口文档。
+- 新增fuSetFaceProcessorDetectMode函数，人脸识别跟踪区分图片模式和视频模式，详见接口文档。
+- 新增人体动作识别动作定义文档([人体动作识别文档.md](../resource/docs/人体动作识别文档.md))。
+- 新增ai_hand_processor.bundle，替代ai_gesture.bundle，提供手势识别跟踪能力。
+
 2020-7-29 v7.1.0:
+
 1. 新增美颜锐化功能，见美颜参数文档。
 2. 优化美颜磨皮效果，保留更多的高频细节。
 
@@ -303,26 +320,27 @@ __参数:__
 ```c#
 public enum FUAITYPE
     {
-        FUAITYPE_BACKGROUNDSEGMENTATION = 1 << 1,//背景分割
-        FUAITYPE_HAIRSEGMENTATION = 1 << 2,     //头发分割，7.0.0可使用FUAITYPE_FACEPROCESSOR_HAIRSEGMENTATION
-        FUAITYPE_HANDGESTURE = 1 << 3,          //手势识别
-        FUAITYPE_TONGUETRACKING = 1 << 4,       //暂未使用
-        FUAITYPE_FACELANDMARKS75 = 1 << 5,      //废弃
-        FUAITYPE_FACELANDMARKS209 = 1 << 6,     //废弃
-        FUAITYPE_FACELANDMARKS239 = 1 << 7,     //废弃
-        FUAITYPE_HUMANPOSE2D = 1 << 8,          //2D身体点位，7.0.0可使用FUAITYPE_HUMAN_PROCESSOR_2D_DANCE
-        FUAITYPE_BACKGROUNDSEGMENTATION_GREEN = 1 << 9,//绿幕分割
-        FUAITYPE_FACEPROCESSOR = 1 << 10,				//人脸算法模块，默认带低质量高性能表情跟踪
-        FUAITYPE_FACEPROCESSOR_FACECAPTURE = 1 << 11,   //高质量表情跟踪
-        FUAITYPE_FACEPROCESSOR_HAIRSEGMENTATION = 1 << 12,  //头发分割
-        FUAITYPE_FACEPROCESSOR_HEADSEGMENTATION = 1 << 13,  //头部分割
-        FUAITYPE_HUMAN_PROCESSOR = 1 << 14,         //人体算法模块
-        FUAITYPE_HUMAN_PROCESSOR_DETECT = 1 << 15,  //人体检测
-        FUAITYPE_HUMAN_PROCESSOR_2D_SELFIE = 1 << 16,//2D半身点位
-        FUAITYPE_HUMAN_PROCESSOR_2D_DANCE = 1 << 17,//2D全身点位
-        FUAITYPE_HUMAN_PROCESSOR_3D_SELFIE = 1 << 18,//3D半身点位
-        FUAITYPE_HUMAN_PROCESSOR_3D_DANCE = 1 << 19,//3D全身点位
-        FUAITYPE_HUMAN_PROCESSOR_SEGMENTATION = 1 << 20 //人体分割
+	FUAITYPE_BACKGROUNDSEGMENTATION=1<<1,//背景分割,7.0.0及以上版本可使用FUAITYPE_HUMAN_PROCESSOR_SEGMENTATION
+	FUAITYPE_HAIRSEGMENTATION=1<<2,		//头发分割，7.0.0及以上版本可使用FUAITYPE_FACEPROCESSOR_HAIRSEGMENTATION
+	FUAITYPE_HANDGESTURE=1<<3,			//手势识别
+	FUAITYPE_TONGUETRACKING=1<<4,		//暂未使用
+	FUAITYPE_FACELANDMARKS75=1<<5,		//废弃
+	FUAITYPE_FACELANDMARKS209=1<<6,		//废弃
+	FUAITYPE_FACELANDMARKS239=1<<7,		//高级人脸特征点，7.0.0之后实际为241点
+	FUAITYPE_HUMANPOSE2D=1<<8,			//2D身体点位，7.0.0可使用FUAITYPE_HUMAN_PROCESSOR_2D_DANCE
+	FUAITYPE_BACKGROUNDSEGMENTATION_GREEN=1<<9,//绿幕分割
+	FUAITYPE_FACEPROCESSOR=1<<10，				//人脸算法模块，默认带低质量高性能表情跟踪
+	FUAITYPE_FACEPROCESSOR_FACECAPTURE = 1 << 11,	//高质量表情跟踪
+  	FUAITYPE_FACEPROCESSOR_FACECAPTURE_TONGUETRACKING = 1 << 12,	//高质量表情跟踪模式下额外进行舌头追踪
+  	FUAITYPE_FACEPROCESSOR_HAIRSEGMENTATION = 1 << 13,	//人脸算法模式下进行头发分割
+  	FUAITYPE_FACEPROCESSOR_HEADSEGMENTATION = 1 << 14,	//人脸算法模式下进行头部分割
+  	FUAITYPE_HUMAN_PROCESSOR = 1 << 15,			//人体算法模块
+  	FUAITYPE_HUMAN_PROCESSOR_DETECT = 1 << 16,	//人体算法模式下进行每帧都进行全图人体检测，性能相对较差
+  	FUAITYPE_HUMAN_PROCESSOR_2D_SELFIE = 1 << 17,//人体算法模式下进行2D半身点位
+  	FUAITYPE_HUMAN_PROCESSOR_2D_DANCE = 1 << 18,//人体算法模式下进行2D全身点位
+  	FUAITYPE_HUMAN_PROCESSOR_3D_SELFIE = 1 << 19,//人体算法模式下进行3D半身点位
+  	FUAITYPE_HUMAN_PROCESSOR_3D_DANCE = 1 << 20,//人体算法模式下进行3D全身点位
+  	FUAITYPE_HUMAN_PROCESSOR_SEGMENTATION = 1 << 21 //人体算法模式下进行人体分割
     }
 ```
 
@@ -352,6 +370,18 @@ __返回值:__
 __备注:__
 
 这个接口会**立即**生效。
+
+AI能力会随SDK一起发布，存放在Assets\StreamingAssets\faceunity目录中。
+- ai_bgseg.bytes 为背景分割AI能力模型，对应FUAITYPE_BACKGROUNDSEGMENTATION。7.0.0之后版本，可以统一使用ai_human_processor.bytes 对应的全身mask模块。
+- ai_hairseg.bytes 为头发分割AI能力模型，对应FUAITYPE_HAIRSEGMENTATION。7.0.0之后版本，可以统一使用ai_face_processor.bytes 对应的头发mask模块。
+- ai_hand_processor.bundle ( ai_gesture.bundle 7.2.0 后废弃） 为手势识别AI能力模型，对应FUAITYPE_HANDGESTURE。 
+- ai_facelandmarks75.bytes 为脸部特征点75点AI能力模型。	//废弃
+- ai_facelandmarks209.bytes 为脸部特征点209点AI能力模型。	//废弃
+- ai_facelandmarks239.bytes  为脸部特征点239点AI能力模型。	//废弃
+- ai_humanpose.bytes  为人体2D点位AI能力模型，对应FUAITYPE_HUMANPOSE2D。7.0.0之后版本，可以统一使用ai_human_processor.bytes 对应的人体点位模块。
+- ai_bgseg_green.bytes  为绿幕背景分割AI能力模型，对应FUAITYPE_BACKGROUNDSEGMENTATION_GREEN。
+- ai_face_processor.bytes 为人脸特征点、表情跟踪以及头发mask、头部maskAI能力模型，需要默认加载，对应FUAITYPE_FACEPROCESSOR。__注意:__ 桌面版(windows pc, mac)请使用ai_face_processor_pc.bytes , ai_face_processor.bytes 和 ai_face_processor_pc.bytes 功能相同，针对pc进行性能优化版本。。
+- ai_human_processor.bytes 为人体算法能力模型，包括人体检测、2D人体关键点（全身、半身）、人体3D骨骼（全身、半身）、人像mask、动作识别等能力，对应FUAITYPE_HUMAN_PROCESSOR。__注意:__ 桌面版(windows pc, mac)请使用ai_human_processor_pc.bytes , ai_human_processor_pc.bytes  和 ai_human_processor.bytes 功能相同，针对pc进行性能优化版本。
 
 ------
 
@@ -1485,7 +1515,7 @@ __备注:__
 
 ##### fu_EnableLog 函数
 
-开启UnityPlugin层的Log。PC平台需要自行开启Unity控制台，或者配合RegisterDebugCallback开启Unity内Log。
+开启UnityPlugin层的Log。PC平台需要自行开启Unity控制台（fu_EnableLogConsole），或者配合RegisterDebugCallback开启Unity内Log。
 
 ```c#
  public static extern void fu_EnableLog(bool isenable);
@@ -1506,6 +1536,8 @@ __备注:__
 ------
 
 ##### fuSetLogLevel 函数
+
+使用fu_EnableLogConsole开启控制台，再使用本接口设置日志等级
 
 设置当前日志级别，默认INFO级别。设置FU_LOG_LEVEL_OFF时关闭全部日志，设置日志时大于等于当前级别的日志才能正常输出。PC平台需要自行开启Unity控制台。
 
@@ -1836,6 +1868,26 @@ __参数:__
 __备注:__  
 
 这个接口会**立即**生效。
+
+------
+
+##### fu_EnableLogConsole 函数
+
+开启控制台，**仅Windows环境下有效**，可以用来看NAMA SDK输出的log（不包括使用fu_EnableLog 函数开启的UnityPlugin层的Log），同时使用fuSetLogLevel 控制日志等级
+
+```C
+public static extern void fu_EnableLogConsole(bool isenable);
+```
+
+__参数:__  
+
+*isenable [in]*：true为开启，false为关闭
+
+__备注:__  
+
+这个接口会**立即**生效。
+
+请在初始化（fu_Setup）之前开启
 
 ------
 

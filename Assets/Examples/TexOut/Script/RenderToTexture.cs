@@ -354,6 +354,7 @@ public class RenderToTexture : MonoBehaviour
                 //    img_bytes[4 * i + 3] = 1;
                 //}
                 FaceunityWorker.SetImage(p_img_ptr, (int)FaceunityWorker.FU_ADM_FLAG.FU_ADM_FLAG_FLIP_X, false, (int)NatCam.Camera.PreviewResolution.x, (int)NatCam.Camera.PreviewResolution.y);   //传输数据方法之一
+                //FaceunityWorker.SetImageTexId((int)tex.GetNativeTexturePtr(), (int)FaceunityWorker.FU_ADM_FLAG.FU_ADM_FLAG_FLIP_X, (int)NatCam.Camera.PreviewResolution.x, (int)NatCam.Camera.PreviewResolution.y);
             }
         }
 
@@ -741,37 +742,59 @@ public class RenderToTexture : MonoBehaviour
         if (item.name.CompareTo(ItemConfig.item_5[3].name) == 0)
         {
             FaceunityWorker.fuItemSetParamd(itemid, "rotationAngle", (int)DispatchUtility.Orientation * 90);
+        }       
+        else if(item.type == ItemType.GestureRecognition)
+        {
+            FaceunityWorker.fuItemSetParamd(itemid, "isRuningInUnity", 1);
+            //FaceunityWorker.fuItemSetParamd(itemid, "rotationMode", 1);
+
+            FaceunityWorker.fuItemSetParamd(itemid, "isNeedFlipX", ifMirrored ? 0 : 1);
+            FaceunityWorker.fuItemSetParamd(itemid, "isNeedFlipY", ifMirrored ? 0 : 1);
         }
 #endif
 #if (UNITY_IOS) && (!UNITY_EDITOR)
-        ifMirrored=false;
+        ifMirrored = false;
         if (item.name.CompareTo(ItemConfig.item_8[0].name)==0 || item.name.CompareTo(ItemConfig.item_8[1].name) == 0 || item.name.CompareTo(ItemConfig.item_8[2].name) == 0)
         {
             FaceunityWorker.fuItemSetParamd(itemid, "rotMode", 2);
-        }
-        else if (item.type == ItemType.GestureRecognition)
+        }        
+        else if(item.type == ItemType.GestureRecognition)
         {
-            FaceunityWorker.fuItemSetParamd(itemid, "loc_x_flip", 1.0);
+            FaceunityWorker.fuItemSetParamd(itemid, "isRuningInUnity", 1);
+            //FaceunityWorker.fuItemSetParamd(itemid, "rotationMode", 1);
+
+            //FaceunityWorker.fuItemSetParamd(itemid, "isNeedFlipX", ifMirrored ? 0 : 1);
+            //FaceunityWorker.fuItemSetParamd(itemid, "isNeedFlipY", ifMirrored ? 0 : 1);
         }
 #endif
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
         if (item.name.CompareTo(ItemConfig.item_8[0].name) == 0 || item.name.CompareTo(ItemConfig.item_8[1].name) == 0 || item.name.CompareTo(ItemConfig.item_8[2].name) == 0)
         {
             FaceunityWorker.fuItemSetParamd(itemid, "rotMode", 2);
+            FaceunityWorker.fuItemSetParamd(itemid, "particleDirMode", 3);
         }
-        else if (item.type == ItemType.GestureRecognition)
+        else if(item.type == ItemType.GestureRecognition)
         {
-            FaceunityWorker.fuItemSetParamd(itemid, "loc_x_flip", 1.0);
+            FaceunityWorker.fuItemSetParamd(itemid, "isRuningInUnity", 1);
+            //FaceunityWorker.fuItemSetParamd(itemid, "rotationMode", 1);
+
+            //FaceunityWorker.fuItemSetParamd(itemid, "isNeedFlipX", 1);
+            //FaceunityWorker.fuItemSetParamd(itemid, "isNeedFlipY", 1);
         }
 #endif
 #if UNITY_STANDALONE_OSX || UNITY_EDITOR_OSX
         if (item.name.CompareTo(ItemConfig.item_8[0].name) == 0 || item.name.CompareTo(ItemConfig.item_8[1].name) == 0 || item.name.CompareTo(ItemConfig.item_8[2].name) == 0)
         {
             FaceunityWorker.fuItemSetParamd(itemid, "rotMode", 2);
-        }
-        else if (item.type == ItemType.GestureRecognition)
+            FaceunityWorker.fuItemSetParamd(itemid, "particleDirMode", 3);
+        }        
+        else if(item.type == ItemType.GestureRecognition)
         {
-            FaceunityWorker.fuItemSetParamd(itemid, "loc_x_flip", 1.0);
+            FaceunityWorker.fuItemSetParamd(itemid, "isRuningInUnity", 1);
+            //FaceunityWorker.fuItemSetParamd(itemid, "rotationMode", 1);
+
+            //FaceunityWorker.fuItemSetParamd(itemid, "isNeedFlipX", 1);
+            //FaceunityWorker.fuItemSetParamd(itemid, "isNeedFlipY", 1);
         }
 #endif
 
