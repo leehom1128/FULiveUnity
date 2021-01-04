@@ -58,7 +58,6 @@ public class UIManagerForTexOut : MonoBehaviour
     Dictionary<Makeup, GameObject> MakeupGOs = new Dictionary<Makeup, GameObject>();
     GameObject currentSelected;
     string currentSelectedMakeupName = BeautyConfig.makeupGroup_1[0].name;
-    float currentMakeupfilterV = 0;
     string BeautySkinItemName;
     string MakeupItemName;
 
@@ -96,6 +95,7 @@ public class UIManagerForTexOut : MonoBehaviour
         Item = 1,
         CommonFilter,
         Makeup,
+        Makeup_bundle,
     };
 
     void Awake()
@@ -601,10 +601,6 @@ public class UIManagerForTexOut : MonoBehaviour
                 BeautySkin_Slider.onValueChanged.AddListener(delegate
                 {
                     rtt.SetItemParamd(MakeupItemName, "makeup_intensity", BeautySkin_Slider.value);
-                    float v = BeautySkin_Slider.value * currentMakeupfilterV;
-                    v = v > 1 ? 1 : v;
-                    v = v < 0 ? 0 : v;
-                    rtt.SetItemParamd(BeautySkinItemName, "filter_level", v);
                 });
                 BeautySkinContentPanels[1].SetActive(true);
             }
@@ -723,7 +719,7 @@ public class UIManagerForTexOut : MonoBehaviour
         option.transform.localPosition = Vector3.zero;
         option.name = makeupitem.name;
         option.GetComponentInChildren<Text>().text = makeupitem.name;
-        option.GetComponentInChildren<Image>().sprite = uisprites.GetSprite(ItemType.Makeup, makeupitem.iconid);
+        option.GetComponentInChildren<Image>().sprite = uisprites.GetSprite(ItemType.Makeup, makeupitem.item.iconid);
 
         if (MakeupGOs.ContainsKey(makeupitem))
             MakeupGOs.Remove(makeupitem);
@@ -739,8 +735,8 @@ public class UIManagerForTexOut : MonoBehaviour
                 }
                 go.transform.Find("Image_bg").gameObject.SetActive(true);
             }
+
             currentSelectedMakeupName = makeupitem.name;
-            currentMakeupfilterV = makeupitem.filter_intensity / makeupitem.intensity;
 
             if (makeupitem.intensity <= 0)
             {
@@ -750,26 +746,12 @@ public class UIManagerForTexOut : MonoBehaviour
             {
                 rtt.SetItemParamd((int)SlotForItems.Makeup, "is_makeup_on", 1);
                 rtt.SetItemParamd((int)SlotForItems.Makeup, "makeup_intensity", makeupitem.intensity);
-
-                rtt.SetItemParamdv((int)SlotForItems.Makeup, "makeup_lip_color", makeupitem.Lipstick_color);
-                rtt.SetItemParamd((int)SlotForItems.Makeup, "makeup_intensity_lip", makeupitem.Lipstick_intensity);
-                rtt.SetItemParamd((int)SlotForItems.Makeup, "makeup_lip_mask", 1.0);
-
-                CreateTexForItem(uisprites.GetTexture(MakeupType.Blush, makeupitem.Blush_id), "tex_blusher");
-                rtt.SetItemParamd((int)SlotForItems.Makeup, "makeup_intensity_blusher", makeupitem.Blush_intensity);
-
-                CreateTexForItem(uisprites.GetTexture(MakeupType.Eyebrow, makeupitem.Eyebrow_id), "tex_brow");
-                rtt.SetItemParamd((int)SlotForItems.Makeup, "makeup_intensity_eyeBrow", makeupitem.Eyebrow_intensity);
-
-                CreateTexForItem(uisprites.GetTexture(MakeupType.Eyeshadow, makeupitem.Eyeshadow_id), "tex_eye");
-                rtt.SetItemParamd((int)SlotForItems.Makeup, "makeup_intensity_eye", makeupitem.Eyeshadow_intensity);
-
-                rtt.SetItemParams(BeautySkinItemName, "filter_name", makeupitem.filter_name);
-                rtt.SetItemParamd(BeautySkinItemName, "filter_level", makeupitem.filter_intensity);
             }
 
             if (string.Compare(BeautyConfig.makeupGroup_1[0].name, makeupitem.name, true) != 0)
             {
+                StartCoroutine(LoadMakeupBundle(makeupitem));
+
                 BeautySkin_Slider.onValueChanged.RemoveAllListeners();
                 BeautySkin_Slider.minValue = 0;
                 BeautySkin_Slider.maxValue = 1;
@@ -777,31 +759,31 @@ public class UIManagerForTexOut : MonoBehaviour
                 BeautySkin_Slider.onValueChanged.AddListener(delegate
                 {
                     rtt.SetItemParamd(MakeupItemName, "makeup_intensity", BeautySkin_Slider.value);
-                    float v = BeautySkin_Slider.value * currentMakeupfilterV;
-                    v = v > 1 ? 1 : v;
-                    v = v < 0 ? 0 : v;
-                    rtt.SetItemParamd(BeautySkinItemName, "filter_level", v);
                 });
                 BeautySkinContentPanels[1].SetActive(true);
             }
             else
             {
+                UnLoadMakeupBundle();
+
                 BeautySkin_Slider.onValueChanged.RemoveAllListeners();
                 BeautySkinContentPanels[1].SetActive(false);
             }
-
         });
         return option;
     }
 
-    void CreateTexForItem(Texture2D tex, string name)
+    IEnumerator LoadMakeupBundle(Makeup makeupitem)
     {
-        var newtex = rtt.AdjustTex(tex, 0, 0, 1);   //纹理需要在Y轴镜像一下
-        var webtexdata = newtex.GetPixels32();
-        var tex_handle = GCHandle.Alloc(webtexdata, GCHandleType.Pinned);
-        var p_tex_ptr = tex_handle.AddrOfPinnedObject();
-        rtt.CreateTexForItem((int)SlotForItems.Makeup, name, p_tex_ptr, newtex.width, newtex.height);
-        tex_handle.Free();
+        rtt.UnBindItem((int)SlotForItems.Makeup, (int)SlotForItems.Makeup_bundle);
+        yield return rtt.LoadItem(makeupitem.item, (int)SlotForItems.Makeup_bundle);
+        rtt.BindItem((int)SlotForItems.Makeup, (int)SlotForItems.Makeup_bundle);
+    }
+
+    void UnLoadMakeupBundle()
+    {
+        rtt.UnBindItem((int)SlotForItems.Makeup, (int)SlotForItems.Makeup_bundle);
+        rtt.UnLoadItem((int)SlotForItems.Makeup_bundle);
     }
 
     void SwitchBeautyOptionUIState(Beauty bi, GameObject go)

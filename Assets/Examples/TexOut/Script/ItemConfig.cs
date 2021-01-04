@@ -188,19 +188,8 @@ public class Makeup
 {
     public string name = "";    //参数名字
     public float intensity = 1.0f;  //整体强度0~1
-    public int iconid = -1; //UI的ID
-
-    public double[] Lipstick_color = new double[4] { 0, 0, 0, 0 };  //口红颜色
-    public float Lipstick_intensity = 0;    //口红强度
-    public int Blush_id = -1;   //腮红类型ID（腮红本质是一张图）
-    public float Blush_intensity = 0;   //腮红强度
-    public int Eyebrow_id = -1; //眉毛类型ID
-    public float Eyebrow_intensity = 0; //眉毛强度
-    public int Eyeshadow_id = -1;   //眼影类型ID
-    public float Eyeshadow_intensity = 0;   //眼影强度
-
-    public string filter_name = ""; //滤镜名字
-    public float filter_intensity = 0;  //滤镜强度
+    
+    public Item item;
 }
 
 //美颜类型，在这个场景里质感美颜是美颜的一个子集，实际产品划分上美妆和美颜是平级的
@@ -270,30 +259,33 @@ public class BeautyConfig
 
     public static Makeup[] makeupGroup_1 =
     {
-        new Makeup { name="卸妆", intensity = 0.0f, iconid = 0, filter_name = "origin", filter_intensity = 1.0f},
-        new Makeup { name="桃花", intensity = 0.9f, iconid = 1,
-            Lipstick_color = new double[4] { 0.90,0.21,0.49,0.3 },Lipstick_intensity = 0.9f,
-            Blush_id = 0, Blush_intensity = 0.9f,
-            Eyebrow_id = 0, Eyebrow_intensity = 0.5f,
-            Eyeshadow_id = 0, Eyeshadow_intensity = 0.9f,
-            filter_name = "fennen3", filter_intensity = 1.0f},
-        new Makeup { name="西柚", intensity = 1.0f, iconid = 2,
-            Lipstick_color = new double[4] { 0.94,0.29,0.11,0.4 },Lipstick_intensity = 0.8f,
-            Blush_id = 1, Blush_intensity = 1.0f,
-            Eyebrow_id = 18, Eyebrow_intensity = 0.6f,
-            Eyeshadow_id = 20, Eyeshadow_intensity = 0.75f,
-            filter_name = "lengsediao4", filter_intensity = 0.7f},
-        new Makeup { name="清透", intensity = 0.9f, iconid = 3,
-            Lipstick_color = new double[4] { 0.89,0.59,0.58,0.50 },Lipstick_intensity = 0.8f,
-            Blush_id = 2, Blush_intensity = 0.9f,
-            Eyebrow_id = 17, Eyebrow_intensity = 0.45f,
-            Eyeshadow_id = 19, Eyeshadow_intensity = 0.65f,
-            filter_name = "xiaoqingxin1", filter_intensity = 0.8f},
-        new Makeup { name="男友", intensity = 1.0f, iconid = 4,
-            Lipstick_color = new double[4] { 0.88,0.55,0.51,0.70 },Lipstick_intensity = 1.0f,
-            Blush_id = 3, Blush_intensity = 0.8f,
-            Eyebrow_id = 15, Eyebrow_intensity = 0.65f,
-            Eyeshadow_id = 17, Eyeshadow_intensity = 0.9f,
-            filter_name = "xiaoqingxin3", filter_intensity = 0.9f},
+        new Makeup { name="卸妆", intensity = 0.0f,
+            item = new Item { name = "", fullname = "", iconid = 0 ,type = ItemType.Makeup}},
+        new Makeup { name="减龄", intensity = 1.0f,
+            item = new Item { name = "jianling", fullname = "items/Makeup/jianling", iconid = 1, type = ItemType.Makeup}},
+        new Makeup { name="暖冬", intensity = 1.0f,
+            item = new Item { name = "nuandong", fullname = "items/Makeup/nuandong", iconid = 2, type = ItemType.Makeup}},
+        new Makeup { name="红枫", intensity = 1.0f,
+            item = new Item { name = "hongfeng", fullname = "items/Makeup/hongfeng", iconid = 3, type = ItemType.Makeup}},
+        new Makeup { name="Rose", intensity = 1.0f,
+            item = new Item { name = "rose", fullname = "items/Makeup/rose", iconid = 4, type = ItemType.Makeup}},
+        new Makeup { name="少女", intensity = 1.0f,
+            item = new Item { name = "shaonv", fullname = "items/Makeup/shaonv", iconid = 5, type = ItemType.Makeup}},
+        new Makeup { name="紫韵", intensity = 1.0f,
+            item = new Item { name = "ziyun", fullname = "items/Makeup/ziyun", iconid = 6, type = ItemType.Makeup}},
+        new Makeup { name="厌世猫", intensity = 1.0f,
+            item = new Item { name = "yanshimao", fullname = "items/Makeup/yanshimao", iconid = 7, type = ItemType.Makeup}},
+        new Makeup { name="人鱼", intensity = 1.0f,
+            item = new Item { name = "renyu", fullname = "items/Makeup/renyu", iconid = 8, type = ItemType.Makeup}},
+        new Makeup { name="初秋", intensity = 1.0f,
+            item = new Item { name = "chuqiu", fullname = "items/Makeup/chuqiu", iconid = 9, type = ItemType.Makeup}},
+        new Makeup { name="千纸鹤", intensity = 1.0f,
+            item = new Item { name = "qianzhihe", fullname = "items/Makeup/qianzhihe", iconid = 10, type = ItemType.Makeup}},
+        new Makeup { name="超模", intensity = 1.0f,
+            item = new Item { name = "chaomo", fullname = "items/Makeup/chaomo", iconid = 11, type = ItemType.Makeup}},
+        new Makeup { name="雏菊", intensity = 1.0f,
+            item = new Item { name = "chuju", fullname = "items/Makeup/chuju", iconid = 12, type = ItemType.Makeup}},
+        new Makeup { name="港风", intensity = 1.0f,
+            item = new Item { name = "gangfeng", fullname = "items/Makeup/gangfeng", iconid = 13, type = ItemType.Makeup}},
     };
 }

@@ -637,6 +637,41 @@ public class RenderToTexture : MonoBehaviour
         }
     }
 
+    public void BindItem(int slotid_dst, int slotid_src)
+    {
+        if (slotid_dst >= 0 && slotid_dst < SLOTLENGTH && slotid_src >= 0 && slotid_src < SLOTLENGTH)
+        {
+            int[] value = { slot_items[slotid_src].id };
+            GCHandle vgc = GCHandle.Alloc(value, GCHandleType.Pinned);
+            IntPtr vptr = vgc.AddrOfPinnedObject();
+            FaceunityWorker.fuBindItems(slot_items[slotid_dst].id, vptr, 1);
+            Debug.LogFormat("BindItem: slotid_dst={0}, slotid_src={1}", slotid_dst, slotid_src);
+            vgc.Free();
+        }
+    }
+
+    public void UnBindItem(int slotid_dst, int slotid_src)
+    {
+        if (slotid_dst >= 0 && slotid_dst < SLOTLENGTH && slotid_src >= 0 && slotid_src < SLOTLENGTH)
+        {
+            int[] value = { slot_items[slotid_src].id };
+            GCHandle vgc = GCHandle.Alloc(value, GCHandleType.Pinned);
+            IntPtr vptr = vgc.AddrOfPinnedObject();
+            FaceunityWorker.fuUnbindItems(slot_items[slotid_dst].id, vptr, 1);
+            Debug.LogFormat("UnBindItem: slotid_dst={0}, slotid_src={1}", slotid_dst, slotid_src);
+            vgc.Free();
+        }
+    }
+
+    public void UnBindItemAll(int slotid_dst)
+    {
+        if (slotid_dst >= 0 && slotid_dst < SLOTLENGTH)
+        {
+            FaceunityWorker.fuUnbindAllItems(slot_items[slotid_dst].id);
+            Debug.LogFormat("UnBindItemAll: slotid_dst = {0}", slotid_dst);
+        }
+    }
+
     /**\brief 给道具设置一个数组\param itemname 道具的名字\param paramdname  关联数组的关键词\param value  要设置的数组\return 无*/
     public void SetItemParamdv(string itemname, string paramdname, double[] value)
     {
@@ -751,6 +786,10 @@ public class RenderToTexture : MonoBehaviour
             FaceunityWorker.fuItemSetParamd(itemid, "isNeedFlipX", ifMirrored ? 0 : 1);
             FaceunityWorker.fuItemSetParamd(itemid, "isNeedFlipY", ifMirrored ? 0 : 1);
         }
+        else if (item.type == ItemType.Makeup)
+        {
+            FaceunityWorker.fuItemSetParamd(itemid, "is_flip_points", ifMirrored ? 1 : 0);
+        }
 #endif
 #if (UNITY_IOS) && (!UNITY_EDITOR)
         ifMirrored = false;
@@ -765,6 +804,10 @@ public class RenderToTexture : MonoBehaviour
 
             //FaceunityWorker.fuItemSetParamd(itemid, "isNeedFlipX", ifMirrored ? 0 : 1);
             //FaceunityWorker.fuItemSetParamd(itemid, "isNeedFlipY", ifMirrored ? 0 : 1);
+        }
+        else if (item.type == ItemType.Makeup)
+        {
+            FaceunityWorker.fuItemSetParamd(itemid, "is_flip_points", ifMirrored ? 1 : 0);
         }
 #endif
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
@@ -781,6 +824,10 @@ public class RenderToTexture : MonoBehaviour
             //FaceunityWorker.fuItemSetParamd(itemid, "isNeedFlipX", 1);
             //FaceunityWorker.fuItemSetParamd(itemid, "isNeedFlipY", 1);
         }
+        else if (item.type == ItemType.Makeup)
+        {
+            FaceunityWorker.fuItemSetParamd(itemid, "is_flip_points", 1);
+        }
 #endif
 #if UNITY_STANDALONE_OSX || UNITY_EDITOR_OSX
         if (item.name.CompareTo(ItemConfig.item_8[0].name) == 0 || item.name.CompareTo(ItemConfig.item_8[1].name) == 0 || item.name.CompareTo(ItemConfig.item_8[2].name) == 0)
@@ -795,6 +842,10 @@ public class RenderToTexture : MonoBehaviour
 
             //FaceunityWorker.fuItemSetParamd(itemid, "isNeedFlipX", 1);
             //FaceunityWorker.fuItemSetParamd(itemid, "isNeedFlipY", 1);
+        }
+        else if (item.type == ItemType.Makeup)
+        {
+            FaceunityWorker.fuItemSetParamd(itemid, "is_flip_points", 1);
         }
 #endif
 

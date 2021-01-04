@@ -410,6 +410,38 @@ public class FaceunityWorker : MonoBehaviour
     [DllImport(nama_name, CallingConvention = CallingConvention.Cdecl)]
     public static extern int fuDeleteTexForItem(int itemid, [MarshalAs(UnmanagedType.LPStr)]string name);
 
+
+    /**
+ \brief Bind items to target item, target item act as a controller,target item
+ should has 'OnBind' function, already bound items won't be unbound
+ \param obj_handle is the target item handle
+ \param p_items points to a list of item handles to be bound to the  target item
+ \param n_items is the number of item handles in p_items
+ \return the number of items newly bound to the avatar
+*/
+    [DllImport(nama_name, CallingConvention = CallingConvention.Cdecl)]
+    public static extern int fuBindItems(int obj_handle, IntPtr p_items, int n_items);
+
+    /**
+     \brief Unbind items from the target item
+     \param obj_hand is the target item handle
+     \param p_items points to a list of item handles to be unbound from the target
+     item
+     \param n_items is the number of item handles in p_items
+     \return the number of items unbound from the target item
+*/
+    [DllImport(nama_name, CallingConvention = CallingConvention.Cdecl)]
+    public static extern int fuUnbindItems(int obj_handle, IntPtr p_items, int n_items);
+
+    /**
+     \brief Unbind all items from the target item
+     \param obj_handle is the target item handle
+     \return the number of items unbound from the target item
+*/
+    [DllImport(nama_name, CallingConvention = CallingConvention.Cdecl)]
+    public static extern int fuUnbindAllItems(int obj_handle);
+
+
     /**
 \brief Set an item parameter to a double value
 \param item specifies the item
@@ -619,13 +651,15 @@ public class FaceunityWorker : MonoBehaviour
         FUAITYPE_FACEPROCESSOR_FACECAPTURE_TONGUETRACKING = 1 << 12,
         FUAITYPE_FACEPROCESSOR_HAIRSEGMENTATION = 1 << 13,
         FUAITYPE_FACEPROCESSOR_HEADSEGMENTATION = 1 << 14,
-        FUAITYPE_HUMAN_PROCESSOR = 1 << 15,
-        FUAITYPE_HUMAN_PROCESSOR_DETECT = 1 << 16,
-        FUAITYPE_HUMAN_PROCESSOR_2D_SELFIE = 1 << 17,
-        FUAITYPE_HUMAN_PROCESSOR_2D_DANCE = 1 << 18,
-        FUAITYPE_HUMAN_PROCESSOR_3D_SELFIE = 1 << 19,
-        FUAITYPE_HUMAN_PROCESSOR_3D_DANCE = 1 << 20,
-        FUAITYPE_HUMAN_PROCESSOR_SEGMENTATION = 1 << 21
+        FUAITYPE_FACEPROCESSOR_EXPRESSION_RECOGNIZER = 1 << 15,
+        FUAITYPE_HUMAN_PROCESSOR = 1 << 16,
+        FUAITYPE_HUMAN_PROCESSOR_DETECT = 1 << 17,
+        FUAITYPE_HUMAN_PROCESSOR_2D_SELFIE = 1 << 18,
+        FUAITYPE_HUMAN_PROCESSOR_2D_DANCE = 1 << 19,
+        FUAITYPE_HUMAN_PROCESSOR_2D_SLIM = 1 << 20,
+        FUAITYPE_HUMAN_PROCESSOR_3D_SELFIE = 1 << 21,
+        FUAITYPE_HUMAN_PROCESSOR_3D_DANCE = 1 << 22,
+        FUAITYPE_HUMAN_PROCESSOR_SEGMENTATION = 1 << 23
     }
 
     public enum FUAI_CAMERA_VIEW
@@ -805,6 +839,9 @@ public class FaceunityWorker : MonoBehaviour
 
     public SETUPMODE SetupMode = SETUPMODE.Normal;
     public bool EnableGetNamaSystemError = false;
+    public bool EnableNamaLogToConsole = false;
+    public bool EnableNamaLogToFile = false;
+    public FULOGLEVEL loglevel = FULOGLEVEL.FU_LOG_LEVEL_OFF;
 
     [HideInInspector]
     public int m_need_update_facenum = 0;
@@ -890,9 +927,19 @@ public class FaceunityWorker : MonoBehaviour
 //            fu_RegisterDebugCallback(new DebugCallback(DebugMethod));
 //#endif
             fu_EnableLog(false);
-            //fu_EnableLogConsole(true);
-            fuSetLogLevel(FULOGLEVEL.FU_LOG_LEVEL_OFF);
-            //fuOpenFileLog(Application.persistentDataPath + "/Log/log.txt", 10000000, 10);
+
+            fuSetLogLevel(loglevel);
+            if (EnableNamaLogToConsole)
+            {
+                fu_EnableLogConsole(true);
+            }
+            if (EnableNamaLogToFile)
+            {
+                //windows上用这个方法才能看到log
+                var logpath = Application.persistentDataPath + "/Log/log.txt";
+                fuOpenFileLog(logpath, 10000000, 10);
+                Debug.LogFormat("fuOpenFileLog logpath = {0}", logpath);
+            }
 
             Debug.Log("fuIsLibraryInit:   " + fuIsLibraryInit());
             if (m_plugin_inited == false)
@@ -1014,15 +1061,16 @@ public class FaceunityWorker : MonoBehaviour
                                 m_licdata_handle.Free();
                             //if (m_v3data_handle.IsAllocated)
                             //    m_v3data_handle.Free();
-
-                            yield return LoadAIBundle("ai_face_processor.bytes", FUAITYPE.FUAITYPE_FACEPROCESSOR);
+                            
                             //yield return LoadAIBundle("ai_bgseg.bytes", FUAITYPE.FUAITYPE_BACKGROUNDSEGMENTATION);
                             //yield return LoadAIBundle("ai_bgseg_green.bytes", FUAITYPE.FUAITYPE_BACKGROUNDSEGMENTATION_GREEN);
                             //yield return LoadAIBundle("ai_hairseg.bytes", FUAITYPE.FUAITYPE_HAIRSEGMENTATION); 
 #if UNITY_EDITOR || UNITY_STANDALONE
+                            yield return LoadAIBundle("ai_face_processor_pc.bytes", FUAITYPE.FUAITYPE_FACEPROCESSOR);
                             yield return LoadAIBundle("ai_hand_processor_pc.bytes", FUAITYPE.FUAITYPE_HANDGESTURE);
                             yield return LoadAIBundle("ai_human_processor_pc.bytes", FUAITYPE.FUAITYPE_HUMAN_PROCESSOR);
 #else
+                            yield return LoadAIBundle("ai_face_processor.bytes", FUAITYPE.FUAITYPE_FACEPROCESSOR);
                             yield return LoadAIBundle("ai_hand_processor.bytes", FUAITYPE.FUAITYPE_HANDGESTURE);
                             yield return LoadAIBundle("ai_human_processor.bytes", FUAITYPE.FUAITYPE_HUMAN_PROCESSOR);
 #endif

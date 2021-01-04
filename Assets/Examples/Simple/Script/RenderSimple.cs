@@ -156,6 +156,7 @@ public class RenderSimple : MonoBehaviour {
     //四种数据输入格式，详见文档
     public enum UpdateDataMode
     {
+        None,
         NV21,
         Dual,
         Image,
@@ -184,7 +185,15 @@ public class RenderSimple : MonoBehaviour {
         {
             if (wtex.didUpdateThisFrame)
             {
-                if (updateDataMode == UpdateDataMode.ImageTexId)
+                if(updateDataMode == UpdateDataMode.None)
+                {
+                    if (RawImg_BackGroud != null)
+                    {
+                        RawImg_BackGroud.texture = wtex;
+                        RawImg_BackGroud.gameObject.SetActive(true);
+                    }
+                }
+                else if (updateDataMode == UpdateDataMode.ImageTexId)
                 {
                     UpdateData(IntPtr.Zero, (int)wtex.GetNativeTexturePtr(), wtex.width, wtex.height, updateDataMode);
                 }

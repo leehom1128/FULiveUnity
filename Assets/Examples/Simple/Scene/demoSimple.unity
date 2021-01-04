@@ -194,7 +194,7 @@ MonoBehaviour:
   InputTex: {fileID: 0}
   InputRenderTexture: {fileID: 8400000, guid: eb5dbc14589fcac4e9cc2946484f23d1, type: 2}
   LoadBundleName: 
-  updateDataMode: 2
+  updateDataMode: 3
 --- !u!114 &51551133
 MonoBehaviour:
   m_ObjectHideFlags: 0

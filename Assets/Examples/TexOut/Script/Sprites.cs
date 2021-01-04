@@ -47,11 +47,6 @@ public class Sprites : MonoBehaviour {
     public Sprite[] PortraitDrive;
     Dictionary<ItemType,Sprite[]> spritelist = new Dictionary<ItemType,Sprite[]>();
 
-    public Texture2D[] MakeupBlush;
-    public Texture2D[] MakeupEyebrow;
-    public Texture2D[] MakeupEyeshadow;
-    Dictionary<MakeupType, Texture2D[]> texlist = new Dictionary<MakeupType, Texture2D[]>();
-
     private void Awake()
     {
         beautyspritelist.Clear();
@@ -74,10 +69,6 @@ public class Sprites : MonoBehaviour {
         spritelist.Add(ItemType.MagicMirror, MagicMirror);
         spritelist.Add(ItemType.PortraitLightEffect, PortraitLightEffect);
         spritelist.Add(ItemType.PortraitDrive, PortraitDrive);
-
-        texlist.Add(MakeupType.Blush, MakeupBlush);
-        texlist.Add(MakeupType.Eyebrow, MakeupEyebrow);
-        texlist.Add(MakeupType.Eyeshadow, MakeupEyeshadow);
     }
 
 
@@ -103,21 +94,6 @@ public class Sprites : MonoBehaviour {
             var sprites = beautyspritelist[type];
             if (id >= 0 && id < sprites.Length)
                 return sprites[id];
-            else
-                return null;
-        }
-        else
-            return null;
-    }
-
-    /**\brief 获取Texture2D，主要是给美妆用\param type 美妆类型\param id 美妆ID\return Texture2D*/
-    public Texture2D GetTexture(MakeupType type, int id)
-    {
-        if (texlist.ContainsKey(type))
-        {
-            var tex = texlist[type];
-            if (id >= 0 && id < tex.Length)
-                return tex[id];
             else
                 return null;
         }
